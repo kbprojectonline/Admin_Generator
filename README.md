@@ -119,7 +119,7 @@
         .modal-btns button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; }
     </style>
 </head>
-<body style="zoom: 0.9;">
+<body>
 
     <div id="custom-toast"></div>
     <div id="custom-overlay">
@@ -196,11 +196,32 @@
 
     </div>
 
-    <script>
-        function setZoom(val) { document.body.style.zoom = val; }
+<script>
+        // Fungsi untuk mengatur zoom dan menyimpannya di memori browser
+        function setZoom(val) { 
+            document.body.style.zoom = val; 
+            localStorage.setItem('savedZoom', val); // Simpan pilihan user
+        }
+
+        // Fungsi buka tutup menu
         function toggleZoomMenu() {
             const menu = document.getElementById('zoom-menu-box');
             menu.classList.toggle('show-menu');
+        }
+
+        // Jalankan otomatis saat browser di-refresh
+        window.onload = function() {
+            // Cek apakah ada simpanan zoom sebelumnya? Jika tidak ada, pakai 0.6 (Level 2)
+            const lastZoom = localStorage.getItem('savedZoom') || "0.6";
+            
+            // Terapkan zoom ke layar
+            document.body.style.zoom = lastZoom;
+            
+            // Sesuaikan pilihan di dropdown menu agar sama dengan layar
+            const selectBox = document.getElementById('zoom-level');
+            if(selectBox) {
+                selectBox.value = lastZoom;
+            }
         }
     </script>
 
