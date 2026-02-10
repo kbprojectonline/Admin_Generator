@@ -141,10 +141,10 @@
                 <label>Ukuran Layar:</label>
                 <select id="zoom-level" onchange="setZoom(this.value)">
                     <option value="0.5">Level 1 (50%)</option>
-                    <option value="0.6">Level 2 (Normal)</option>
+                    <option value="0.6" selected>Level 2 (Normal)</option>
                     <option value="0.7">Level 3 (70%)</option>
                     <option value="0.8">Level 4 (80%)</option>
-                    <option value="0.9" selected>Level 5 (90%)</option>
+                    <option value="0.9">Level 5 (90%)</option>
                     <option value="1.0">Level 6 (100%)</option>
                     <option value="1.1">Level 7 (110%)</option>
                     <option value="1.2">Level 8 (120%)</option>
