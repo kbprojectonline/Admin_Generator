@@ -79,6 +79,8 @@
         .opt-30days { color: var(--badge-30days) !important; font-weight: bold; }
         .opt-90days { color: var(--badge-90days) !important; font-weight: bold; }
         .opt-365days { color: var(--badge-365days) !important; font-weight: bold; }
+        
+        /* Warna Text di Dropdown */
         .opt-silver { color: #7f8c8d !important; font-weight: bold; }
         .opt-gold { color: #b8860b !important; font-weight: bold; }
         .opt-diamond { color: #008b8b !important; font-weight: bold; }
@@ -100,7 +102,9 @@
         .bg-30days { background: var(--badge-30days); }
         .bg-90days { background: var(--badge-90days); }
         .bg-365days { background: var(--badge-365days); }
-        .bg-silver { background: var(--badge-silver); }
+        
+        /* Warna Badge */
+        .bg-silver { background: var(--badge-silver); color: #444; }
         .bg-gold { background: var(--badge-gold); }
         .bg-diamond { background: var(--badge-diamond); }
 
@@ -161,24 +165,34 @@
         
         <div class="form-group">
             <select id="plan-select">
-                <optgroup label="PAKET WAKTU (Premium)">
+                <optgroup label="PAKET WAKTU">
                     <option value="7_days" class="opt-7days">🗓️ Paket 7 Hari</option>
                     <option value="30_days" class="opt-30days">📅 Paket 1 Bulan</option>
                     <option value="90_days" class="opt-90days">📊 Paket 3 Bulan</option>
                     <option value="365_days" class="opt-365days">🏆 Paket 1 Tahun</option>
                 </optgroup>
                 
-                <optgroup label="PAKET KUNCI SILVER (Ecer & Grosir)">
+                <optgroup label="PAKET SILVER">
                     <option value="silver_1" class="opt-silver">🥈 1 Kunci Silver</option>
                     <option value="silver_5" class="opt-silver">🥈 5 Kunci Silver</option>
-                    <option value="silver_10" class="opt-silver">🥈 10 Kunci Silver</option>
-                    <option value="silver_20" class="opt-silver">🥈 20 Kunci Silver</option>
+                    <option value="silver" class="opt-silver">🥈 10 Kunci Silver</option> <option value="silver_20" class="opt-silver">🥈 20 Kunci Silver</option>
                     <option value="silver_50" class="opt-silver">🥈 50 Kunci Silver</option>
                     <option value="silver_100" class="opt-silver">🥈 100 Kunci Silver</option>
                 </optgroup>
-                <optgroup label="PAKET KUNCI LAINNYA">
-                    <option value="gold" class="opt-gold">👑 10 Kunci Gold</option>
-                    <option value="diamond" class="opt-diamond">💎 10 Kunci Diamond</option>
+
+                <optgroup label="PAKET GOLD">
+                    <option value="gold_1" class="opt-gold">👑 1 Kunci Gold</option>
+                    <option value="gold_5" class="opt-gold">👑 5 Kunci Gold</option>
+                    <option value="gold" class="opt-gold">👑 10 Kunci Gold</option> <option value="gold_20" class="opt-gold">👑 20 Kunci Gold</option>
+                    <option value="gold_50" class="opt-gold">👑 50 Kunci Gold</option>
+                    <option value="gold_70" class="opt-gold">👑 70 Kunci Gold</option>
+                </optgroup>
+
+                <optgroup label="PAKET DIAMOND">
+                    <option value="diamond_1" class="opt-diamond">💎 1 Kunci Diamond</option>
+                    <option value="diamond_5" class="opt-diamond">💎 5 Kunci Diamond</option>
+                    <option value="diamond" class="opt-diamond">💎 10 Kunci Diamond</option> <option value="diamond_15" class="opt-diamond">💎 15 Kunci Diamond</option>
+                    <option value="diamond_30" class="opt-diamond">💎 30 Kunci Diamond</option>
                 </optgroup>
             </select>
             
@@ -254,7 +268,6 @@
                     genBtn.innerText = "⚡ GENERATE VOUCHER (12 DIGIT)";
                     genBtn.style.background = "#2c3e50";
 
-                    // Munculkan container riwayat
                     historyContainer.style.display = "block";
                     activeListDiv.innerHTML = "Memuat data...";
                     historyListDiv.innerHTML = "Memuat riwayat...";
@@ -300,13 +313,15 @@
                     const data = snapshot.val();
                     const entries = Object.entries(data);
                     
-                    // UPDATE URUTAN SORTING SUPAYA RAPI
+                    // Sorting agar rapi (Silver 1, 5, 10, dst)
                     const sortOrder = { 
                         '7_days': 1, '30_days': 2, '90_days': 3, '365_days': 4, 
-                        'silver_1': 10, 'silver_5': 11, 'silver_10': 12, 'silver_20': 13, 'silver_50': 14, 'silver_100': 15,
-                        'silver': 12, // fallback
-                        'gold': 20, 
-                        'diamond': 30 
+                        
+                        'silver_1': 10, 'silver_5': 11, 'silver': 12, 'silver_20': 13, 'silver_50': 14, 'silver_100': 15,
+                        
+                        'gold_1': 20, 'gold_5': 21, 'gold': 22, 'gold_20': 23, 'gold_50': 24, 'gold_70': 25,
+                        
+                        'diamond_1': 30, 'diamond_5': 31, 'diamond': 32, 'diamond_15': 33, 'diamond_30': 34
                     };
                     
                     entries.sort((a, b) => (sortOrder[a[1]] || 99) - (sortOrder[b[1]] || 99));
@@ -314,8 +329,16 @@
                     let html = "";
                     entries.forEach(([code, type]) => {
                         const badge = getBadgeInfo(type);
+                        
+                        // Tentukan warna garis samping
+                        let borderColor = 'var(--badge-7days)';
+                        if(type.includes('silver')) borderColor = 'var(--badge-silver)';
+                        else if(type.includes('gold')) borderColor = 'var(--badge-gold)';
+                        else if(type.includes('diamond')) borderColor = 'var(--badge-diamond)';
+                        else if(type.includes('days')) borderColor = `var(--badge-${type.replace('_', '')})`;
+
                         html += `
-                            <div class="item-row" style="border-left-color: var(--badge-${type.includes('silver') ? 'silver' : type.replace('_', '')})">
+                            <div class="item-row" style="border-left-color: ${borderColor}">
                                 <div style="flex:1;">
                                     <span class="code-text">${code}</span>
                                     <span class="badge ${badge.css}">${badge.text}</span>
@@ -376,7 +399,7 @@
             if (historyListener) off(ref(db, 'voucher_history'));
         }
 
-        // UPDATE LOGIKA BADGE UNTUK SUPPORT VARIANT SILVER BARU
+        // FUNGSI INI SUDAH DIPERBAIKI TOTAL AGAR BACAANNYA BENAR
         function getBadgeInfo(type) {
             switch(type) {
                 // Waktu
@@ -385,18 +408,28 @@
                 case '90_days': return { text: '3 BULAN', css: 'bg-90days', label: '3 Bulan' };
                 case '365_days': return { text: '1 TAHUN', css: 'bg-365days', label: '1 Tahun' };
                 
-                // Silver Baru (Agar enak dibaca)
-                case 'silver_1': return { text: '1 SILVER', css: 'bg-silver', label: '1 Kunci Silver' };
-                case 'silver_5': return { text: '5 SILVER', css: 'bg-silver', label: '5 Kunci Silver' };
-                case 'silver_10': return { text: '10 SILVER', css: 'bg-silver', label: '10 Kunci Silver' };
-                case 'silver_20': return { text: '20 SILVER', css: 'bg-silver', label: '20 Kunci Silver' };
-                case 'silver_50': return { text: '50 SILVER', css: 'bg-silver', label: '50 Kunci Silver' };
-                case 'silver_100': return { text: '100 SILVER', css: 'bg-silver', label: '100 Kunci Silver' };
+                // SILVER (Komplit)
+                case 'silver_1': return { text: '1 KUNCI SILVER', css: 'bg-silver', label: '1 Kunci Silver' };
+                case 'silver_5': return { text: '5 KUNCI SILVER', css: 'bg-silver', label: '5 Kunci Silver' };
+                case 'silver':   return { text: '10 KUNCI SILVER', css: 'bg-silver', label: '10 Kunci Silver' }; // Kode lama (10)
+                case 'silver_20': return { text: '20 KUNCI SILVER', css: 'bg-silver', label: '20 Kunci Silver' };
+                case 'silver_50': return { text: '50 KUNCI SILVER', css: 'bg-silver', label: '50 Kunci Silver' };
+                case 'silver_100': return { text: '100 KUNCI SILVER', css: 'bg-silver', label: '100 Kunci Silver' };
 
-                // Legacy / Default
-                case 'silver': return { text: '10 SILVER (OLD)', css: 'bg-silver', label: '10 Kunci Silver' };
-                case 'gold': return { text: '10 Kunci GOLD', css: 'bg-gold', label: '10 Kunci Gold' };
-                case 'diamond': return { text: '10 Kunci DIAMOND', css: 'bg-diamond', label: '10 Kunci Diamond' };
+                // GOLD (Komplit)
+                case 'gold_1': return { text: '1 KUNCI GOLD', css: 'bg-gold', label: '1 Kunci Gold' };
+                case 'gold_5': return { text: '5 KUNCI GOLD', css: 'bg-gold', label: '5 Kunci Gold' };
+                case 'gold':   return { text: '10 KUNCI GOLD', css: 'bg-gold', label: '10 Kunci Gold' }; // Kode lama (10)
+                case 'gold_20': return { text: '20 KUNCI GOLD', css: 'bg-gold', label: '20 Kunci Gold' };
+                case 'gold_50': return { text: '50 KUNCI GOLD', css: 'bg-gold', label: '50 Kunci Gold' };
+                case 'gold_70': return { text: '70 KUNCI GOLD', css: 'bg-gold', label: '70 Kunci Gold' };
+
+                // DIAMOND (Komplit)
+                case 'diamond_1': return { text: '1 KUNCI DIAMOND', css: 'bg-diamond', label: '1 Kunci Diamond' };
+                case 'diamond_5': return { text: '5 KUNCI DIAMOND', css: 'bg-diamond', label: '5 Kunci Diamond' };
+                case 'diamond':   return { text: '10 KUNCI DIAMOND', css: 'bg-diamond', label: '10 Kunci Diamond' }; // Kode lama (10)
+                case 'diamond_15': return { text: '15 KUNCI DIAMOND', css: 'bg-diamond', label: '15 Kunci Diamond' };
+                case 'diamond_30': return { text: '30 KUNCI DIAMOND', css: 'bg-diamond', label: '30 Kunci Diamond' };
                 
                 default: return { text: type ? type.toUpperCase() : 'UNKNOWN', css: 'bg-7days', label: type };
             }
