@@ -15,7 +15,7 @@
             --badge-90days: #e67e22;
             --badge-365days: #27ae60;
             --badge-silver: #95a5a6; 
-            --badge-gold: #f1c40f;   
+            --badge-gold: #f1c40f;    
             --badge-diamond: #00e5ff; 
         }
 
@@ -89,12 +89,12 @@
         button#generate-btn:disabled { background: #ccc; cursor: not-allowed; }
 
         h3 { margin-top: 30px; margin-bottom: 15px; color: #555; font-size: 1.1rem; border-left: 5px solid #3498db; padding-left: 10px; }
+        /* Style History dihapus/disembunyikan tidak apa-apa */
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c !important; }
         .list-box { background: #f8f9fa; padding: 10px; height: 450px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
 
         .item-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); animation: fadeIn 0.4s; }
-        .history-row { flex-direction: column; align-items: flex-start; border-left: 5px solid #555; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
-
+        
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .badge { padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; color: #fff; margin-left: 5px; text-transform: uppercase; display: inline-block; vertical-align: middle; }
@@ -258,7 +258,7 @@
         const historyListDiv = document.getElementById('history-list');
 
         let activeListener = null;
-        let historyListener = null;
+        // let historyListener = null; // KITA MATIKAN VARIABEL INI
 
         // --- SISTEM LOGIN & DETEKSI USER ---
         onAuthStateChanged(auth, (user) => {
@@ -273,10 +273,11 @@
                     genBtn.innerText = "⚡ GENERATE VOUCHER (12 DIGIT)";
                     genBtn.style.background = "#2c3e50";
 
-                    historyContainer.style.display = "block";
+                    // BAGIAN INI SAYA MATIKAN AGAR CONTAINER HISTORY TIDAK MUNCUL
+                    // historyContainer.style.display = "block"; 
+                    
                     activeListDiv.innerHTML = "Memuat data...";
-                    historyListDiv.innerHTML = "Memuat riwayat..."; // Text Awal
-
+                    
                     startListeningData();
                 } else {
                     // BUKAN ADMIN
@@ -359,55 +360,14 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Riwayat (DENGAN ANTI-STUCK FORCE)
-            // Kita set timer 2 detik. Jika Firebase belum respon, kita paksa tulisan berubah.
-            const loadingTimeout = setTimeout(() => {
-                // HANYA UBAH JIKA MASIH BERTULISKAN "MEMUAT RIWAYAT..."
-                if (historyListDiv.innerHTML.includes("Memuat riwayat")) {
-                    historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat / Kosong.</div>';
-                }
-            }, 2000); // 2 Detik cukup
-
-            historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
-                clearTimeout(loadingTimeout); // Hapus timer jika data masuk (walau kosong)
-                
-                if (snapshot.exists()) {
-                    const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
-                    let html = "";
-                    data.forEach(item => {
-                        const badge = getBadgeInfo(item.type);
-                        const dateObj = new Date(item.date);
-                        const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
-                        const jam = dateObj.toLocaleTimeString('id-ID').replace(/\./g, ':');
-                        const tgl = dateObj.toLocaleDateString('id-ID').split('/').join('.');
-                        
-html += `
-    <div class="item-row history-row" style="border-left-color: ${badge.colorCode || '#555'}">
-        <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
-        <div style="width: 100%;">
-            <span class="code-text">${item.code}</span>
-            <span class="badge ${badge.css}">${badge.text}</span> 
-            <span class="user-info">
-                👤 Dipakai: <b>${item.user || 'Unknown'}</b><br>
-                ${item.email ? `@${item.email}` : ''}<br>
-                <span style="font-size: 0.7rem; color: #999; font-family: monospace;">UID: ${item.uid || '-'}</span>
-            </span>
-        </div>
-    </div>`;
-                    });
-                    historyListDiv.innerHTML = html;
-                } else {
-                    historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
-                }
-            }, (error) => {
-                clearTimeout(loadingTimeout);
-                historyListDiv.innerHTML = '<div style="color:red; text-align:center; padding:20px;">⛔ Gagal memuat riwayat (Permission Denied).</div>';
-            });
+            // --- BAGIAN RIWAYAT SUDAH DIHAPUS DARI SINI ---
+            // Kode untuk memuat 'voucher_history' sudah saya buang sepenuhnya
+            // sehingga tidak akan ada loading atau error di bagian riwayat.
         }
 
         function stopListeningData() {
             if (activeListener) off(ref(db, 'vouchers'));
-            if (historyListener) off(ref(db, 'voucher_history'));
+            // if (historyListener) off(ref(db, 'voucher_history')); // Tidak perlu lagi
         }
 
         function getBadgeInfo(type) {
