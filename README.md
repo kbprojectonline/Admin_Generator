@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (V2 Lengkap)</title>
+    <title>Admin - Generator Voucher</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -14,9 +15,9 @@
             --badge-30days: #9b59b6;
             --badge-90days: #e67e22;
             --badge-365days: #27ae60;
-            --badge-silver: #95a5a6; /* Diperbaiki jadi abu silver */
-            --badge-gold: #f1c40f;   /* Diperbaiki jadi kuning emas */
-            --badge-diamond: #00e5ff; /* Cyan diamond */
+            --badge-silver: #95a5a6; 
+            --badge-gold: #f1c40f;   
+            --badge-diamond: #00e5ff; 
         }
 
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; }
@@ -157,7 +158,7 @@
         </div>
         
         <div class="header-container">
-            <h1>🛠️ Master Generator V2</h1>
+            <h1>🛠️ Admin Generator</h1>
             <button id="login-btn">🔑 LOGIN ADMIN (Google)</button>
         </div>
         
@@ -173,7 +174,7 @@
                 <optgroup label="PAKET KUNCI SILVER">
                     <option value="promo_silver_1" class="opt-silver">🥈 1 Kunci Silver</option>
                     <option value="promo_silver_5" class="opt-silver">🥈 5 Kunci Silver</option>
-                    <option value="silver" class="opt-silver">🥈 10 Kunci Silver (Standard)</option>
+                    <option value="silver" class="opt-silver">🥈 10 Kunci Silver</option>
                     <option value="promo_silver_20" class="opt-silver">🥈 20 Kunci Silver</option>
                     <option value="promo_silver_50" class="opt-silver">🥈 50 Kunci Silver</option>
                     <option value="promo_silver_100" class="opt-silver">🥈 100 Kunci Silver</option>
@@ -182,7 +183,7 @@
                 <optgroup label="PAKET KUNCI GOLD">
                     <option value="promo_gold_1" class="opt-gold">👑 1 Kunci Gold</option>
                     <option value="promo_gold_5" class="opt-gold">👑 5 Kunci Gold</option>
-                    <option value="gold" class="opt-gold">👑 10 Kunci Gold (Standard)</option>
+                    <option value="gold" class="opt-gold">👑 10 Kunci Gold</option>
                     <option value="promo_gold_20" class="opt-gold">👑 20 Kunci Gold</option>
                     <option value="promo_gold_50" class="opt-gold">👑 50 Kunci Gold</option>
                     <option value="promo_gold_70" class="opt-gold">👑 70 Kunci Gold</option>
@@ -191,7 +192,7 @@
                 <optgroup label="PAKET KUNCI DIAMOND">
                     <option value="promo_diamond_1" class="opt-diamond">💎 1 Kunci Diamond</option>
                     <option value="promo_diamond_5" class="opt-diamond">💎 5 Kunci Diamond</option>
-                    <option value="diamond" class="opt-diamond">💎 10 Kunci Diamond (Standard)</option>
+                    <option value="diamond" class="opt-diamond">💎 10 Kunci Diamond</option>
                     <option value="promo_diamond_15" class="opt-diamond">💎 15 Kunci Diamond</option>
                     <option value="promo_diamond_25" class="opt-diamond">💎 25 Kunci Diamond</option>
                     <option value="promo_diamond_30" class="opt-diamond">💎 30 Kunci Diamond</option>
@@ -247,9 +248,9 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // --- KONFIGURASI ADMIN (GANTI JIKA PERLU) ---
+        // --- KONFIGURASI ADMIN ---
         const ADMIN_UID = "G6N2sLEF6vX0e3X9ndbmft1oHVg2"; 
-        // -----------------------------------
+        // -------------------------
 
         const loginBtn = document.getElementById('login-btn');
         const genBtn = document.getElementById('generate-btn');
@@ -316,11 +317,9 @@
                     const data = snapshot.val();
                     const entries = Object.entries(data);
                     
-                    // Sorting agar rapi sesuai urutan Paket Waktu -> Silver -> Gold -> Diamond
                     entries.sort((a, b) => {
                         const typeA = a[1];
                         const typeB = b[1];
-                        // Prioritas manual
                         const getPriority = (t) => {
                             if (t.includes('days')) return 1;
                             if (t.includes('silver')) return 2;
@@ -328,14 +327,10 @@
                             if (t.includes('diamond')) return 4;
                             return 99;
                         };
-                        
-                        // Sort by Group first
                         const diffGroup = getPriority(typeA) - getPriority(typeB);
                         if(diffGroup !== 0) return diffGroup;
-
-                        // Then sort by Quantity (Extract number)
                         const getQty = (t) => {
-                            if(t === 'silver' || t === 'gold' || t === 'diamond') return 10; // Standard 10
+                            if(t === 'silver' || t === 'gold' || t === 'diamond') return 10; 
                             const match = t.match(/(\d+)/);
                             return match ? parseInt(match[0]) : 0;
                         };
@@ -363,7 +358,7 @@
                 }
             });
 
-            // 2. Ambil Riwayat
+            // 2. Ambil Riwayat (PERBAIKAN LOGIKA LOADING)
             historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
@@ -391,6 +386,7 @@ html += `
                     });
                     historyListDiv.innerHTML = html;
                 } else {
+                    // PERBAIKAN: JIKA KOSONG, LANGSUNG TAMPILKAN TEXT INI
                     historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
                 }
             });
@@ -402,7 +398,7 @@ html += `
         }
 
         function getBadgeInfo(type) {
-            // Logika untuk menampilkan teks yang rapi di daftar voucher
+            // LOGIKA PENAMAAN BARU (Tanpa STD)
             
             // PAKET WAKTU
             if(type === '7_days') return { text: '7 HARI', css: 'bg-7days', label: '7 Hari', colorCode: '#3498db' };
@@ -410,28 +406,27 @@ html += `
             if(type === '90_days') return { text: '3 BULAN', css: 'bg-90days', label: '3 Bulan', colorCode: '#e67e22' };
             if(type === '365_days') return { text: '1 TAHUN', css: 'bg-365days', label: '1 Tahun', colorCode: '#27ae60' };
 
-            // STANDARD 10 KEYS (Legacy)
-            if(type === 'silver') return { text: '10 KUNCI SILVER (STD)', css: 'bg-silver', label: '10 Kunci Silver', colorCode: '#95a5a6' };
-            if(type === 'gold') return { text: '10 KUNCI GOLD (STD)', css: 'bg-gold', label: '10 Kunci Gold', colorCode: '#f1c40f' };
-            if(type === 'diamond') return { text: '10 KUNCI DIAMOND (STD)', css: 'bg-diamond', label: '10 Kunci Diamond', colorCode: '#00e5ff' };
+            // STANDARD 10 KEYS (Legacy/Default)
+            if(type === 'silver') return { text: '10 Kunci SILVER', css: 'bg-silver', label: '10 Kunci Silver', colorCode: '#95a5a6' };
+            if(type === 'gold') return { text: '10 Kunci GOLD', css: 'bg-gold', label: '10 Kunci Gold', colorCode: '#f1c40f' };
+            if(type === 'diamond') return { text: '10 Kunci DIAMOND', css: 'bg-diamond', label: '10 Kunci Diamond', colorCode: '#00e5ff' };
 
             // PROMO SILVER (Format: promo_silver_100)
             if(type.includes('silver')) {
-                // Ambil angkanya saja
                 const qty = type.replace('promo_silver_', '');
-                return { text: `${qty} SILVER`, css: 'bg-silver', label: `${qty} Kunci Silver`, colorCode: '#95a5a6' };
+                return { text: `${qty} Kunci SILVER`, css: 'bg-silver', label: `${qty} Kunci Silver`, colorCode: '#95a5a6' };
             }
 
             // PROMO GOLD
             if(type.includes('gold')) {
                 const qty = type.replace('promo_gold_', '');
-                return { text: `${qty} GOLD`, css: 'bg-gold', label: `${qty} Kunci Gold`, colorCode: '#f1c40f' };
+                return { text: `${qty} Kunci GOLD`, css: 'bg-gold', label: `${qty} Kunci Gold`, colorCode: '#f1c40f' };
             }
 
             // PROMO DIAMOND
             if(type.includes('diamond')) {
                 const qty = type.replace('promo_diamond_', '');
-                return { text: `${qty} DIAMOND`, css: 'bg-diamond', label: `${qty} Kunci Diamond`, colorCode: '#00e5ff' };
+                return { text: `${qty} Kunci DIAMOND`, css: 'bg-diamond', label: `${qty} Kunci Diamond`, colorCode: '#00e5ff' };
             }
 
             return { text: type ? type.toUpperCase() : 'UNKNOWN', css: 'bg-7days', label: type, colorCode: '#333' };
