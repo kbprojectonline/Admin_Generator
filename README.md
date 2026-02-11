@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
@@ -80,7 +79,7 @@
         .opt-30days { color: var(--badge-30days) !important; font-weight: bold; }
         .opt-90days { color: var(--badge-90days) !important; font-weight: bold; }
         .opt-365days { color: var(--badge-365days) !important; font-weight: bold; }
-        .opt-silver { color: #888 !important; font-weight: bold; }
+        .opt-silver { color: #7f8c8d !important; font-weight: bold; }
         .opt-gold { color: #b8860b !important; font-weight: bold; }
         .opt-diamond { color: #008b8b !important; font-weight: bold; }
         
@@ -162,14 +161,22 @@
         
         <div class="form-group">
             <select id="plan-select">
-                <optgroup label="PAKET WAKTU (Akses Penuh)">
+                <optgroup label="PAKET WAKTU (Premium)">
                     <option value="7_days" class="opt-7days">🗓️ Paket 7 Hari</option>
                     <option value="30_days" class="opt-30days">📅 Paket 1 Bulan</option>
                     <option value="90_days" class="opt-90days">📊 Paket 3 Bulan</option>
                     <option value="365_days" class="opt-365days">🏆 Paket 1 Tahun</option>
                 </optgroup>
-                <optgroup label="PAKET KUNCI (Top Up)">
-                    <option value="silver" class="opt-silver">🥈 10 Kunci Silver</option>
+                
+                <optgroup label="PAKET KUNCI SILVER (Ecer & Grosir)">
+                    <option value="silver_1" class="opt-silver">🥈 1 Kunci Silver</option>
+                    <option value="silver_5" class="opt-silver">🥈 5 Kunci Silver</option>
+                    <option value="silver_10" class="opt-silver">🥈 10 Kunci Silver</option>
+                    <option value="silver_20" class="opt-silver">🥈 20 Kunci Silver</option>
+                    <option value="silver_50" class="opt-silver">🥈 50 Kunci Silver</option>
+                    <option value="silver_100" class="opt-silver">🥈 100 Kunci Silver</option>
+                </optgroup>
+                <optgroup label="PAKET KUNCI LAINNYA">
                     <option value="gold" class="opt-gold">👑 10 Kunci Gold</option>
                     <option value="diamond" class="opt-diamond">💎 10 Kunci Diamond</option>
                 </optgroup>
@@ -292,14 +299,23 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     const entries = Object.entries(data);
-                    const sortOrder = { '7_days': 1, '30_days': 2, '90_days': 3, '365_days': 4, 'silver': 5, 'gold': 6, 'diamond': 7 };
+                    
+                    // UPDATE URUTAN SORTING SUPAYA RAPI
+                    const sortOrder = { 
+                        '7_days': 1, '30_days': 2, '90_days': 3, '365_days': 4, 
+                        'silver_1': 10, 'silver_5': 11, 'silver_10': 12, 'silver_20': 13, 'silver_50': 14, 'silver_100': 15,
+                        'silver': 12, // fallback
+                        'gold': 20, 
+                        'diamond': 30 
+                    };
+                    
                     entries.sort((a, b) => (sortOrder[a[1]] || 99) - (sortOrder[b[1]] || 99));
 
                     let html = "";
                     entries.forEach(([code, type]) => {
                         const badge = getBadgeInfo(type);
                         html += `
-                            <div class="item-row" style="border-left-color: var(--badge-${type.replace('_', '')})">
+                            <div class="item-row" style="border-left-color: var(--badge-${type.includes('silver') ? 'silver' : type.replace('_', '')})">
                                 <div style="flex:1;">
                                     <span class="code-text">${code}</span>
                                     <span class="badge ${badge.css}">${badge.text}</span>
@@ -318,8 +334,7 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Riwayat (KODE INI SAYA AKTIFKAN LAGI)
-            // Ini akan memaksa mengambil data 'voucher_history'.
+            // 2. Ambil Riwayat
             historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
@@ -348,11 +363,9 @@
                     });
                     historyListDiv.innerHTML = html;
                 } else {
-                    // Jika data kosong di database
                     historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
                 }
             }, (error) => {
-                // Jika permission denied atau error koneksi
                 historyListDiv.innerHTML = '<div style="color:red; text-align:center; padding:20px;">⛔ Gagal memuat riwayat (Permission Denied).</div>';
                 console.error("History Error:", error);
             });
@@ -363,15 +376,28 @@
             if (historyListener) off(ref(db, 'voucher_history'));
         }
 
+        // UPDATE LOGIKA BADGE UNTUK SUPPORT VARIANT SILVER BARU
         function getBadgeInfo(type) {
             switch(type) {
+                // Waktu
                 case '7_days': return { text: '7 HARI', css: 'bg-7days', label: '7 Hari' };
                 case '30_days': return { text: '1 BULAN', css: 'bg-30days', label: '1 Bulan' };
                 case '90_days': return { text: '3 BULAN', css: 'bg-90days', label: '3 Bulan' };
                 case '365_days': return { text: '1 TAHUN', css: 'bg-365days', label: '1 Tahun' };
-                case 'silver': return { text: '10 Kunci SILVER', css: 'bg-silver', label: '10 Kunci Silver' };
+                
+                // Silver Baru (Agar enak dibaca)
+                case 'silver_1': return { text: '1 SILVER', css: 'bg-silver', label: '1 Kunci Silver' };
+                case 'silver_5': return { text: '5 SILVER', css: 'bg-silver', label: '5 Kunci Silver' };
+                case 'silver_10': return { text: '10 SILVER', css: 'bg-silver', label: '10 Kunci Silver' };
+                case 'silver_20': return { text: '20 SILVER', css: 'bg-silver', label: '20 Kunci Silver' };
+                case 'silver_50': return { text: '50 SILVER', css: 'bg-silver', label: '50 Kunci Silver' };
+                case 'silver_100': return { text: '100 SILVER', css: 'bg-silver', label: '100 Kunci Silver' };
+
+                // Legacy / Default
+                case 'silver': return { text: '10 SILVER (OLD)', css: 'bg-silver', label: '10 Kunci Silver' };
                 case 'gold': return { text: '10 Kunci GOLD', css: 'bg-gold', label: '10 Kunci Gold' };
                 case 'diamond': return { text: '10 Kunci DIAMOND', css: 'bg-diamond', label: '10 Kunci Diamond' };
+                
                 default: return { text: type ? type.toUpperCase() : 'UNKNOWN', css: 'bg-7days', label: type };
             }
         }
