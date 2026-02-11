@@ -359,7 +359,7 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Riwayat (PERBAIKAN: HANDLING ERROR & EMPTY STATE)
+            // 2. Ambil Riwayat (DIPERBAIKI: Hapus Loading jika data null)
             historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
@@ -387,12 +387,13 @@ html += `
                     });
                     historyListDiv.innerHTML = html;
                 } else {
-                    // JIKA DATA KOSONG
+                    // INI PERBAIKAN UTAMANYA:
+                    // Jika data tidak ada (null), langsung timpa tulisan "Memuat..."
                     historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
                 }
             }, (error) => {
-                // JIKA TERJADI ERROR (MISAL PERMISSION DENIED)
-                historyListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat riwayat (Permission Denied).</div>';
+                // JIKA ERROR PERMISSION
+                historyListDiv.innerHTML = '<div style="color:red; text-align:center; padding:20px;">⛔ Gagal memuat riwayat (Permission Denied).</div>';
             });
         }
 
@@ -402,7 +403,7 @@ html += `
         }
 
         function getBadgeInfo(type) {
-            // LOGIKA PENAMAAN BARU (Tanpa STD, Pake "Kunci")
+            // LOGIKA BADGE TANPA KATA (STD) & ADA KATA KUNCI
             
             // PAKET WAKTU
             if(type === '7_days') return { text: '7 HARI', css: 'bg-7days', label: '7 Hari', colorCode: '#3498db' };
@@ -410,7 +411,7 @@ html += `
             if(type === '90_days') return { text: '3 BULAN', css: 'bg-90days', label: '3 Bulan', colorCode: '#e67e22' };
             if(type === '365_days') return { text: '1 TAHUN', css: 'bg-365days', label: '1 Tahun', colorCode: '#27ae60' };
 
-            // STANDARD 10 KEYS (Legacy/Default) - SUDAH DIPERBAIKI (ADA KATA KUNCI)
+            // STANDARD 10 KEYS (Legacy)
             if(type === 'silver') return { text: '10 Kunci SILVER', css: 'bg-silver', label: '10 Kunci Silver', colorCode: '#95a5a6' };
             if(type === 'gold') return { text: '10 Kunci GOLD', css: 'bg-gold', label: '10 Kunci Gold', colorCode: '#f1c40f' };
             if(type === 'diamond') return { text: '10 Kunci DIAMOND', css: 'bg-diamond', label: '10 Kunci Diamond', colorCode: '#00e5ff' };
