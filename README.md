@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (12 Karakter)</title>
+    <title>Admin - Generator Voucher</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -14,9 +14,9 @@
             --badge-30days: #9b59b6;
             --badge-90days: #e67e22;
             --badge-365days: #27ae60;
-            --badge-silver: #bdc3c7;
-            --badge-gold: #ffd700;
-            --badge-diamond: #00e5ff;
+            --badge-silver: #95a5a6; 
+            --badge-gold: #f1c40f;   
+            --badge-diamond: #00e5ff; 
         }
 
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; }
@@ -75,13 +75,15 @@
         .form-group select:first-child { flex: 2; min-width: 150px; }
         #voucher-qty { flex: 1; min-width: 80px; }
 
+        /* WARNA OPTION DROPDOWN */
         .opt-7days { color: var(--badge-7days) !important; font-weight: bold; }
         .opt-30days { color: var(--badge-30days) !important; font-weight: bold; }
         .opt-90days { color: var(--badge-90days) !important; font-weight: bold; }
         .opt-365days { color: var(--badge-365days) !important; font-weight: bold; }
-        .opt-silver { color: #888 !important; font-weight: bold; }
-        .opt-gold { color: #b8860b !important; font-weight: bold; }
-        .opt-diamond { color: #008b8b !important; font-weight: bold; }
+        
+        .opt-silver { color: #7f8c8d !important; font-weight: bold; }
+        .opt-gold { color: #f39c12 !important; font-weight: bold; }
+        .opt-diamond { color: #00a8ff !important; font-weight: bold; }
         
         button#generate-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
         button#generate-btn:disabled { background: #ccc; cursor: not-allowed; }
@@ -100,9 +102,9 @@
         .bg-30days { background: var(--badge-30days); }
         .bg-90days { background: var(--badge-90days); }
         .bg-365days { background: var(--badge-365days); }
-        .bg-silver { background: var(--badge-silver); }
-        .bg-gold { background: var(--badge-gold); }
-        .bg-diamond { background: var(--badge-diamond); }
+        .bg-silver { background: var(--badge-silver); color: #fff; }
+        .bg-gold { background: var(--badge-gold); color: #fff; }
+        .bg-diamond { background: var(--badge-diamond); color: #fff; }
 
         .code-text { font-family: 'Courier New', monospace; font-weight: 800; font-size: 1.05rem; color: #333; letter-spacing: 3px; }
         .user-info { display: block; font-size: 0.85rem; color: #444; margin-top: 8px; line-height: 1.4; }
@@ -167,10 +169,32 @@
                     <option value="90_days" class="opt-90days">📊 Paket 3 Bulan</option>
                     <option value="365_days" class="opt-365days">🏆 Paket 1 Tahun</option>
                 </optgroup>
-                <optgroup label="PAKET KUNCI (Top Up)">
+
+                <optgroup label="PAKET KUNCI SILVER">
+                    <option value="promo_silver_1" class="opt-silver">🥈 1 Kunci Silver</option>
+                    <option value="promo_silver_5" class="opt-silver">🥈 5 Kunci Silver</option>
                     <option value="silver" class="opt-silver">🥈 10 Kunci Silver</option>
+                    <option value="promo_silver_20" class="opt-silver">🥈 20 Kunci Silver</option>
+                    <option value="promo_silver_50" class="opt-silver">🥈 50 Kunci Silver</option>
+                    <option value="promo_silver_100" class="opt-silver">🥈 100 Kunci Silver</option>
+                </optgroup>
+
+                <optgroup label="PAKET KUNCI GOLD">
+                    <option value="promo_gold_1" class="opt-gold">👑 1 Kunci Gold</option>
+                    <option value="promo_gold_5" class="opt-gold">👑 5 Kunci Gold</option>
                     <option value="gold" class="opt-gold">👑 10 Kunci Gold</option>
+                    <option value="promo_gold_20" class="opt-gold">👑 20 Kunci Gold</option>
+                    <option value="promo_gold_50" class="opt-gold">👑 50 Kunci Gold</option>
+                    <option value="promo_gold_70" class="opt-gold">👑 70 Kunci Gold</option>
+                </optgroup>
+
+                <optgroup label="PAKET KUNCI DIAMOND">
+                    <option value="promo_diamond_1" class="opt-diamond">💎 1 Kunci Diamond</option>
+                    <option value="promo_diamond_5" class="opt-diamond">💎 5 Kunci Diamond</option>
                     <option value="diamond" class="opt-diamond">💎 10 Kunci Diamond</option>
+                    <option value="promo_diamond_15" class="opt-diamond">💎 15 Kunci Diamond</option>
+                    <option value="promo_diamond_25" class="opt-diamond">💎 25 Kunci Diamond</option>
+                    <option value="promo_diamond_30" class="opt-diamond">💎 30 Kunci Diamond</option>
                 </optgroup>
             </select>
             
@@ -223,7 +247,9 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
+        // --- KONFIGURASI ADMIN ---
         const ADMIN_UID = "G6N2sLEF6vX0e3X9ndbmft1oHVg2"; 
+        // -------------------------
 
         const loginBtn = document.getElementById('login-btn');
         const genBtn = document.getElementById('generate-btn');
@@ -234,6 +260,7 @@
         let activeListener = null;
         let historyListener = null;
 
+        // --- SISTEM LOGIN & DETEKSI USER ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 if (user.uid === ADMIN_UID) {
@@ -246,13 +273,11 @@
                     genBtn.innerText = "⚡ GENERATE VOUCHER (12 DIGIT)";
                     genBtn.style.background = "#2c3e50";
 
-                    // Munculkan container riwayat
                     historyContainer.style.display = "block";
                     activeListDiv.innerHTML = "Memuat data...";
-                    historyListDiv.innerHTML = "Memuat riwayat...";
+                    historyListDiv.innerHTML = "Memuat riwayat..."; // Text Awal
 
                     startListeningData();
-
                 } else {
                     // BUKAN ADMIN
                     loginBtn.innerHTML = `⚠️ AKSES DITOLAK: ${user.email}`;
@@ -265,7 +290,6 @@
                     activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">⛔ AKSES DITOLAK<br>Anda Tidak Terdaftar Sebagai Admin, KELUAR!.</div>';
                     stopListeningData();
                 }
-
             } else {
                 // BELUM LOGIN
                 loginBtn.innerHTML = `🔑 Login Admin (Google)`;
@@ -291,14 +315,32 @@
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     const entries = Object.entries(data);
-                    const sortOrder = { '7_days': 1, '30_days': 2, '90_days': 3, '365_days': 4, 'silver': 5, 'gold': 6, 'diamond': 7 };
-                    entries.sort((a, b) => (sortOrder[a[1]] || 99) - (sortOrder[b[1]] || 99));
+                    
+                    entries.sort((a, b) => {
+                        const typeA = a[1];
+                        const typeB = b[1];
+                        const getPriority = (t) => {
+                            if (t.includes('days')) return 1;
+                            if (t.includes('silver')) return 2;
+                            if (t.includes('gold')) return 3;
+                            if (t.includes('diamond')) return 4;
+                            return 99;
+                        };
+                        const diffGroup = getPriority(typeA) - getPriority(typeB);
+                        if(diffGroup !== 0) return diffGroup;
+                        const getQty = (t) => {
+                            if(t === 'silver' || t === 'gold' || t === 'diamond') return 10; 
+                            const match = t.match(/(\d+)/);
+                            return match ? parseInt(match[0]) : 0;
+                        };
+                        return getQty(typeA) - getQty(typeB);
+                    });
 
                     let html = "";
                     entries.forEach(([code, type]) => {
                         const badge = getBadgeInfo(type);
                         html += `
-                            <div class="item-row" style="border-left-color: var(--badge-${type.replace('_', '')})">
+                            <div class="item-row" style="border-left-color: ${badge.colorCode || '#ccc'}">
                                 <div style="flex:1;">
                                     <span class="code-text">${code}</span>
                                     <span class="badge ${badge.css}">${badge.text}</span>
@@ -317,12 +359,19 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Riwayat (KODE INI SAYA AKTIFKAN LAGI)
-            // Ini akan memaksa mengambil data 'voucher_history'.
+            // 2. Ambil Riwayat (DENGAN TIMER PENGAMAN)
+            // Ini yang menjamin tulisan "Memuat..." hilang jika data kosong
+            const loadingTimeout = setTimeout(() => {
+                if (historyListDiv.innerHTML.includes("Memuat riwayat")) {
+                    historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat / Kosong.</div>';
+                }
+            }, 3000); // 3 detik
+
             historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
+                clearTimeout(loadingTimeout); // Hapus timer jika data masuk
+                
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
-                    
                     let html = "";
                     data.forEach(item => {
                         const badge = getBadgeInfo(item.type);
@@ -331,29 +380,27 @@
                         const jam = dateObj.toLocaleTimeString('id-ID').replace(/\./g, ':');
                         const tgl = dateObj.toLocaleDateString('id-ID').split('/').join('.');
                         
-                        html += `
-                        <div class="item-row history-row">
-                            <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
-                            <div style="width: 100%;">
-                                <span class="code-text">${item.code}</span>
-                                <span class="badge ${badge.css}">${badge.text}</span> 
-                                <span class="user-info">
-                                    👤 Dipakai: <b>${item.user || 'Unknown'}</b><br>
-                                    ${item.email ? `@${item.email}` : ''}<br>
-                                    <span style="font-size: 0.7rem; color: #999; font-family: monospace;">UID: ${item.uid || '-'}</span>
-                                </span>
-                            </div>
-                        </div>`;
+html += `
+    <div class="item-row history-row" style="border-left-color: ${badge.colorCode || '#555'}">
+        <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
+        <div style="width: 100%;">
+            <span class="code-text">${item.code}</span>
+            <span class="badge ${badge.css}">${badge.text}</span> 
+            <span class="user-info">
+                👤 Dipakai: <b>${item.user || 'Unknown'}</b><br>
+                ${item.email ? `@${item.email}` : ''}<br>
+                <span style="font-size: 0.7rem; color: #999; font-family: monospace;">UID: ${item.uid || '-'}</span>
+            </span>
+        </div>
+    </div>`;
                     });
                     historyListDiv.innerHTML = html;
                 } else {
-                    // Jika data kosong di database
                     historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
                 }
             }, (error) => {
-                // Jika permission denied atau error koneksi
+                clearTimeout(loadingTimeout);
                 historyListDiv.innerHTML = '<div style="color:red; text-align:center; padding:20px;">⛔ Gagal memuat riwayat (Permission Denied).</div>';
-                console.error("History Error:", error);
             });
         }
 
@@ -363,16 +410,39 @@
         }
 
         function getBadgeInfo(type) {
-            switch(type) {
-                case '7_days': return { text: '7 HARI', css: 'bg-7days', label: '7 Hari' };
-                case '30_days': return { text: '1 BULAN', css: 'bg-30days', label: '1 Bulan' };
-                case '90_days': return { text: '3 BULAN', css: 'bg-90days', label: '3 Bulan' };
-                case '365_days': return { text: '1 TAHUN', css: 'bg-365days', label: '1 Tahun' };
-                case 'silver': return { text: '10 Kunci SILVER', css: 'bg-silver', label: '10 Kunci Silver' };
-                case 'gold': return { text: '10 Kunci GOLD', css: 'bg-gold', label: '10 Kunci Gold' };
-                case 'diamond': return { text: '10 Kunci DIAMOND', css: 'bg-diamond', label: '10 Kunci Diamond' };
-                default: return { text: type ? type.toUpperCase() : 'UNKNOWN', css: 'bg-7days', label: type };
+            // LOGIKA BADGE: UBAH KODE JADI NAMA CANTIK
+            
+            // PAKET WAKTU
+            if(type === '7_days') return { text: '7 HARI', css: 'bg-7days', label: '7 Hari', colorCode: '#3498db' };
+            if(type === '30_days') return { text: '1 BULAN', css: 'bg-30days', label: '1 Bulan', colorCode: '#9b59b6' };
+            if(type === '90_days') return { text: '3 BULAN', css: 'bg-90days', label: '3 Bulan', colorCode: '#e67e22' };
+            if(type === '365_days') return { text: '1 TAHUN', css: 'bg-365days', label: '1 Tahun', colorCode: '#27ae60' };
+
+            // STANDARD 10 KEYS (Legacy)
+            if(type === 'silver') return { text: '10 Kunci SILVER', css: 'bg-silver', label: '10 Kunci Silver', colorCode: '#95a5a6' };
+            if(type === 'gold') return { text: '10 Kunci GOLD', css: 'bg-gold', label: '10 Kunci Gold', colorCode: '#f1c40f' };
+            if(type === 'diamond') return { text: '10 Kunci DIAMOND', css: 'bg-diamond', label: '10 Kunci Diamond', colorCode: '#00e5ff' };
+
+            // PROMO SILVER (Format: promo_silver_100)
+            if(type.includes('silver')) {
+                // Hapus tulisan promo_silver_ ambil angkanya saja
+                const qty = type.replace('promo_silver_', '');
+                return { text: `${qty} Kunci SILVER`, css: 'bg-silver', label: `${qty} Kunci Silver`, colorCode: '#95a5a6' };
             }
+
+            // PROMO GOLD
+            if(type.includes('gold')) {
+                const qty = type.replace('promo_gold_', '');
+                return { text: `${qty} Kunci GOLD`, css: 'bg-gold', label: `${qty} Kunci Gold`, colorCode: '#f1c40f' };
+            }
+
+            // PROMO DIAMOND
+            if(type.includes('diamond')) {
+                const qty = type.replace('promo_diamond_', '');
+                return { text: `${qty} Kunci DIAMOND`, css: 'bg-diamond', label: `${qty} Kunci Diamond`, colorCode: '#00e5ff' };
+            }
+
+            return { text: type ? type.toUpperCase() : 'UNKNOWN', css: 'bg-7days', label: type, colorCode: '#333' };
         }
 
         function makeCode(length) {
@@ -393,7 +463,6 @@
         window.delV = (code) => {
             if (!auth.currentUser) return;
             if (auth.currentUser.uid !== ADMIN_UID) return myAlert("⛔ Anda bukan Admin!");
-            
             myConfirm("Hapus voucher ini?", () => remove(ref(db, `vouchers/${code}`)));
         };
 
