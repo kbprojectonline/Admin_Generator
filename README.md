@@ -275,7 +275,7 @@
 
                     historyContainer.style.display = "block";
                     activeListDiv.innerHTML = "Memuat data...";
-                    historyListDiv.innerHTML = "Memuat riwayat...";
+                    historyListDiv.innerHTML = "Memuat riwayat..."; // Text Awal
 
                     startListeningData();
                 } else {
@@ -359,8 +359,17 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Riwayat (DIPERBAIKI: Hapus Loading jika data null)
+            // 2. Ambil Riwayat (DENGAN ANTI-STUCK FORCE)
+            // Kita set timer 3 detik. Jika Firebase belum respon, kita paksa tulisan berubah.
+            const loadingTimeout = setTimeout(() => {
+                if (historyListDiv.innerHTML === "Memuat riwayat...") {
+                    historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat / Data Kosong.</div>';
+                }
+            }, 3000);
+
             historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
+                clearTimeout(loadingTimeout); // Hapus timer jika data masuk
+                
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
                     let html = "";
@@ -387,12 +396,10 @@ html += `
                     });
                     historyListDiv.innerHTML = html;
                 } else {
-                    // INI PERBAIKAN UTAMANYA:
-                    // Jika data tidak ada (null), langsung timpa tulisan "Memuat..."
                     historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
                 }
             }, (error) => {
-                // JIKA ERROR PERMISSION
+                clearTimeout(loadingTimeout);
                 historyListDiv.innerHTML = '<div style="color:red; text-align:center; padding:20px;">⛔ Gagal memuat riwayat (Permission Denied).</div>';
             });
         }
@@ -403,8 +410,6 @@ html += `
         }
 
         function getBadgeInfo(type) {
-            // LOGIKA BADGE TANPA KATA (STD) & ADA KATA KUNCI
-            
             // PAKET WAKTU
             if(type === '7_days') return { text: '7 HARI', css: 'bg-7days', label: '7 Hari', colorCode: '#3498db' };
             if(type === '30_days') return { text: '1 BULAN', css: 'bg-30days', label: '1 Bulan', colorCode: '#9b59b6' };
@@ -416,7 +421,7 @@ html += `
             if(type === 'gold') return { text: '10 Kunci GOLD', css: 'bg-gold', label: '10 Kunci Gold', colorCode: '#f1c40f' };
             if(type === 'diamond') return { text: '10 Kunci DIAMOND', css: 'bg-diamond', label: '10 Kunci Diamond', colorCode: '#00e5ff' };
 
-            // PROMO SILVER (Format: promo_silver_100)
+            // PROMO SILVER
             if(type.includes('silver')) {
                 const qty = type.replace('promo_silver_', '');
                 return { text: `${qty} Kunci SILVER`, css: 'bg-silver', label: `${qty} Kunci Silver`, colorCode: '#95a5a6' };
