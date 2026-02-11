@@ -192,7 +192,7 @@
 
         <div id="history-container" style="display: none;">
             <h3 class="head-history">📜 Riwayat Voucher</h3>
-            <div id="history-list" class="list-box" style="background:#fffafa;"></div>
+            <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
         </div>
 
     </div>
@@ -224,9 +224,7 @@
         const db = getDatabase(app);
         const auth = getAuth(app);
 
-        // --- KONFIGURASI ADMIN ---
         const ADMIN_UID = "G6N2sLEF6vX0e3X9ndbmft1oHVg2"; 
-        // -------------------------
 
         const loginBtn = document.getElementById('login-btn');
         const genBtn = document.getElementById('generate-btn');
@@ -237,7 +235,6 @@
         let activeListener = null;
         let historyListener = null;
 
-        // --- SISTEM LOGIN & DETEKSI USER ---
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 if (user.uid === ADMIN_UID) {
@@ -250,12 +247,10 @@
                     genBtn.innerText = "⚡ GENERATE VOUCHER (12 DIGIT)";
                     genBtn.style.background = "#2c3e50";
 
-                    // Munculkan container riwayat (KOTAKNYA SAJA)
+                    // Munculkan container riwayat
                     historyContainer.style.display = "block";
                     activeListDiv.innerHTML = "Memuat data...";
-                    
-                    // Kita set isinya jadi static text agar tidak "Memuat..." terus
-                    historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Riwayat dinonaktifkan (tidak memuat data).</div>';
+                    historyListDiv.innerHTML = "Memuat riwayat...";
 
                     startListeningData();
 
@@ -292,7 +287,7 @@
         }
 
         function startListeningData() {
-            // 1. Ambil Voucher Aktif (INI TETAP JALAN)
+            // 1. Ambil Voucher Aktif
             activeListener = onValue(ref(db, 'vouchers'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
@@ -323,15 +318,49 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Riwayat
-            // SAYA HAPUS TOTAL LOGIKA "onValue" KE "voucher_history"
-            // JADI TIDAK AKAN ADA PROSES LOADING SAMA SEKALI.
-            // Biarkan kosong atau teks statis yang sudah diset di atas.
+            // 2. Ambil Riwayat (KODE INI SAYA AKTIFKAN LAGI)
+            // Ini akan memaksa mengambil data 'voucher_history'.
+            historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
+                    
+                    let html = "";
+                    data.forEach(item => {
+                        const badge = getBadgeInfo(item.type);
+                        const dateObj = new Date(item.date);
+                        const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+                        const jam = dateObj.toLocaleTimeString('id-ID').replace(/\./g, ':');
+                        const tgl = dateObj.toLocaleDateString('id-ID').split('/').join('.');
+                        
+                        html += `
+                        <div class="item-row history-row">
+                            <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
+                            <div style="width: 100%;">
+                                <span class="code-text">${item.code}</span>
+                                <span class="badge ${badge.css}">${badge.text}</span> 
+                                <span class="user-info">
+                                    👤 Dipakai: <b>${item.user || 'Unknown'}</b><br>
+                                    ${item.email ? `@${item.email}` : ''}<br>
+                                    <span style="font-size: 0.7rem; color: #999; font-family: monospace;">UID: ${item.uid || '-'}</span>
+                                </span>
+                            </div>
+                        </div>`;
+                    });
+                    historyListDiv.innerHTML = html;
+                } else {
+                    // Jika data kosong di database
+                    historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
+                }
+            }, (error) => {
+                // Jika permission denied atau error koneksi
+                historyListDiv.innerHTML = '<div style="color:red; text-align:center; padding:20px;">⛔ Gagal memuat riwayat (Permission Denied).</div>';
+                console.error("History Error:", error);
+            });
         }
 
         function stopListeningData() {
             if (activeListener) off(ref(db, 'vouchers'));
-            // if (historyListener) off(ref(db, 'voucher_history')); // Tidak perlu karena tidak dijalankan
+            if (historyListener) off(ref(db, 'voucher_history'));
         }
 
         function getBadgeInfo(type) {
