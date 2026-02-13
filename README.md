@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Final Swipe)</title>
+    <title>Admin - Master Generator (Final Perfect)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -11,7 +11,7 @@
             --primary: #2c3e50;
             --danger: #c0392b;
             --warning: #f39c12; 
-            --return: #3498db; /* Warna Biru untuk tombol Kembalikan */
+            --return: #3498db; 
             --badge-7days: #3498db;
             --badge-30days: #9b59b6;
             --badge-90days: #e67e22;
@@ -21,7 +21,8 @@
             --badge-diamond: #00e5ff;
         }
 
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; }
+        /* ZOOM DEFAULT DIGANTI KE 0.6 (Level 2) */
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; zoom: 0.6; }
         
         .admin-box { 
             background: white; 
@@ -134,7 +135,7 @@
             border-radius: 8px; 
             border-left: 5px solid #ccc; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-            transition: transform 0.2s ease-out; /* Smooth slide */
+            transition: transform 0.2s ease-out; 
         }
         .history-row { flex-direction: column; align-items: flex-start; border-left: 5px solid #555; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
 
@@ -162,9 +163,7 @@
         .modal-btns button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; }
     </style>
 </head>
-<body style="zoom: 0.9;">
-
-    <div id="custom-toast"></div>
+<body style="zoom: 0.6;"> <div id="custom-toast"></div>
     <div id="custom-overlay">
         <div class="modal-content">
             <p id="modal-msg" style="color: #333; font-weight: 600;"></p>
@@ -184,10 +183,9 @@
                 <label>Ukuran Layar:</label>
                 <select id="zoom-level" onchange="setZoom(this.value)">
                     <option value="0.5">Level 1 (50%)</option>
-                    <option value="0.6">Level 2 (60%)</option>
-                    <option value="0.7">Level 3 (70%)</option>
+                    <option value="0.6" selected>Level 2 (60%)</option> <option value="0.7">Level 3 (70%)</option>
                     <option value="0.8">Level 4 (80%)</option>
-                    <option value="0.9" selected>Level 5 (90%)</option>
+                    <option value="0.9">Level 5 (90%)</option>
                     <option value="1.0">Level 6 (Normal)</option>
                     <option value="1.1">Level 7 (110%)</option>
                     <option value="1.2">Level 8 (120%)</option>
@@ -383,7 +381,6 @@
                         const wrapper = document.createElement('div');
                         wrapper.className = 'swipe-wrapper';
                         
-                        // Action: MOVE TO GIVEN (Orange)
                         wrapper.innerHTML = `
                             <div class="swipe-bg bg-send">KIRIM >></div>
                             <div class="item-row" id="act-${code}" style="border-left-color: ${borderColor}">
@@ -399,7 +396,6 @@
                         
                         activeListDiv.appendChild(wrapper);
                         
-                        // SWIPE TO MOVE
                         const row = wrapper.querySelector('.item-row');
                         addSwipeLogic(row, () => moveVoucherToGiven(code, type), 'send');
                     });
@@ -411,7 +407,7 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Voucher Telah Diberikan (ADA FITUR SWIPE BACK)
+            // 2. Ambil Voucher Telah Diberikan (FIX LAYOUT & SWIPE BACK)
             givenListener = onValue(ref(db, 'vouchers_given'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
@@ -425,22 +421,20 @@
                         const wrapper = document.createElement('div');
                         wrapper.className = 'swipe-wrapper';
 
-                        // Action: RETURN TO ACTIVE (Blue)
                         wrapper.innerHTML = `
                             <div class="swipe-bg bg-return">KEMBALIKAN >></div>
                             <div class="item-row" id="giv-${code}" style="border-left: 5px solid #f39c12; background: #fff;">
-                                <div style="flex:1;">
-                                    <span class="code-text" style="color: #333;">${code}</span>
-                                    <span class="badge ${badge.css}">${badge.text}</span>
-                                    <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top:4px;">📤 SUDAH DIKIRIM</div>
-                                </div>
-                                <div>
+                                <div style="display: flex; flex-direction: column; width: 100%;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                        <span class="code-text" style="color: #333;">${code}</span>
+                                        <span class="badge ${badge.css}">${badge.text}</span>
                                     </div>
+                                    <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top: 5px;">📤 SUDAH DIKIRIM</div>
+                                </div>
                             </div>`;
                         
                         givenListDiv.appendChild(wrapper);
 
-                        // SWIPE TO RETURN
                         const row = wrapper.querySelector('.item-row');
                         addSwipeLogic(row, () => returnToActive(code, type), 'return');
                     });
@@ -471,7 +465,7 @@
                                 <span class="user-info">
                                     👤 Dipakai: <b>${item.user || 'Unknown'}</b><br>
                                     ${item.email ? `@${item.email}` : ''}<br>
-                                    <span style="font-size: 0.7rem; color: #999; font-family: monospace;">UID: ${item.uid || '-'}</span>
+                                    <span style="font-size: 0.9rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</span>
                                 </span>
                             </div>
                         </div>`;
@@ -489,9 +483,6 @@
             if (historyListener) off(ref(db, 'voucher_history'));
         }
 
-        // ===========================================
-        // 🔥 LOGIKA SWIPE GENERIC
-        // ===========================================
         function addSwipeLogic(element, actionCallback, type) {
             let startX = 0;
             let currentTranslate = 0;
@@ -508,7 +499,6 @@
                 const currentX = e.touches[0].clientX;
                 const diff = currentX - startX;
 
-                // Hanya geser ke KIRI (nilai negatif)
                 if (diff < 0) {
                     currentTranslate = diff;
                     if (currentTranslate < -150) currentTranslate = -150;
@@ -573,7 +563,6 @@
             return result;
         }
 
-        // --- TOMBOL SALIN (BIASA) ---
         window.copyV = (code, type) => {
              const info = getBadgeInfo(type);
              const textToCopy = `${code} = ${info.label}`;
@@ -581,9 +570,7 @@
              myAlert("Disalin: " + textToCopy);
         };
 
-        // --- PINDAH KE GIVEN (AKTIF -> GIVEN) ---
         window.moveVoucherToGiven = (code, type) => {
-            // Salin otomatis
             const info = getBadgeInfo(type);
             const textToCopy = `${code} = ${info.label}`;
             navigator.clipboard.writeText(textToCopy);
@@ -601,14 +588,13 @@
             });
         };
 
-        // --- KEMBALIKAN KE AKTIF (GIVEN -> AKTIF) ---
         window.returnToActive = (code, type) => {
             myAlert("Dikembalikan ke Stok Aktif!");
             
             if (!auth.currentUser) return;
             const updates = {};
-            updates[`vouchers/${code}`] = type;       // Tulis ulang di Aktif
-            updates[`vouchers_given/${code}`] = null; // Hapus dari Given
+            updates[`vouchers/${code}`] = type;       
+            updates[`vouchers_given/${code}`] = null; 
 
             update(ref(db), updates).catch((e) => {
                 myAlert("Gagal Mengembalikan (Rules Error)");
