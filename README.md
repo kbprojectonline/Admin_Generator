@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Color Swap)</title>
+    <title>Admin - Master Generator (Click Fix)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -120,9 +120,9 @@
             position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; 
             background: white; padding: 12px; border-radius: 8px; 
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s ease-out; 
+            cursor: pointer; /* Menandakan bisa diklik */
         }
         
-        /* STYLE RIWAYAT */
         .history-row { 
             flex-direction: column; 
             align-items: flex-start; 
@@ -130,6 +130,7 @@
             margin-bottom: 30px; 
             padding: 18px; 
             box-shadow: 0 4px 8px rgba(0,0,0,0.08); 
+            cursor: default;
         }
 
         .badge { padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; color: #fff; margin-left: 5px; text-transform: uppercase; display: inline-block; vertical-align: middle; }
@@ -426,7 +427,7 @@
                 activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
             }
 
-            // B. RENDER GIVEN LIST (WARNA ABU-ABU)
+            // B. RENDER GIVEN LIST (DENGAN CLICK TO COPY)
             const givenEntries = Object.entries(globalGiven);
             
             if (givenEntries.length > 0) {
@@ -441,17 +442,17 @@
                     }
 
                     const badge = getBadgeInfo(type);
-                    // BORDER DIUBAH JADI ABU-ABU (#95a5a6)
+                    // WARNA GARIS ABU-ABU (#95a5a6) & ONCLICK EVENT DITAMBAHKAN
                     html += `
                         <div class="swipe-wrapper">
                             <div class="swipe-bg bg-return">KEMBALIKAN >></div>
-                            <div class="item-row" id="giv-${code}" style="border-left: 5px solid #95a5a6; background: #fff;">
+                            <div class="item-row" id="giv-${code}" onclick="copyV('${code}', '${type}')" style="border-left: 5px solid #95a5a6; background: #fff;">
                                 <div style="display: flex; flex-direction: column; width: 100%;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                                         <span class="code-text" style="color: #333;">${code}</span>
                                         <span class="badge ${badge.css}">${badge.text}</span>
                                     </div>
-                                    <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top: 5px;">📤 SUDAH DIKIRIM</div>
+                                    <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top: 5px;">📤 SUDAH DIKIRIM (Ketuk Salin)</div>
                                 </div>
                             </div>
                         </div>`;
@@ -465,7 +466,6 @@
                     }
                 });
             } else {
-                // TEXT DIHILANGKAN TOTAL (BLANK)
                 givenListDiv.innerHTML = '';
             }
         }
@@ -532,7 +532,7 @@
             return result;
         }
 
-        // --- FUNGSI AKSI (ALERT YANG DIPERBAIKI) ---
+        // --- FUNGSI AKSI ---
         
         window.moveVoucherToGiven = (code, rawType) => {
             const info = getBadgeInfo(rawType);
