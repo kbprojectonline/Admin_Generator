@@ -467,7 +467,7 @@ function addSwipeLogic(element, actionCallback) {
             let isDragging = false;
 
             element.addEventListener('touchstart', (e) => {
-                // LOGIKA BARU: Jika lebih dari 1 jari, stop.
+                // LOGIKA BARU: Cek jumlah jari (hanya 1 jari yang boleh)
                 if (e.touches.length > 1) return; 
 
                 startX = e.touches[0].clientX;
@@ -476,7 +476,7 @@ function addSwipeLogic(element, actionCallback) {
             });
 
             element.addEventListener('touchmove', (e) => {
-                // LOGIKA BARU: Jika lebih dari 1 jari, stop.
+                // LOGIKA BARU: Cek jumlah jari
                 if (e.touches.length > 1) return; 
 
                 if (!isDragging) return;
@@ -489,6 +489,19 @@ function addSwipeLogic(element, actionCallback) {
                     element.style.transform = `translateX(${currentTranslate}px)`;
                 }
             });
+
+            element.addEventListener('touchend', () => {
+                isDragging = false;
+                element.style.transition = 'transform 0.3s ease-out';
+
+                if (currentTranslate < -80) {
+                    element.style.transform = `translateX(-100%)`; 
+                    setTimeout(() => actionCallback(), 200);
+                } else {
+                    element.style.transform = `translateX(0)`;
+                }
+            });
+        }
 
             element.addEventListener('touchend', () => {
                 isDragging = false;
