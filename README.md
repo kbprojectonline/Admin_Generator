@@ -461,28 +461,47 @@
             }
         }
 
-        // --- SWIPE LOGIC ---
-        function addSwipeLogic(element, actionCallback) {
+function addSwipeLogic(element, actionCallback) {
             let startX = 0;
             let currentTranslate = 0;
             let isDragging = false;
 
             element.addEventListener('touchstart', (e) => {
+                // LOGIKA BARU: Jika lebih dari 1 jari, stop.
+                if (e.touches.length > 1) return; 
+
                 startX = e.touches[0].clientX;
                 isDragging = true;
                 element.style.transition = 'none'; 
             });
 
             element.addEventListener('touchmove', (e) => {
+                // LOGIKA BARU: Jika lebih dari 1 jari, stop.
+                if (e.touches.length > 1) return; 
+
                 if (!isDragging) return;
                 const currentX = e.touches[0].clientX;
                 const diff = currentX - startX;
-                if (diff < 0) { 
+
+                if (diff < 0) {
                     currentTranslate = diff;
                     if (currentTranslate < -150) currentTranslate = -150;
                     element.style.transform = `translateX(${currentTranslate}px)`;
                 }
             });
+
+            element.addEventListener('touchend', () => {
+                isDragging = false;
+                element.style.transition = 'transform 0.3s ease-out';
+
+                if (currentTranslate < -80) {
+                    element.style.transform = `translateX(-100%)`; 
+                    setTimeout(() => actionCallback(), 200);
+                } else {
+                    element.style.transform = `translateX(0)`;
+                }
+            });
+        }
 
             element.addEventListener('touchend', () => {
                 isDragging = false;
