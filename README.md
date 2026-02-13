@@ -2,14 +2,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Final Layout Fix)</title>
+    <title>Admin - Master Generator (Color Swap)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --primary: #2c3e50;
-            --danger: #c0392b; /* MERAH */
+            --danger: #c0392b;
             --warning: #f39c12; 
             --return: #3498db; 
             --badge-7days: #3498db;
@@ -101,12 +101,8 @@
         }
 
         .head-active { margin-top: 90px !important; border-left-color: #3498db; }
-        
-        /* HEADER DIBERIKAN: MERAH (Sama kayak History) */
-        .head-given { margin-top: 80px !important; border-left-color: var(--danger); }
-
-        /* HEADER RIWAYAT: MERAH */
-        .head-history { margin-top: 80px !important; border-left-color: var(--danger); }
+        .head-given { margin-top: 80px !important; border-left-color: var(--warning); }
+        .head-history { margin-top: 80px !important; border-left-color: #e74c3c; }
 
         .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
 
@@ -126,11 +122,11 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s ease-out; 
         }
         
-        /* STYLE KHUSUS RIWAYAT */
+        /* STYLE RIWAYAT */
         .history-row { 
             flex-direction: column; 
             align-items: flex-start; 
-            border-left: 5px solid #555; /* Tetap abu-abu gelap untuk item riwayat */
+            border-left: 5px solid #555; 
             margin-bottom: 30px; 
             padding: 18px; 
             box-shadow: 0 4px 8px rgba(0,0,0,0.08); 
@@ -240,10 +236,10 @@
         <button id="generate-btn" disabled>🔒 LOGIN DULU UNTUK GENERATE</button>
 
         <h3 class="head-active">🎫 Voucher Aktif (Geser Kiri = Kirim)</h3>
-        <div id="active-list" class="list-box">Silakan Login...</div>
+        <div id="active-list" class="list-box" style="background: #fffafa;">Silakan Login...</div>
 
         <h3 class="head-given">📤 Voucher Telah Diberikan (Geser Kiri = Kembalikan)</h3>
-        <div id="given-list" class="list-box" style="background: #fffafa;">Menunggu Login...</div>
+        <div id="given-list" class="list-box" style="background: #f8f9fa;">Menunggu Login...</div>
 
         <div id="history-container" style="display: none;">
             <h3 class="head-history">📜 Riwayat Voucher</h3>
@@ -404,7 +400,6 @@
                 activeEntries.forEach(([code, type]) => {
                     const badge = getBadgeInfo(type);
                     
-                    // WARNA GARIS DIHILANGKAN (JADI CLEAN)
                     html += `
                         <div class="swipe-wrapper">
                             <div class="swipe-bg bg-send">KIRIM >></div>
@@ -431,7 +426,7 @@
                 activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
             }
 
-            // B. RENDER GIVEN LIST (DENGAN LOGIKA AUTO-HANGUS)
+            // B. RENDER GIVEN LIST (WARNA ABU-ABU)
             const givenEntries = Object.entries(globalGiven);
             
             if (givenEntries.length > 0) {
@@ -446,11 +441,11 @@
                     }
 
                     const badge = getBadgeInfo(type);
-                    // BORDER DIUBAH JADI MERAH (#c0392b)
+                    // BORDER DIUBAH JADI ABU-ABU (#95a5a6)
                     html += `
                         <div class="swipe-wrapper">
                             <div class="swipe-bg bg-return">KEMBALIKAN >></div>
-                            <div class="item-row" id="giv-${code}" style="border-left: 5px solid #c0392b; background: #fff;">
+                            <div class="item-row" id="giv-${code}" style="border-left: 5px solid #95a5a6; background: #fff;">
                                 <div style="display: flex; flex-direction: column; width: 100%;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                                         <span class="code-text" style="color: #333;">${code}</span>
