@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Complete)</title>
+    <title>Admin - Master Generator (Swipe Fix)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -11,7 +11,7 @@
         :root {
             --primary: #2c3e50;
             --danger: #c0392b;
-            --warning: #f39c12; /* Warna Oranye untuk status Terkirim */
+            --warning: #f39c12; 
             --badge-7days: #3498db;
             --badge-30days: #9b59b6;
             --badge-90days: #e67e22;
@@ -32,6 +32,7 @@
             max-width: 800px; 
             box-sizing: border-box; 
             position: relative; 
+            overflow: hidden; /* Penting untuk swipe */
         }
         
         .header-container {
@@ -91,15 +92,49 @@
 
         h3 { margin-top: 30px; margin-bottom: 15px; color: #555; font-size: 1.1rem; border-left: 5px solid #3498db; padding-left: 10px; }
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c !important; }
-        /* STYLE BARU UNTUK LIST "TELAH DIBERIKAN" */
         .head-given { border-left-color: var(--warning) !important; margin-top: 40px !important; }
 
         .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
 
-        .item-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); animation: fadeIn 0.4s; }
-        .history-row { flex-direction: column; align-items: flex-start; border-left: 5px solid #555; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+        /* SWIPE STYLES */
+        .swipe-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+            overflow: hidden;
+            border-radius: 8px;
+        }
+        .swipe-bg {
+            position: absolute;
+            top: 0; bottom: 0; right: 0;
+            width: 100%;
+            background: var(--warning);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 20px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-sizing: border-box;
+            z-index: 1;
+            border-radius: 8px;
+        }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .item-row { 
+            position: relative; 
+            z-index: 2; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: white; 
+            padding: 12px; 
+            border-radius: 8px; 
+            border-left: 5px solid #ccc; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
+            transition: transform 0.2s ease-out; /* Smooth slide */
+        }
+
+        .history-row { flex-direction: column; align-items: flex-start; border-left: 5px solid #555; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
 
         .badge { padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; color: #fff; margin-left: 5px; text-transform: uppercase; display: inline-block; vertical-align: middle; }
         .bg-7days { background: var(--badge-7days); }
@@ -117,8 +152,6 @@
         .btn-mini { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; color: white; font-weight: 600; margin-left: 4px; }
         .btn-copy { background: #7f8c8d; }
         .btn-del { background: var(--danger); }
-        /* TOMBOL BARU: MOVE/KIRIM */
-        .btn-move { background: var(--warning); color: white; }
 
         #custom-toast { position: fixed; top: 20px; right: 20px; left: 20px; background: #333; color: white; padding: 15px; border-radius: 10px; text-align: center; z-index: 9999; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         #custom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 10000; padding: 20px; }
@@ -175,7 +208,6 @@
                     <option value="90_days" class="opt-90days">📊 Paket 3 Bulan</option>
                     <option value="365_days" class="opt-365days">🏆 Paket 1 Tahun</option>
                 </optgroup>
-                
                 <optgroup label="PAKET SILVER">
                     <option value="silver_1" class="opt-silver">🥈 1 Kunci Silver</option>
                     <option value="silver_5" class="opt-silver">🥈 5 Kunci Silver</option>
@@ -183,7 +215,6 @@
                     <option value="silver_50" class="opt-silver">🥈 50 Kunci Silver</option>
                     <option value="silver_100" class="opt-silver">🥈 100 Kunci Silver</option>
                 </optgroup>
-
                 <optgroup label="PAKET GOLD">
                     <option value="gold_1" class="opt-gold">👑 1 Kunci Gold</option>
                     <option value="gold_5" class="opt-gold">👑 5 Kunci Gold</option>
@@ -191,7 +222,6 @@
                     <option value="gold_50" class="opt-gold">👑 50 Kunci Gold</option>
                     <option value="gold_70" class="opt-gold">👑 70 Kunci Gold</option>
                 </optgroup>
-
                 <optgroup label="PAKET DIAMOND">
                     <option value="diamond_1" class="opt-diamond">💎 1 Kunci Diamond</option>
                     <option value="diamond_5" class="opt-diamond">💎 5 Kunci Diamond</option>
@@ -212,11 +242,12 @@
         
         <button id="generate-btn" disabled>🔒 LOGIN DULU UNTUK GENERATE</button>
 
-        <h3>🎫 Voucher Aktif</h3>
+        <h3>🎫 Voucher Aktif (Geser Kiri utk Kirim)</h3>
         <div id="active-list" class="list-box">Silakan Login...</div>
 
         <h3 class="head-given">📤 Voucher Telah Diberikan (Terjual)</h3>
         <div id="given-list" class="list-box" style="background: #fff8e1;">Menunggu Login...</div>
+
         <div id="history-container" style="display: none;">
             <h3 class="head-history">📜 Riwayat Voucher</h3>
             <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
@@ -256,18 +287,17 @@
         const loginBtn = document.getElementById('login-btn');
         const genBtn = document.getElementById('generate-btn');
         const activeListDiv = document.getElementById('active-list');
-        const givenListDiv = document.getElementById('given-list'); // Variabel Baru
+        const givenListDiv = document.getElementById('given-list'); // Ini diperbaiki
         const historyContainer = document.getElementById('history-container'); 
         const historyListDiv = document.getElementById('history-list');
 
         let activeListener = null;
-        let givenListener = null; // Listener Baru
+        let givenListener = null; // Ini diperbaiki
         let historyListener = null;
 
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 if (user.uid === ADMIN_UID) {
-                    // ADMIN LOGIN
                     loginBtn.innerHTML = `✅ Admin: <b>${user.email.split('@')[0]}</b> (Logout)`;
                     loginBtn.style.background = "#27ae60";
                     loginBtn.onclick = () => signOut(auth);
@@ -284,14 +314,12 @@
                     startListeningData();
 
                 } else {
-                    // BUKAN ADMIN
                     loginBtn.innerHTML = `⚠️ AKSES DITOLAK: ${user.email}`;
                     loginBtn.style.background = "#e74c3c";
                     loginBtn.onclick = () => signOut(auth);
                     genBtn.disabled = true;
                     genBtn.innerText = "⛔ ANDA BUKAN ADMIN";
                     genBtn.style.background = "#95a5a6";
-                    
                     historyContainer.style.display = "none";
                     activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔ AKSES DITOLAK</div>';
                     givenListDiv.innerHTML = '';
@@ -299,14 +327,12 @@
                 }
 
             } else {
-                // BELUM LOGIN
                 loginBtn.innerHTML = `🔑 Login Admin (Google)`;
                 loginBtn.style.background = "#4285F4";
                 loginBtn.onclick = loginGoogle;
                 genBtn.disabled = true;
                 genBtn.innerText = "🔒 Login Terlebih Dahulu";
                 genBtn.style.background = "#ccc";
-                
                 historyContainer.style.display = "none";
                 activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
                 givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
@@ -320,13 +346,12 @@
         }
 
         function startListeningData() {
-            // 1. Ambil Voucher Aktif
+            // 1. Ambil Voucher Aktif (SWIPE ENABLED)
             activeListener = onValue(ref(db, 'vouchers'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     const entries = Object.entries(data);
                     
-                    // FUNGSI SORTING PINTAR
                     const getSortIndex = (type) => {
                         let clean = type.toLowerCase().replace('promo_', '');
                         const map = {
@@ -340,11 +365,11 @@
                     
                     entries.sort((a, b) => getSortIndex(a[1]) - getSortIndex(b[1]));
 
-                    let html = "";
+                    activeListDiv.innerHTML = ""; // Bersihkan dulu
+                    
                     entries.forEach(([code, type]) => {
                         const badge = getBadgeInfo(type);
                         
-                        // Warna Garis
                         let borderColor = '#3498db';
                         let t = type.toLowerCase();
                         if(t.includes('silver')) borderColor = '#bdc3c7';
@@ -353,27 +378,38 @@
                         else if(t.includes('30days')) borderColor = '#9b59b6';
                         else if(t.includes('365days')) borderColor = '#27ae60';
 
-                        html += `
-                            <div class="item-row" style="border-left-color: ${borderColor}">
+                        // Bikin Element pake DOM supaya bisa pasang event listener Swipe
+                        const wrapper = document.createElement('div');
+                        wrapper.className = 'swipe-wrapper';
+                        
+                        wrapper.innerHTML = `
+                            <div class="swipe-bg">KIRIM >></div>
+                            <div class="item-row" id="row-${code}" style="border-left-color: ${borderColor}">
                                 <div style="flex:1;">
                                     <span class="code-text">${code}</span>
                                     <span class="badge ${badge.css}">${badge.text}</span>
                                 </div>
-                                <div style="display:flex; gap: 5px;">
-                                    <button class="btn-mini btn-move" onclick="copyAndMove('${code}', '${type}')">📋 Salin & Kirim</button>
-                                    <button class="btn-mini btn-del" onclick="delV('${code}')">❌</button>
+                                <div>
+                                    <button class="btn-mini btn-copy" onclick="copyV('${code}', '${type}')">Salin</button>
+                                    <button class="btn-mini btn-del" onclick="delV('${code}')">Hapus</button>
                                 </div>
                             </div>`;
+                        
+                        activeListDiv.appendChild(wrapper);
+
+                        // PASANG LOGIKA SWIPE DI SINI
+                        const row = wrapper.querySelector('.item-row');
+                        addSwipeLogic(row, code, type);
                     });
-                    activeListDiv.innerHTML = html;
+
                 } else {
                     activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
                 }
             }, (error) => {
-                activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
+                activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Cek Rules Database).</div>';
             });
 
-            // 2. (BARU) Ambil Voucher Telah Diberikan
+            // 2. Ambil Voucher Telah Diberikan (FIX: Skrg Ada Listenernya)
             givenListener = onValue(ref(db, 'vouchers_given'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
@@ -387,7 +423,7 @@
                                 <div style="flex:1; opacity: 0.7;">
                                     <span class="code-text" style="text-decoration: line-through; color: #888;">${code}</span>
                                     <span class="badge ${badge.css}">${badge.text}</span>
-                                    <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top:4px;">📤 SUDAH DIKIRIM KE PEMBELI</div>
+                                    <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top:4px;">📤 SUDAH DIKIRIM</div>
                                 </div>
                                 <div>
                                     <button class="btn-mini btn-del" onclick="delGiven('${code}')">Hapus</button>
@@ -436,25 +472,68 @@
 
         function stopListeningData() {
             if (activeListener) off(ref(db, 'vouchers'));
-            if (givenListener) off(ref(db, 'vouchers_given')); // Stop listener baru
+            if (givenListener) off(ref(db, 'vouchers_given')); 
             if (historyListener) off(ref(db, 'voucher_history'));
         }
 
-        // ==========================================================
-        // 🔥 LOGIKA PINTAR (BADGE)
-        // ==========================================================
+        // ===========================================
+        // 🔥 LOGIKA SWIPE MANUAL (TANPA LIBRARY)
+        // ===========================================
+        function addSwipeLogic(element, code, type) {
+            let startX = 0;
+            let currentTranslate = 0;
+            let isDragging = false;
+
+            // Touch Start
+            element.addEventListener('touchstart', (e) => {
+                startX = e.touches[0].clientX;
+                isDragging = true;
+                element.style.transition = 'none'; // Biar responsif pas ditarik
+            });
+
+            // Touch Move
+            element.addEventListener('touchmove', (e) => {
+                if (!isDragging) return;
+                const currentX = e.touches[0].clientX;
+                const diff = currentX - startX;
+
+                // Hanya izinkan geser ke KIRI (nilai negatif)
+                if (diff < 0) {
+                    currentTranslate = diff;
+                    // Batasi geseran max -150px
+                    if (currentTranslate < -150) currentTranslate = -150;
+                    element.style.transform = `translateX(${currentTranslate}px)`;
+                }
+            });
+
+            // Touch End
+            element.addEventListener('touchend', () => {
+                isDragging = false;
+                element.style.transition = 'transform 0.3s ease-out'; // Balik smooth
+
+                // Jika digeser lebih dari 80px ke kiri, trigger aksi
+                if (currentTranslate < -80) {
+                    // Animasi full ke kiri dulu
+                    element.style.transform = `translateX(-100%)`;
+                    // Jalankan fungsi pindah & salin
+                    setTimeout(() => copyAndMove(code, type), 200);
+                } else {
+                    // Balik ke posisi semula (Batal)
+                    element.style.transform = `translateX(0)`;
+                }
+            });
+        }
+
         function getBadgeInfo(type) {
             if (!type) return { text: 'UNKNOWN', css: 'bg-7days', label: 'Unknown' };
 
             let raw = type.toLowerCase();
 
-            // Cek Paket Waktu
             if (raw === '7_days') return { text: '7 HARI', css: 'bg-7days', label: '7 Hari' };
             if (raw === '30_days') return { text: '1 BULAN', css: 'bg-30days', label: '1 Bulan' };
             if (raw === '90_days') return { text: '3 BULAN', css: 'bg-90days', label: '3 Bulan' };
             if (raw === '365_days') return { text: '1 TAHUN', css: 'bg-365days', label: '1 Tahun' };
 
-            // Logika Pintar untuk Kunci (Silver/Gold/Diamond)
             if (raw.includes('silver') || raw.includes('gold') || raw.includes('diamond')) {
                 let tier = '';
                 let cssClass = '';
@@ -464,7 +543,7 @@
                 else if (raw.includes('diamond')) { tier = 'Diamond'; cssClass = 'bg-diamond'; }
 
                 let parts = raw.split('_');
-                let qty = 10; // Default
+                let qty = 10; 
 
                 for (let part of parts) {
                     if (!isNaN(part) && part !== '') {
@@ -489,23 +568,26 @@
             return result;
         }
 
-        // --- FUNGSI BARU: SALIN & PINDAH ---
+        // --- FUNGSI PINDAH & SALIN OTOMATIS ---
         window.copyAndMove = (code, type) => {
-            // 1. Salin ke clipboard
+            // 1. Salin
             const info = getBadgeInfo(type);
             const textToCopy = `${code} = ${info.label}`; 
-            
             navigator.clipboard.writeText(textToCopy);
+            myAlert("Disalin & Dipindahkan!");
             
-            // 2. Pindahkan ke folder 'vouchers_given'
+            // 2. Pindahkan Database
             if (!auth.currentUser) return;
             const updates = {};
-            updates[`vouchers_given/${code}`] = type; // Masukkan ke folder baru
-            updates[`vouchers/${code}`] = null;       // Hapus dari folder lama
+            updates[`vouchers_given/${code}`] = type; 
+            updates[`vouchers/${code}`] = null;       
 
-            update(ref(db), updates)
-                .then(() => myAlert(`✅ Disalin & Dipindahkan ke 'Telah Diberikan'`))
-                .catch((e) => myAlert("Gagal pindah: " + e.message));
+            update(ref(db), updates).catch((e) => {
+                myAlert("Gagal Pindah: Permission Denied? Cek Rules.");
+                // Kembalikan posisi row kalau gagal
+                const row = document.getElementById(`row-${code}`);
+                if(row) row.style.transform = `translateX(0)`;
+            });
         };
 
         window.delV = (code) => {
@@ -513,7 +595,6 @@
             myConfirm("Hapus voucher aktif ini?", () => remove(ref(db, `vouchers/${code}`)));
         };
 
-        // Fungsi hapus dari list Given (BARU)
         window.delGiven = (code) => {
             if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return myAlert("⛔ Akses Ditolak!");
             myConfirm("Hapus permanen voucher yang sudah dikirim?", () => remove(ref(db, `vouchers_given/${code}`)));
@@ -543,6 +624,14 @@
             document.getElementById('modal-confirm-btn').onclick = () => { action(); closeModal(); };
         };
         window.closeModal = () => document.getElementById('custom-overlay').style.display = 'none';
+        
+        // Agar fungsi copyV bisa dipanggil dari onclick HTML biasa
+        window.copyV = (code, type) => {
+             const info = getBadgeInfo(type);
+             const textToCopy = `${code} = ${info.label}`;
+             navigator.clipboard.writeText(textToCopy);
+             myAlert("Disalin (Belum Dipindah)");
+        };
 
     </script>
 </body>
