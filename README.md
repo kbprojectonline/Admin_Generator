@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Fixed Copy Text)</title>
+    <title>Admin - Master Generator (Final Alert Fix)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -433,17 +433,12 @@
                 let html = "";
                 givenEntries.forEach(([code, type]) => {
                     
-                    // --- LOGIKA UTAMA PERBAIKAN ---
-                    // Cek: Apakah master data sudah dimuat?
                     if (isMasterLoaded) {
-                        // Cek: Apakah voucher ini masih ada di master database?
-                        // Jika tidak ada (undefined), berarti sudah dipakai/dihapus -> Hapus juga dari sini!
                         if (!globalVouchers[code]) {
                             db.ref(`vouchers_given/${code}`).remove(); 
-                            return; // Jangan render, langsung skip
+                            return; 
                         }
                     }
-                    // ------------------------------
 
                     const badge = getBadgeInfo(type);
                     html += `
@@ -535,13 +530,13 @@
             return result;
         }
 
-        // --- FUNGSI AKSI ---
+        // --- FUNGSI AKSI (ALERT YANG DIPERBAIKI) ---
         
         window.moveVoucherToGiven = (code, rawType) => {
             const info = getBadgeInfo(rawType);
             const textToCopy = `${code} = ${info.label}`;
             navigator.clipboard.writeText(textToCopy);
-            myAlert("Disalin: " + textToCopy);
+            myAlert(textToCopy); // FIXED: HAPUS "Disalin:"
             
             if (!auth.currentUser) return;
             db.ref(`vouchers_given/${code}`).set(rawType);
@@ -556,7 +551,7 @@
              const info = getBadgeInfo(rawType); 
              const textToCopy = `${code} = ${info.label}`;
              navigator.clipboard.writeText(textToCopy);
-             myAlert("Disalin: " + textToCopy);
+             myAlert(textToCopy); // FIXED: HAPUS "Disalin:"
         };
 
         window.delV = (code) => {
