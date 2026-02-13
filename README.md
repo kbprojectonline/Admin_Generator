@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Final Alert Fix)</title>
+    <title>Admin - Master Generator (Final Release)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -21,7 +21,7 @@
             --badge-diamond: #00e5ff;
         }
 
-        /* ZOOM LEVEL 2 (60%) SECARA DEFAULT */
+        /* ZOOM LEVEL 2 (60%) */
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; zoom: 0.6; }
         
         .admin-box { 
@@ -91,7 +91,7 @@
         button#generate-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
         button#generate-btn:disabled { background: #ccc; cursor: not-allowed; }
 
-        /* HEADER & SPACING */
+        /* HEADER SPACING */
         h3 {
             margin-bottom: 15px; 
             color: #555; 
@@ -100,13 +100,8 @@
             border-left: 5px solid;
         }
 
-        /* 1. VOUCHER AKTIF: Jarak 90px */
         .head-active { margin-top: 90px !important; border-left-color: #3498db; }
-
-        /* 2. VOUCHER TELAH DIBERIKAN: Jarak 80px */
         .head-given { margin-top: 80px !important; border-left-color: var(--warning); }
-
-        /* 3. RIWAYAT: Jarak 80px */
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c; }
 
         .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
@@ -123,10 +118,11 @@
 
         .item-row { 
             position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; 
-            background: white; padding: 12px; border-radius: 8px; border-left: 5px solid #ccc; 
+            background: white; padding: 12px; border-radius: 8px; 
+            /* BORDER LEFT DIHILANGKAN TOTAL (LOGO RANTAI HILANG) */
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s ease-out; 
         }
-        .history-row { flex-direction: column; align-items: flex-start; border-left: 5px solid #555; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+        .history-row { flex-direction: column; align-items: flex-start; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
 
         .badge { padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; color: #fff; margin-left: 5px; text-transform: uppercase; display: inline-block; vertical-align: middle; }
         .bg-7days { background: var(--badge-7days); }
@@ -139,7 +135,6 @@
 
         .code-text { font-family: 'Courier New', monospace; font-weight: 800; font-size: 1.05rem; color: #333; letter-spacing: 3px; }
         
-        /* USER INFO (Spacing Rapi) */
         .user-info { display: block; font-size: 0.85rem; color: #444; margin-top: 8px; }
         
         .date-info { font-size: 0.85rem; color: #d35400; font-weight: bold; margin-bottom: 12px; display: block; width: 100%; border-bottom: 1px dashed #ddd; padding-bottom: 8px; letter-spacing: 1.5px; }
@@ -330,10 +325,10 @@
         }
 
         function startListeningData() {
-            // 1. Ambil Data Master & Aktifkan Flag Loading Selesai
+            // 1. Ambil Data Master
             db.ref('vouchers').on('value', (snapshot) => {
                 globalVouchers = snapshot.exists() ? snapshot.val() : {};
-                isMasterLoaded = true; // DATA UTAMA SUDAH MASUK
+                isMasterLoaded = true; 
                 renderAllLists();
             });
 
@@ -359,8 +354,10 @@
                         <div class="item-row history-row">
                             <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
                             <div style="width: 100%;">
-                                <span class="code-text" style="font-size: 0.9rem;">${item.code}</span>
-                                <span class="badge ${badge.css}">${badge.text}</span> 
+                                <span class="code-text" style="font-size: 0.95rem;">${item.code}</span>
+                                
+                                <span class="badge ${badge.css}" style="font-size: 0.65rem;">${badge.text}</span> 
+                                
                                 <span class="user-info">
                                     <div style="margin-bottom: 6px;">👤 Dipakai: <b>${item.user || 'Unknown'}</b></div>
                                     <div style="margin-bottom: 6px;">${item.email ? `@${item.email}` : ''}</div>
@@ -394,16 +391,11 @@
                 let html = "";
                 activeEntries.forEach(([code, type]) => {
                     const badge = getBadgeInfo(type);
-                    let borderColor = '#3498db';
-                    if(type.includes('silver')) borderColor = '#bdc3c7';
-                    else if(type.includes('gold')) borderColor = '#ffd700';
-                    else if(type.includes('diamond')) borderColor = '#00e5ff';
-                    else if(type.includes('30_days')) borderColor = '#9b59b6';
                     
                     html += `
                         <div class="swipe-wrapper">
                             <div class="swipe-bg bg-send">KIRIM >></div>
-                            <div class="item-row" id="act-${code}" style="border-left-color: ${borderColor}">
+                            <div class="item-row" id="act-${code}">
                                 <div style="flex:1;">
                                     <span class="code-text">${code}</span>
                                     <span class="badge ${badge.css}">${badge.text}</span>
@@ -426,7 +418,7 @@
                 activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
             }
 
-            // B. RENDER GIVEN LIST (DENGAN LOGIKA AUTO-HANGUS)
+            // B. RENDER GIVEN LIST
             const givenEntries = Object.entries(globalGiven);
             
             if (givenEntries.length > 0) {
@@ -530,13 +522,13 @@
             return result;
         }
 
-        // --- FUNGSI AKSI (ALERT YANG DIPERBAIKI) ---
+        // --- FUNGSI AKSI ---
         
         window.moveVoucherToGiven = (code, rawType) => {
             const info = getBadgeInfo(rawType);
             const textToCopy = `${code} = ${info.label}`;
             navigator.clipboard.writeText(textToCopy);
-            myAlert(textToCopy); // FIXED: HAPUS "Disalin:"
+            myAlert(textToCopy); // FIXED: Hapus "Disalin:"
             
             if (!auth.currentUser) return;
             db.ref(`vouchers_given/${code}`).set(rawType);
@@ -551,7 +543,7 @@
              const info = getBadgeInfo(rawType); 
              const textToCopy = `${code} = ${info.label}`;
              navigator.clipboard.writeText(textToCopy);
-             myAlert(textToCopy); // FIXED: HAPUS "Disalin:"
+             myAlert(textToCopy); // FIXED: Hapus "Disalin:"
         };
 
         window.delV = (code) => {
@@ -575,7 +567,8 @@
         window.myAlert = (msg) => {
             const toast = document.getElementById('custom-toast');
             toast.innerText = msg; toast.style.display = 'block';
-            setTimeout(() => toast.style.display = 'none', 3000);
+            // ALERT: 5 DETIK
+            setTimeout(() => toast.style.display = 'none', 5000);
         };
         
         window.myConfirm = (msg, action) => {
