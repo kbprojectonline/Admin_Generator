@@ -181,7 +181,7 @@
         </div>
         
         <div class="header-container">
-            <h1>🛠️ Admin Generator</h1>
+            <h1>🛠️ Generator</h1>
             <button id="login-btn">🔑 LOGIN ADMIN (Google)</button>
         </div>
         
@@ -396,7 +396,7 @@
                         <div class="swipe-wrapper">
                             <div class="swipe-bg bg-send">KIRIM >></div>
 <div class="item-row" id="act-${code}">
-    <div style="flex:1; display: flex; flex-direction: column; gap: 5px;">
+    <div style="flex:1; display: flex; flex-direction: column; gap: 10px;">
         <span class="code-text">${code}</span>
         <span class="badge ${badge.css}" style="width: fit-content;">${badge.text}</span>
     </div>
