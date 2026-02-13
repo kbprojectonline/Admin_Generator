@@ -32,7 +32,7 @@
             max-width: 800px; 
             box-sizing: border-box; 
             position: relative; 
-            overflow: hidden; /* Penting untuk swipe */
+            overflow: hidden; 
         }
         
         .header-container {
@@ -96,7 +96,7 @@
 
         .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
 
-        /* SWIPE STYLES */
+        /* --- SWIPE STYLES --- */
         .swipe-wrapper {
             position: relative;
             margin-bottom: 10px;
@@ -119,7 +119,6 @@
             z-index: 1;
             border-radius: 8px;
         }
-
         .item-row { 
             position: relative; 
             z-index: 2; 
@@ -133,7 +132,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
             transition: transform 0.2s ease-out; /* Smooth slide */
         }
-
         .history-row { flex-direction: column; align-items: flex-start; border-left: 5px solid #555; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
 
         .badge { padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; color: #fff; margin-left: 5px; text-transform: uppercase; display: inline-block; vertical-align: middle; }
@@ -242,7 +240,7 @@
         
         <button id="generate-btn" disabled>🔒 LOGIN DULU UNTUK GENERATE</button>
 
-        <h3>🎫 Voucher Aktif (Geser Kiri utk Kirim)</h3>
+        <h3>🎫 Voucher Aktif (Geser Kiri = Kirim)</h3>
         <div id="active-list" class="list-box">Silakan Login...</div>
 
         <h3 class="head-given">📤 Voucher Telah Diberikan (Terjual)</h3>
@@ -287,12 +285,12 @@
         const loginBtn = document.getElementById('login-btn');
         const genBtn = document.getElementById('generate-btn');
         const activeListDiv = document.getElementById('active-list');
-        const givenListDiv = document.getElementById('given-list'); // Ini diperbaiki
+        const givenListDiv = document.getElementById('given-list'); 
         const historyContainer = document.getElementById('history-container'); 
         const historyListDiv = document.getElementById('history-list');
 
         let activeListener = null;
-        let givenListener = null; // Ini diperbaiki
+        let givenListener = null; 
         let historyListener = null;
 
         onAuthStateChanged(auth, (user) => {
@@ -346,7 +344,7 @@
         }
 
         function startListeningData() {
-            // 1. Ambil Voucher Aktif (SWIPE ENABLED)
+            // 1. Ambil Voucher Aktif (DENGAN LOGIKA SWIPE)
             activeListener = onValue(ref(db, 'vouchers'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
@@ -365,7 +363,7 @@
                     
                     entries.sort((a, b) => getSortIndex(a[1]) - getSortIndex(b[1]));
 
-                    activeListDiv.innerHTML = ""; // Bersihkan dulu
+                    activeListDiv.innerHTML = ""; // Bersihkan
                     
                     entries.forEach(([code, type]) => {
                         const badge = getBadgeInfo(type);
@@ -378,12 +376,13 @@
                         else if(t.includes('30days')) borderColor = '#9b59b6';
                         else if(t.includes('365days')) borderColor = '#27ae60';
 
-                        // Bikin Element pake DOM supaya bisa pasang event listener Swipe
+                        // Buat wrapper untuk efek Swipe
                         const wrapper = document.createElement('div');
                         wrapper.className = 'swipe-wrapper';
                         
+                        // HTML di dalam wrapper
                         wrapper.innerHTML = `
-                            <div class="swipe-bg">KIRIM >></div>
+                            <div class="swipe-bg">Lepas untuk Kirim >></div>
                             <div class="item-row" id="row-${code}" style="border-left-color: ${borderColor}">
                                 <div style="flex:1;">
                                     <span class="code-text">${code}</span>
@@ -397,7 +396,7 @@
                         
                         activeListDiv.appendChild(wrapper);
 
-                        // PASANG LOGIKA SWIPE DI SINI
+                        // Pasang Event Listener Swipe ke element item-row
                         const row = wrapper.querySelector('.item-row');
                         addSwipeLogic(row, code, type);
                     });
@@ -406,10 +405,10 @@
                     activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
                 }
             }, (error) => {
-                activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Cek Rules Database).</div>';
+                activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Voucher Telah Diberikan (FIX: Skrg Ada Listenernya)
+            // 2. Ambil Voucher Telah Diberikan (FIXED: Sudah tampil)
             givenListener = onValue(ref(db, 'vouchers_given'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
@@ -477,48 +476,48 @@
         }
 
         // ===========================================
-        // 🔥 LOGIKA SWIPE MANUAL (TANPA LIBRARY)
+        // 🔥 LOGIKA SWIPE KE KIRI (Untuk Pindah)
         // ===========================================
         function addSwipeLogic(element, code, type) {
             let startX = 0;
             let currentTranslate = 0;
             let isDragging = false;
 
-            // Touch Start
+            // Saat disentuh
             element.addEventListener('touchstart', (e) => {
                 startX = e.touches[0].clientX;
                 isDragging = true;
-                element.style.transition = 'none'; // Biar responsif pas ditarik
+                element.style.transition = 'none'; 
             });
 
-            // Touch Move
+            // Saat digeser
             element.addEventListener('touchmove', (e) => {
                 if (!isDragging) return;
                 const currentX = e.touches[0].clientX;
                 const diff = currentX - startX;
 
-                // Hanya izinkan geser ke KIRI (nilai negatif)
+                // Hanya geser kalau ke KIRI (nilai negatif)
                 if (diff < 0) {
                     currentTranslate = diff;
-                    // Batasi geseran max -150px
+                    // Batas geser max -150px
                     if (currentTranslate < -150) currentTranslate = -150;
                     element.style.transform = `translateX(${currentTranslate}px)`;
                 }
             });
 
-            // Touch End
+            // Saat dilepas
             element.addEventListener('touchend', () => {
                 isDragging = false;
-                element.style.transition = 'transform 0.3s ease-out'; // Balik smooth
+                element.style.transition = 'transform 0.3s ease-out';
 
-                // Jika digeser lebih dari 80px ke kiri, trigger aksi
+                // Jika digeser cukup jauh (lebih dari 80px), maka PINDAHKAN
                 if (currentTranslate < -80) {
-                    // Animasi full ke kiri dulu
-                    element.style.transform = `translateX(-100%)`;
-                    // Jalankan fungsi pindah & salin
-                    setTimeout(() => copyAndMove(code, type), 200);
+                    element.style.transform = `translateX(-100%)`; // Buang ke kiri
+                    
+                    // JALANKAN PROSES PINDAH SETELAH ANIMASI SELESAI
+                    setTimeout(() => moveVoucherToGiven(code, type), 200);
                 } else {
-                    // Balik ke posisi semula (Batal)
+                    // Balik ke posisi awal (Batal)
                     element.style.transform = `translateX(0)`;
                 }
             });
@@ -568,23 +567,32 @@
             return result;
         }
 
-        // --- FUNGSI PINDAH & SALIN OTOMATIS ---
-        window.copyAndMove = (code, type) => {
-            // 1. Salin
+        // --- TOMBOL SALIN (BIASA) ---
+        window.copyV = (code, type) => {
+             const info = getBadgeInfo(type);
+             const textToCopy = `${code} = ${info.label}`;
+             navigator.clipboard.writeText(textToCopy);
+             // KEMBALI KE ASAL (Tidak ada 'Belum Dipindah')
+             myAlert("Disalin: " + textToCopy);
+        };
+
+        // --- LOGIKA PINDAH (DIPANGGIL SAAT GESER/SWIPE) ---
+        window.moveVoucherToGiven = (code, type) => {
+            // Salin dulu otomatis saat digeser
             const info = getBadgeInfo(type);
-            const textToCopy = `${code} = ${info.label}`; 
+            const textToCopy = `${code} = ${info.label}`;
             navigator.clipboard.writeText(textToCopy);
             myAlert("Disalin & Dipindahkan!");
             
-            // 2. Pindahkan Database
+            // Proses Database
             if (!auth.currentUser) return;
             const updates = {};
             updates[`vouchers_given/${code}`] = type; 
             updates[`vouchers/${code}`] = null;       
 
             update(ref(db), updates).catch((e) => {
-                myAlert("Gagal Pindah: Permission Denied? Cek Rules.");
-                // Kembalikan posisi row kalau gagal
+                myAlert("Gagal Pindah: Permission Denied. Cek Rules Firebase.");
+                // Jika gagal, kembalikan posisi row
                 const row = document.getElementById(`row-${code}`);
                 if(row) row.style.transform = `translateX(0)`;
             });
@@ -624,14 +632,6 @@
             document.getElementById('modal-confirm-btn').onclick = () => { action(); closeModal(); };
         };
         window.closeModal = () => document.getElementById('custom-overlay').style.display = 'none';
-        
-        // Agar fungsi copyV bisa dipanggil dari onclick HTML biasa
-        window.copyV = (code, type) => {
-             const info = getBadgeInfo(type);
-             const textToCopy = `${code} = ${info.label}`;
-             navigator.clipboard.writeText(textToCopy);
-             myAlert("Disalin (Belum Dipindah)");
-        };
 
     </script>
 </body>
