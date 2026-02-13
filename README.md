@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Fixed Display)</title>
+    <title>Admin - Master Generator (Complete)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -10,6 +11,7 @@
         :root {
             --primary: #2c3e50;
             --danger: #c0392b;
+            --warning: #f39c12; /* Warna Oranye untuk status Terkirim */
             --badge-7days: #3498db;
             --badge-30days: #9b59b6;
             --badge-90days: #e67e22;
@@ -80,7 +82,6 @@
         .opt-90days { color: var(--badge-90days) !important; font-weight: bold; }
         .opt-365days { color: var(--badge-365days) !important; font-weight: bold; }
         
-        /* Warna Text di Dropdown */
         .opt-silver { color: #7f8c8d !important; font-weight: bold; }
         .opt-gold { color: #b8860b !important; font-weight: bold; }
         .opt-diamond { color: #008b8b !important; font-weight: bold; }
@@ -90,7 +91,10 @@
 
         h3 { margin-top: 30px; margin-bottom: 15px; color: #555; font-size: 1.1rem; border-left: 5px solid #3498db; padding-left: 10px; }
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c !important; }
-        .list-box { background: #f8f9fa; padding: 10px; height: 450px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
+        /* STYLE BARU UNTUK LIST "TELAH DIBERIKAN" */
+        .head-given { border-left-color: var(--warning) !important; margin-top: 40px !important; }
+
+        .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
 
         .item-row { display: flex; justify-content: space-between; align-items: center; background: white; padding: 12px; margin-bottom: 10px; border-radius: 8px; border-left: 5px solid #ccc; box-shadow: 0 2px 4px rgba(0,0,0,0.05); animation: fadeIn 0.4s; }
         .history-row { flex-direction: column; align-items: flex-start; border-left: 5px solid #555; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
@@ -102,8 +106,6 @@
         .bg-30days { background: var(--badge-30days); }
         .bg-90days { background: var(--badge-90days); }
         .bg-365days { background: var(--badge-365days); }
-        
-        /* Warna Badge */
         .bg-silver { background: var(--badge-silver); color: #444; }
         .bg-gold { background: var(--badge-gold); }
         .bg-diamond { background: var(--badge-diamond); }
@@ -115,6 +117,8 @@
         .btn-mini { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; color: white; font-weight: 600; margin-left: 4px; }
         .btn-copy { background: #7f8c8d; }
         .btn-del { background: var(--danger); }
+        /* TOMBOL BARU: MOVE/KIRIM */
+        .btn-move { background: var(--warning); color: white; }
 
         #custom-toast { position: fixed; top: 20px; right: 20px; left: 20px; background: #333; color: white; padding: 15px; border-radius: 10px; text-align: center; z-index: 9999; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
         #custom-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 10000; padding: 20px; }
@@ -211,6 +215,8 @@
         <h3>🎫 Voucher Aktif</h3>
         <div id="active-list" class="list-box">Silakan Login...</div>
 
+        <h3 class="head-given">📤 Voucher Telah Diberikan (Terjual)</h3>
+        <div id="given-list" class="list-box" style="background: #fff8e1;">Menunggu Login...</div>
         <div id="history-container" style="display: none;">
             <h3 class="head-history">📜 Riwayat Voucher</h3>
             <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
@@ -250,10 +256,12 @@
         const loginBtn = document.getElementById('login-btn');
         const genBtn = document.getElementById('generate-btn');
         const activeListDiv = document.getElementById('active-list');
+        const givenListDiv = document.getElementById('given-list'); // Variabel Baru
         const historyContainer = document.getElementById('history-container'); 
         const historyListDiv = document.getElementById('history-list');
 
         let activeListener = null;
+        let givenListener = null; // Listener Baru
         let historyListener = null;
 
         onAuthStateChanged(auth, (user) => {
@@ -270,6 +278,7 @@
 
                     historyContainer.style.display = "block";
                     activeListDiv.innerHTML = "Memuat data...";
+                    givenListDiv.innerHTML = "Memuat data terkirim...";
                     historyListDiv.innerHTML = "Memuat riwayat...";
 
                     startListeningData();
@@ -282,8 +291,10 @@
                     genBtn.disabled = true;
                     genBtn.innerText = "⛔ ANDA BUKAN ADMIN";
                     genBtn.style.background = "#95a5a6";
+                    
                     historyContainer.style.display = "none";
-                    activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">⛔ AKSES DITOLAK<br>Anda Tidak Terdaftar Sebagai Admin, KELUAR!.</div>';
+                    activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔ AKSES DITOLAK</div>';
+                    givenListDiv.innerHTML = '';
                     stopListeningData();
                 }
 
@@ -295,8 +306,10 @@
                 genBtn.disabled = true;
                 genBtn.innerText = "🔒 Login Terlebih Dahulu";
                 genBtn.style.background = "#ccc";
+                
                 historyContainer.style.display = "none";
-                activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login Terlebih Dulu.</div>';
+                activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
+                givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
                 stopListeningData();
             }
         });
@@ -313,7 +326,7 @@
                     const data = snapshot.val();
                     const entries = Object.entries(data);
                     
-                    // FUNGSI SORTING PINTAR (Mengabaikan 'Promo_')
+                    // FUNGSI SORTING PINTAR
                     const getSortIndex = (type) => {
                         let clean = type.toLowerCase().replace('promo_', '');
                         const map = {
@@ -329,7 +342,7 @@
 
                     let html = "";
                     entries.forEach(([code, type]) => {
-                        const badge = getBadgeInfo(type); // <-- INI SUDAH DIPERBAIKI DI BAWAH
+                        const badge = getBadgeInfo(type);
                         
                         // Warna Garis
                         let borderColor = '#3498db';
@@ -346,9 +359,9 @@
                                     <span class="code-text">${code}</span>
                                     <span class="badge ${badge.css}">${badge.text}</span>
                                 </div>
-                                <div>
-                                    <button class="btn-mini btn-copy" onclick="copyV('${code}', '${type}')">Salin</button>
-                                    <button class="btn-mini btn-del" onclick="delV('${code}')">Hapus</button>
+                                <div style="display:flex; gap: 5px;">
+                                    <button class="btn-mini btn-move" onclick="copyAndMove('${code}', '${type}')">📋 Salin & Kirim</button>
+                                    <button class="btn-mini btn-del" onclick="delV('${code}')">❌</button>
                                 </div>
                             </div>`;
                     });
@@ -360,14 +373,41 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Riwayat
+            // 2. (BARU) Ambil Voucher Telah Diberikan
+            givenListener = onValue(ref(db, 'vouchers_given'), (snapshot) => {
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    const entries = Object.entries(data);
+                    
+                    let html = "";
+                    entries.forEach(([code, type]) => {
+                        const badge = getBadgeInfo(type);
+                        html += `
+                            <div class="item-row" style="border-left: 5px solid #f39c12; background: #fff;">
+                                <div style="flex:1; opacity: 0.7;">
+                                    <span class="code-text" style="text-decoration: line-through; color: #888;">${code}</span>
+                                    <span class="badge ${badge.css}">${badge.text}</span>
+                                    <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top:4px;">📤 SUDAH DIKIRIM KE PEMBELI</div>
+                                </div>
+                                <div>
+                                    <button class="btn-mini btn-del" onclick="delGiven('${code}')">Hapus</button>
+                                </div>
+                            </div>`;
+                    });
+                    givenListDiv.innerHTML = html;
+                } else {
+                    givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada voucher yang dikirim.</div>';
+                }
+            });
+
+            // 3. Ambil Riwayat
             historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
                     
                     let html = "";
                     data.forEach(item => {
-                        const badge = getBadgeInfo(item.type); // <-- MENGGUNAKAN LOGIKA BARU
+                        const badge = getBadgeInfo(item.type);
                         const dateObj = new Date(item.date);
                         const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
                         const jam = dateObj.toLocaleTimeString('id-ID').replace(/\./g, ':');
@@ -391,33 +431,30 @@
                 } else {
                     historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
                 }
-            }, (error) => {
-                historyListDiv.innerHTML = '<div style="color:red; text-align:center; padding:20px;">⛔ Gagal memuat riwayat (Permission Denied).</div>';
             });
         }
 
         function stopListeningData() {
             if (activeListener) off(ref(db, 'vouchers'));
+            if (givenListener) off(ref(db, 'vouchers_given')); // Stop listener baru
             if (historyListener) off(ref(db, 'voucher_history'));
         }
 
         // ==========================================================
-        // 🔥 BAGIAN PERBAIKAN TOTAL (LOGIKA PINTAR)
+        // 🔥 LOGIKA PINTAR (BADGE)
         // ==========================================================
         function getBadgeInfo(type) {
             if (!type) return { text: 'UNKNOWN', css: 'bg-7days', label: 'Unknown' };
 
-            // 1. Normalisasi string: jadikan huruf kecil semua
             let raw = type.toLowerCase();
 
-            // 2. Cek Paket Waktu
+            // Cek Paket Waktu
             if (raw === '7_days') return { text: '7 HARI', css: 'bg-7days', label: '7 Hari' };
             if (raw === '30_days') return { text: '1 BULAN', css: 'bg-30days', label: '1 Bulan' };
             if (raw === '90_days') return { text: '3 BULAN', css: 'bg-90days', label: '3 Bulan' };
             if (raw === '365_days') return { text: '1 TAHUN', css: 'bg-365days', label: '1 Tahun' };
 
-            // 3. Logika Pintar untuk Kunci (Silver/Gold/Diamond)
-            // Ini akan menangani: 'silver_5', 'Promo_Silver_5', 'silver', 'promo_silver_100', dll.
+            // Logika Pintar untuk Kunci (Silver/Gold/Diamond)
             if (raw.includes('silver') || raw.includes('gold') || raw.includes('diamond')) {
                 let tier = '';
                 let cssClass = '';
@@ -426,9 +463,6 @@
                 else if (raw.includes('gold')) { tier = 'Gold'; cssClass = 'bg-gold'; }
                 else if (raw.includes('diamond')) { tier = 'Diamond'; cssClass = 'bg-diamond'; }
 
-                // Cari angkanya
-                // Logika: Ambil angka setelah underscore terakhir, atau default ke 10 jika tidak ada angka
-                // Contoh: silver_50 -> 50. silver -> 10. Promo_Gold_5 -> 5.
                 let parts = raw.split('_');
                 let qty = 10; // Default
 
@@ -438,7 +472,6 @@
                     }
                 }
 
-                // Return format rapi SESUAI PERMINTAAN "xx Kunci XX"
                 return {
                     text: `${qty} KUNCI ${tier.toUpperCase()}`,
                     css: cssClass,
@@ -446,7 +479,6 @@
                 };
             }
 
-            // Default jika benar-benar aneh
             return { text: type.toUpperCase(), css: 'bg-7days', label: type };
         }
 
@@ -457,25 +489,39 @@
             return result;
         }
 
-        window.copyV = (code, type) => {
+        // --- FUNGSI BARU: SALIN & PINDAH ---
+        window.copyAndMove = (code, type) => {
+            // 1. Salin ke clipboard
             const info = getBadgeInfo(type);
             const textToCopy = `${code} = ${info.label}`; 
             
             navigator.clipboard.writeText(textToCopy);
-            myAlert("Disalin: " + textToCopy);
+            
+            // 2. Pindahkan ke folder 'vouchers_given'
+            if (!auth.currentUser) return;
+            const updates = {};
+            updates[`vouchers_given/${code}`] = type; // Masukkan ke folder baru
+            updates[`vouchers/${code}`] = null;       // Hapus dari folder lama
+
+            update(ref(db), updates)
+                .then(() => myAlert(`✅ Disalin & Dipindahkan ke 'Telah Diberikan'`))
+                .catch((e) => myAlert("Gagal pindah: " + e.message));
         };
 
         window.delV = (code) => {
-            if (!auth.currentUser) return;
-            if (auth.currentUser.uid !== ADMIN_UID) return myAlert("⛔ Anda bukan Admin!");
-            
-            myConfirm("Hapus voucher ini?", () => remove(ref(db, `vouchers/${code}`)));
+            if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return myAlert("⛔ Akses Ditolak!");
+            myConfirm("Hapus voucher aktif ini?", () => remove(ref(db, `vouchers/${code}`)));
+        };
+
+        // Fungsi hapus dari list Given (BARU)
+        window.delGiven = (code) => {
+            if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return myAlert("⛔ Akses Ditolak!");
+            myConfirm("Hapus permanen voucher yang sudah dikirim?", () => remove(ref(db, `vouchers_given/${code}`)));
         };
 
         document.getElementById('generate-btn').onclick = () => {
-            if (!auth.currentUser) return myAlert("Login dulu!");
-            if (auth.currentUser.uid !== ADMIN_UID) return myAlert("⛔ Anda bukan Admin!");
-
+            if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return myAlert("Login dulu!");
+            
             const type = document.getElementById('plan-select').value;
             const qty = parseInt(document.getElementById('voucher-qty').value);
             const updates = {};
