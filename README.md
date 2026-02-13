@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Final Size Fix)</title>
+    <title>Admin - Master Generator (Final Style Fix)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -418,7 +418,7 @@
                 activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
             }
 
-            // B. RENDER GIVEN LIST (TANPA KLIK)
+            // B. RENDER GIVEN LIST (TANPA KLIK SALIN, SIZE & STYLE FIXED)
             const givenEntries = Object.entries(globalGiven);
             
             if (givenEntries.length > 0) {
@@ -434,15 +434,14 @@
 
                     const badge = getBadgeInfo(type);
                     
-                    // FIXED: NO ONCLICK, CURSOR DEFAULT, SIZE 0.9REM
                     html += `
                         <div class="swipe-wrapper">
                             <div class="swipe-bg bg-return">KEMBALIKAN >></div>
                             <div class="item-row" id="giv-${code}" style="border-left: 5px solid #95a5a6; background: #fff; cursor: default;">
                                 <div style="display: flex; flex-direction: column; width: 100%;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                        <span class="code-text" style="color: #333; font-size: 0.9rem;">${code}</span>
-                                        <span class="badge ${badge.css}">${badge.text}</span>
+                                        <span class="code-text" style="color: #333; font-size: 0.95rem;">${code}</span>
+                                        <span class="badge ${badge.css}" style="font-size: 0.7rem;">${badge.text}</span>
                                     </div>
                                     <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top: 5px;">📤 SUDAH DIKIRIM</div>
                                 </div>
