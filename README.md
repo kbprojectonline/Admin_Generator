@@ -100,7 +100,7 @@
             border-left: 5px solid;
         }
 
-        .head-active { margin-top: 90px !important; border-left-color: #3498db; }
+        .head-active { margin-top: 80px !important; border-left-color: #3498db; }
         .head-given { margin-top: 80px !important; border-left-color: var(--warning); }
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c; }
 
@@ -227,10 +227,10 @@
         
         <button id="generate-btn" disabled>🔒 LOGIN DULU UNTUK GENERATE</button>
 
-        <h3 class="head-active">🎫 Voucher Aktif (Geser Kiri = Kirim)</h3>
+        <h3 class="head-active">🎫 Voucher Aktif</h3>
         <div id="active-list" class="list-box" style="background: #fffafa;">Silakan Login...</div>
 
-        <h3 class="head-given">📤 Voucher Telah Diberikan (Geser Kiri = Kembalikan)</h3>
+        <h3 class="head-given">📤 Voucher Telah Diberikan</h3>
         <div id="given-list" class="list-box" style="background: #f8f9fa;">Menunggu Login...</div>
 
         <div id="history-container" style="display: none;">
@@ -395,12 +395,12 @@
                     html += `
                         <div class="swipe-wrapper">
                             <div class="swipe-bg bg-send">KIRIM >></div>
-                            <div class="item-row" id="act-${code}">
-                                <div style="flex:1;">
-                                    <span class="code-text">${code}</span>
-                                    <span class="badge ${badge.css}">${badge.text}</span>
-                                </div>
-                                <div>
+<div class="item-row" id="act-${code}">
+    <div style="flex:1; display: flex; flex-direction: column; gap: 5px;">
+        <span class="code-text">${code}</span>
+        <span class="badge ${badge.css}" style="width: fit-content;">${badge.text}</span>
+    </div>
+    <div>
                                     <button class="btn-mini btn-copy" onclick="copyV('${code}', '${type}')">Salin</button>
                                     <button class="btn-mini btn-del" onclick="delV('${code}')">Hapus</button>
                                 </div>
