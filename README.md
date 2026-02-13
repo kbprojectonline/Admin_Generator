@@ -1,8 +1,9 @@
+<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Final Spacing)</title>
+    <title>Admin - Master Generator (Logic Fixed)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -21,7 +22,7 @@
             --badge-diamond: #00e5ff;
         }
 
-        /* DEFAULT ZOOM LEVEL 2 (60%) */
+        /* ZOOM LEVEL 2 (60%) */
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; zoom: 0.6; }
         
         .admin-box { 
@@ -91,8 +92,6 @@
         button#generate-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
         button#generate-btn:disabled { background: #ccc; cursor: not-allowed; }
 
-        /* --- PENGATURAN JARAK HEADER --- */
-        
         h3 {
             margin-bottom: 15px; 
             color: #555; 
@@ -188,7 +187,9 @@
         .modal-btns button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; }
     </style>
 </head>
-<body style="zoom: 0.6;"> <div id="custom-toast"></div>
+<body style="zoom: 0.6;"> 
+
+    <div id="custom-toast"></div>
     <div id="custom-overlay">
         <div class="modal-content">
             <p id="modal-msg" style="color: #333; font-weight: 600;"></p>
@@ -208,7 +209,8 @@
                 <label>Ukuran Layar:</label>
                 <select id="zoom-level" onchange="setZoom(this.value)">
                     <option value="0.5">Level 1 (50%)</option>
-                    <option value="0.6" selected>Level 2 (60%)</option> <option value="0.7">Level 3 (70%)</option>
+                    <option value="0.6" selected>Level 2 (60%)</option> 
+                    <option value="0.7">Level 3 (70%)</option>
                     <option value="0.8">Level 4 (80%)</option>
                     <option value="0.9">Level 5 (90%)</option>
                     <option value="1.0">Level 6 (Normal)</option>
@@ -320,6 +322,10 @@
         let givenListener = null; 
         let historyListener = null;
 
+        // GLOBAL DATA STORE UNTUK SINKRONISASI
+        let globalVouchers = {};
+        let globalGiven = {};
+
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 if (user.uid === ADMIN_UID) {
@@ -371,108 +377,22 @@
         }
 
         function startListeningData() {
-            // 1. Ambil Voucher Aktif
+            // Listener 1: Master Vouchers (Real Database)
             activeListener = onValue(ref(db, 'vouchers'), (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const entries = Object.entries(data);
-                    
-                    const getSortIndex = (type) => {
-                        let clean = type.toLowerCase().replace('promo_', '');
-                        const map = {
-                            '7_days': 1, '30_days': 2, '90_days': 3, '365_days': 4,
-                            'silver_1': 10, 'silver_5': 11, 'silver': 12, 'silver_10': 12, 'silver_20': 13, 'silver_50': 14, 'silver_100': 15,
-                            'gold_1': 20, 'gold_5': 21, 'gold': 22, 'gold_10': 22, 'gold_20': 23, 'gold_50': 24, 'gold_70': 25,
-                            'diamond_1': 30, 'diamond_5': 31, 'diamond': 32, 'diamond_10': 32, 'diamond_15': 33, 'diamond_30': 34
-                        };
-                        return map[clean] || 99;
-                    };
-                    
-                    entries.sort((a, b) => getSortIndex(a[1]) - getSortIndex(b[1]));
-
-                    activeListDiv.innerHTML = ""; 
-                    
-                    entries.forEach(([code, type]) => {
-                        const badge = getBadgeInfo(type);
-                        
-                        let borderColor = '#3498db';
-                        let t = type.toLowerCase();
-                        if(t.includes('silver')) borderColor = '#bdc3c7';
-                        else if(t.includes('gold')) borderColor = '#ffd700';
-                        else if(t.includes('diamond')) borderColor = '#00e5ff';
-                        else if(t.includes('30days')) borderColor = '#9b59b6';
-                        else if(t.includes('365days')) borderColor = '#27ae60';
-
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'swipe-wrapper';
-                        
-                        wrapper.innerHTML = `
-                            <div class="swipe-bg bg-send">KIRIM >></div>
-                            <div class="item-row" id="act-${code}" style="border-left-color: ${borderColor}">
-                                <div style="flex:1;">
-                                    <span class="code-text">${code}</span>
-                                    <span class="badge ${badge.css}">${badge.text}</span>
-                                </div>
-                                <div>
-                                    <button class="btn-mini btn-copy" onclick="copyV('${code}', '${type}')">Salin</button>
-                                    <button class="btn-mini btn-del" onclick="delV('${code}')">Hapus</button>
-                                </div>
-                            </div>`;
-                        
-                        activeListDiv.appendChild(wrapper);
-                        
-                        const row = wrapper.querySelector('.item-row');
-                        addSwipeLogic(row, () => moveVoucherToGiven(code, type), 'send');
-                    });
-
-                } else {
-                    activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
-                }
-            }, (error) => {
-                activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
+                globalVouchers = snapshot.exists() ? snapshot.val() : {};
+                renderAllLists();
             });
 
-            // 2. Ambil Voucher Telah Diberikan (FIX LAYOUT)
+            // Listener 2: Given Tracker
             givenListener = onValue(ref(db, 'vouchers_given'), (snapshot) => {
-                if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    const entries = Object.entries(data);
-                    
-                    givenListDiv.innerHTML = "";
-
-                    entries.forEach(([code, type]) => {
-                        const badge = getBadgeInfo(type);
-                        
-                        const wrapper = document.createElement('div');
-                        wrapper.className = 'swipe-wrapper';
-
-                        wrapper.innerHTML = `
-                            <div class="swipe-bg bg-return">KEMBALIKAN >></div>
-                            <div class="item-row" id="giv-${code}" style="border-left: 5px solid #f39c12; background: #fff;">
-                                <div style="display: flex; flex-direction: column; width: 100%;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
-                                        <span class="code-text" style="color: #333;">${code}</span>
-                                        <span class="badge ${badge.css}">${badge.text}</span>
-                                    </div>
-                                    <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top: 5px;">📤 SUDAH DIKIRIM</div>
-                                </div>
-                            </div>`;
-                        
-                        givenListDiv.appendChild(wrapper);
-
-                        const row = wrapper.querySelector('.item-row');
-                        addSwipeLogic(row, () => returnToActive(code, type), 'return');
-                    });
-                } else {
-                    givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada voucher yang dikirim.</div>';
-                }
+                globalGiven = snapshot.exists() ? snapshot.val() : {};
+                renderAllLists();
             });
 
-            // 3. Ambil Riwayat (FIX SPACING ANTAR BARIS)
+            // Listener 3: History
             historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
-                    
                     let html = "";
                     data.forEach(item => {
                         const badge = getBadgeInfo(item.type);
@@ -487,7 +407,6 @@
                             <div style="width: 100%;">
                                 <span class="code-text" style="font-size: 0.9rem;">${item.code}</span>
                                 <span class="badge ${badge.css}">${badge.text}</span> 
-                                
                                 <span class="user-info">
                                     <div style="margin-bottom: 6px;">👤 Dipakai: <b>${item.user || 'Unknown'}</b></div>
                                     <div style="margin-bottom: 6px;">${item.email ? `@${item.email}` : ''}</div>
@@ -509,7 +428,100 @@
             if (historyListener) off(ref(db, 'voucher_history'));
         }
 
-        function addSwipeLogic(element, actionCallback, type) {
+        // --- FUNGSI RENDER PINTAR (Cross-Check Data) ---
+        function renderAllLists() {
+            // 1. Render Active List (Hanya yang belum dikirim ke Given)
+            const activeEntries = Object.entries(globalVouchers).filter(([code, type]) => !globalGiven[code]);
+            const getSortIndex = (type) => {
+                let clean = type.toLowerCase().replace('promo_', '');
+                const map = { '7_days': 1, '30_days': 2, '90_days': 3, '365_days': 4 };
+                if (clean.includes('silver')) return 10;
+                if (clean.includes('gold')) return 20;
+                if (clean.includes('diamond')) return 30;
+                return map[clean] || 99;
+            };
+            activeEntries.sort((a, b) => getSortIndex(a[1]) - getSortIndex(b[1]));
+
+            if (activeEntries.length > 0) {
+                let html = "";
+                activeEntries.forEach(([code, type]) => {
+                    const badge = getBadgeInfo(type);
+                    let borderColor = '#3498db';
+                    if(type.includes('silver')) borderColor = '#bdc3c7';
+                    else if(type.includes('gold')) borderColor = '#ffd700';
+                    else if(type.includes('diamond')) borderColor = '#00e5ff';
+                    else if(type.includes('30_days')) borderColor = '#9b59b6';
+                    
+                    html += createVoucherHTML(code, badge, borderColor, 'act', 'KIRIM >>', 'bg-send');
+                });
+                activeListDiv.innerHTML = html;
+                // Pasang listener
+                activeEntries.forEach(([code, type]) => {
+                    const el = document.getElementById(`act-${code}`).parentNode;
+                    addSwipeLogic(el.querySelector('.item-row'), () => moveVoucherToGiven(code, type));
+                });
+            } else {
+                activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
+            }
+
+            // 2. Render Given List (Cek validitas ke Master Data)
+            const givenEntries = Object.entries(globalGiven);
+            
+            if (givenEntries.length > 0) {
+                let html = "";
+                givenEntries.forEach(([code, type]) => {
+                    // AUTO-CLEANUP: Jika voucher sudah tidak ada di Master (berarti sudah dipakai user), hapus dari Given
+                    if (!globalVouchers[code]) {
+                        remove(ref(db, `vouchers_given/${code}`)); // Hapus otomatis
+                        return; // Jangan tampilkan
+                    }
+
+                    const badge = getBadgeInfo(type);
+                    html += `
+                        <div class="swipe-wrapper">
+                            <div class="swipe-bg bg-return">KEMBALIKAN >></div>
+                            <div class="item-row" id="giv-${code}" style="border-left: 5px solid #f39c12; background: #fff;">
+                                <div style="display: flex; flex-direction: column; width: 100%;">
+                                    <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                                        <span class="code-text" style="color: #333;">${code}</span>
+                                        <span class="badge ${badge.css}">${badge.text}</span>
+                                    </div>
+                                    <div style="font-size: 0.75rem; color: #d35400; font-weight:bold; margin-top: 5px;">📤 SUDAH DIKIRIM</div>
+                                </div>
+                            </div>
+                        </div>`;
+                });
+                givenListDiv.innerHTML = html;
+                // Pasang listener
+                givenEntries.forEach(([code, type]) => {
+                    if (globalVouchers[code]) { // Cek lagi biar aman
+                        const el = document.getElementById(`giv-${code}`);
+                        if(el) addSwipeLogic(el, () => returnToActive(code));
+                    }
+                });
+            } else {
+                givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada voucher yang dikirim.</div>';
+            }
+        }
+
+        function createVoucherHTML(code, badge, border, idPrefix, swipeText, swipeBg) {
+            return `
+                <div class="swipe-wrapper">
+                    <div class="swipe-bg ${swipeBg}">${swipeText}</div>
+                    <div class="item-row" id="${idPrefix}-${code}" style="border-left-color: ${border}">
+                        <div style="flex:1;">
+                            <span class="code-text">${code}</span>
+                            <span class="badge ${badge.css}">${badge.text}</span>
+                        </div>
+                        <div>
+                            <button class="btn-mini btn-copy" onclick="copyV('${code}', '${badge.label}')">Salin</button>
+                            <button class="btn-mini btn-del" onclick="delV('${code}')">Hapus</button>
+                        </div>
+                    </div>
+                </div>`;
+        }
+
+        function addSwipeLogic(element, actionCallback) {
             let startX = 0;
             let currentTranslate = 0;
             let isDragging = false;
@@ -524,7 +536,6 @@
                 if (!isDragging) return;
                 const currentX = e.touches[0].clientX;
                 const diff = currentX - startX;
-
                 if (diff < 0) {
                     currentTranslate = diff;
                     if (currentTranslate < -150) currentTranslate = -150;
@@ -535,7 +546,6 @@
             element.addEventListener('touchend', () => {
                 isDragging = false;
                 element.style.transition = 'transform 0.3s ease-out';
-
                 if (currentTranslate < -80) {
                     element.style.transform = `translateX(-100%)`; 
                     setTimeout(() => actionCallback(), 200);
@@ -547,38 +557,21 @@
 
         function getBadgeInfo(type) {
             if (!type) return { text: 'UNKNOWN', css: 'bg-7days', label: 'Unknown' };
-
             let raw = type.toLowerCase();
-
             if (raw === '7_days') return { text: '7 HARI', css: 'bg-7days', label: '7 Hari' };
             if (raw === '30_days') return { text: '1 BULAN', css: 'bg-30days', label: '1 Bulan' };
             if (raw === '90_days') return { text: '3 BULAN', css: 'bg-90days', label: '3 Bulan' };
             if (raw === '365_days') return { text: '1 TAHUN', css: 'bg-365days', label: '1 Tahun' };
-
             if (raw.includes('silver') || raw.includes('gold') || raw.includes('diamond')) {
-                let tier = '';
-                let cssClass = '';
-
+                let tier = '', cssClass = '';
                 if (raw.includes('silver')) { tier = 'Silver'; cssClass = 'bg-silver'; }
                 else if (raw.includes('gold')) { tier = 'Gold'; cssClass = 'bg-gold'; }
                 else if (raw.includes('diamond')) { tier = 'Diamond'; cssClass = 'bg-diamond'; }
-
                 let parts = raw.split('_');
                 let qty = 10; 
-
-                for (let part of parts) {
-                    if (!isNaN(part) && part !== '') {
-                        qty = part;
-                    }
-                }
-
-                return {
-                    text: `${qty} KUNCI ${tier.toUpperCase()}`,
-                    css: cssClass,
-                    label: `${qty} Kunci ${tier}`
-                };
+                for (let part of parts) { if (!isNaN(part) && part !== '') qty = part; }
+                return { text: `${qty} KUNCI ${tier.toUpperCase()}`, css: cssClass, label: `${qty} Kunci ${tier}` };
             }
-
             return { text: type.toUpperCase(), css: 'bg-7days', label: type };
         }
 
@@ -589,54 +582,38 @@
             return result;
         }
 
-        window.copyV = (code, type) => {
-             const info = getBadgeInfo(type);
-             const textToCopy = `${code} = ${info.label}`;
-             navigator.clipboard.writeText(textToCopy);
-             myAlert("Disalin: " + textToCopy);
-        };
-
+        // --- FUNGSI UTAMA (FIXED: TIDAK HAPUS DARI VOUCHERS) ---
         window.moveVoucherToGiven = (code, type) => {
             const info = getBadgeInfo(type);
-            const textToCopy = `${code} = ${info.label}`;
-            navigator.clipboard.writeText(textToCopy);
-            myAlert("Disalin & Dipindahkan ke Terkirim!");
+            navigator.clipboard.writeText(`${code} = ${info.label}`);
+            myAlert("Disalin & Dipindahkan!");
             
-            if (!auth.currentUser) return;
-            const updates = {};
-            updates[`vouchers_given/${code}`] = type; 
-            updates[`vouchers/${code}`] = null;       
-
-            update(ref(db), updates).catch((e) => {
-                myAlert("Gagal Pindah (Rules Error)");
-                const row = document.getElementById(`act-${code}`);
-                if(row) row.style.transform = `translateX(0)`;
-            });
+            // HANYA MENCATAT DI VOUCHERS_GIVEN (JANGAN HAPUS DARI VOUCHERS)
+            update(ref(db), { [`vouchers_given/${code}`]: type });
         };
 
-        window.returnToActive = (code, type) => {
+        window.returnToActive = (code) => {
             myAlert("Dikembalikan ke Stok Aktif!");
-            
-            if (!auth.currentUser) return;
-            const updates = {};
-            updates[`vouchers/${code}`] = type;       
-            updates[`vouchers_given/${code}`] = null; 
+            // CUKUP HAPUS DARI TRACKER
+            remove(ref(db, `vouchers_given/${code}`));
+        };
 
-            update(ref(db), updates).catch((e) => {
-                myAlert("Gagal Mengembalikan (Rules Error)");
-                const row = document.getElementById(`giv-${code}`);
-                if(row) row.style.transform = `translateX(0)`;
-            });
+        window.copyV = (code, label) => {
+             navigator.clipboard.writeText(`${code} = ${label.label || label}`); // Fix label obj check
+             myAlert("Disalin: " + `${code} = ${label.label || label}`);
         };
 
         window.delV = (code) => {
-            if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return myAlert("⛔ Akses Ditolak!");
-            myConfirm("Hapus voucher aktif ini?", () => remove(ref(db, `vouchers/${code}`)));
+            myConfirm("Hapus permanen?", () => {
+                // Hapus dari KEDUA TEMPAT biar bersih
+                const updates = {};
+                updates[`vouchers/${code}`] = null;
+                updates[`vouchers_given/${code}`] = null;
+                update(ref(db), updates);
+            });
         };
 
         document.getElementById('generate-btn').onclick = () => {
-            if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return myAlert("Login dulu!");
-            
             const type = document.getElementById('plan-select').value;
             const qty = parseInt(document.getElementById('voucher-qty').value);
             const updates = {};
