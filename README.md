@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Auto-Sync Fix)</title>
+    <title>Admin - Master Generator (Fixed Copy Text)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -21,7 +21,7 @@
             --badge-diamond: #00e5ff;
         }
 
-        /* ZOOM LEVEL 2 (60%) */
+        /* ZOOM LEVEL 2 (60%) SECARA DEFAULT */
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; zoom: 0.6; }
         
         .admin-box { 
@@ -281,7 +281,7 @@
 
         let globalVouchers = {};
         let globalGiven = {};
-        let isMasterLoaded = false; // FLAG PENTING
+        let isMasterLoaded = false; 
 
         // AUTH STATE
         auth.onAuthStateChanged((user) => {
@@ -463,7 +463,7 @@
                 givenListDiv.innerHTML = html;
 
                 givenEntries.forEach(([code, type]) => {
-                    if (globalVouchers[code]) { // Cek eksistensi sebelum pasang listener
+                    if (globalVouchers[code]) { 
                         const row = document.getElementById(`giv-${code}`);
                         if(row) addSwipeLogic(row, () => returnToActive(code));
                     }
@@ -535,16 +535,16 @@
             return result;
         }
 
-        // --- ACTIONS ---
+        // --- FUNGSI AKSI ---
         
-        window.moveVoucherToGiven = (code, type) => {
-            const info = getBadgeInfo(type);
-            navigator.clipboard.writeText(`${code} = ${info.label}`);
-            myAlert("Disalin & Dipindahkan!");
+        window.moveVoucherToGiven = (code, rawType) => {
+            const info = getBadgeInfo(rawType);
+            const textToCopy = `${code} = ${info.label}`;
+            navigator.clipboard.writeText(textToCopy);
+            myAlert("Disalin: " + textToCopy);
             
             if (!auth.currentUser) return;
-            // HANYA MENCATAT (JANGAN HAPUS DARI VOUCHERS)
-            db.ref(`vouchers_given/${code}`).set(type);
+            db.ref(`vouchers_given/${code}`).set(rawType);
         };
 
         window.returnToActive = (code) => {
@@ -552,14 +552,11 @@
             db.ref(`vouchers_given/${code}`).remove();
         };
 
-        window.copyV = (code, typeLabel) => {
-             let label = typeLabel;
-             if(typeof typeLabel === 'string' && (typeLabel.includes('days') || typeLabel.includes('key'))) {
-                 const i = getBadgeInfo(typeLabel);
-                 label = i.label;
-             }
-             navigator.clipboard.writeText(`${code} = ${label}`);
-             myAlert("Disalin: " + `${code} = ${label}`);
+        window.copyV = (code, rawType) => {
+             const info = getBadgeInfo(rawType); 
+             const textToCopy = `${code} = ${info.label}`;
+             navigator.clipboard.writeText(textToCopy);
+             myAlert("Disalin: " + textToCopy);
         };
 
         window.delV = (code) => {
