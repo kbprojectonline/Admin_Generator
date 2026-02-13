@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Logic Fixed)</title>
+    <title>Admin - Master Generator (FIXED FINAL)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -22,7 +21,7 @@
             --badge-diamond: #00e5ff;
         }
 
-        /* ZOOM LEVEL 2 (60%) */
+        /* ZOOM LEVEL 2 (60%) SECARA DEFAULT */
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; zoom: 0.6; }
         
         .admin-box { 
@@ -92,6 +91,7 @@
         button#generate-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
         button#generate-btn:disabled { background: #ccc; cursor: not-allowed; }
 
+        /* HEADER & SPACING */
         h3 {
             margin-bottom: 15px; 
             color: #555; 
@@ -100,63 +100,31 @@
             border-left: 5px solid;
         }
 
-        /* 1. KHUSUS VOUCHER AKTIF (JARAK 90px) */
-        .head-active {
-            margin-top: 90px !important; 
-            border-left-color: #3498db; 
-        }
+        /* VOUCHER AKTIF: Jarak Jauh (120px) */
+        .head-active { margin-top: 120px !important; border-left-color: #3498db; }
 
-        /* 2. KHUSUS VOUCHER TELAH DIBERIKAN (JARAK 80px) */
-        .head-given { 
-            margin-top: 80px !important; 
-            border-left-color: var(--warning); 
-        }
+        /* VOUCHER TELAH DIBERIKAN: Jarak 80px */
+        .head-given { margin-top: 80px !important; border-left-color: var(--warning); }
 
-        /* 3. KHUSUS RIWAYAT (JARAK 80px) */
-        .head-history { 
-            margin-top: 80px !important; 
-            border-left-color: #e74c3c; 
-        }
+        /* RIWAYAT: Jarak 80px */
+        .head-history { margin-top: 80px !important; border-left-color: #e74c3c; }
 
         .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
 
-        /* --- SWIPE STYLES --- */
-        .swipe-wrapper {
-            position: relative;
-            margin-bottom: 10px;
-            overflow: hidden;
-            border-radius: 8px;
-        }
+        /* SWIPE STYLES */
+        .swipe-wrapper { position: relative; margin-bottom: 10px; overflow: hidden; border-radius: 8px; }
         .swipe-bg {
-            position: absolute;
-            top: 0; bottom: 0; right: 0;
-            width: 100%;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            padding-right: 20px;
-            font-weight: bold;
-            font-size: 0.9rem;
-            box-sizing: border-box;
-            z-index: 1;
-            border-radius: 8px;
+            position: absolute; top: 0; bottom: 0; right: 0; width: 100%; color: white;
+            display: flex; align-items: center; justify-content: flex-end; padding-right: 20px;
+            font-weight: bold; font-size: 0.9rem; box-sizing: border-box; z-index: 1; border-radius: 8px;
         }
         .bg-send { background: var(--warning); }
         .bg-return { background: var(--return); }
 
         .item-row { 
-            position: relative; 
-            z-index: 2; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            background: white; 
-            padding: 12px; 
-            border-radius: 8px; 
-            border-left: 5px solid #ccc; 
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); 
-            transition: transform 0.2s ease-out; 
+            position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; 
+            background: white; padding: 12px; border-radius: 8px; border-left: 5px solid #ccc; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s ease-out; 
         }
         .history-row { flex-direction: column; align-items: flex-start; border-left: 5px solid #555; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
 
@@ -171,9 +139,7 @@
 
         .code-text { font-family: 'Courier New', monospace; font-weight: 800; font-size: 1.05rem; color: #333; letter-spacing: 3px; }
         
-        /* USER INFO (DENGAN JARAK ATAS 8px untuk pemisah dari Judul) */
         .user-info { display: block; font-size: 0.85rem; color: #444; margin-top: 8px; }
-        
         .date-info { font-size: 0.85rem; color: #d35400; font-weight: bold; margin-bottom: 12px; display: block; width: 100%; border-bottom: 1px dashed #ddd; padding-bottom: 8px; letter-spacing: 1.5px; }
 
         .btn-mini { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; color: white; font-weight: 600; margin-left: 4px; }
@@ -187,7 +153,7 @@
         .modal-btns button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; }
     </style>
 </head>
-<body style="zoom: 0.6;"> 
+<body style="zoom: 0.6;">
 
     <div id="custom-toast"></div>
     <div id="custom-overlay">
@@ -204,20 +170,15 @@
         
         <div class="menu-wrapper">
             <button class="hamburger-btn" onclick="toggleZoomMenu()">☰</button>
-            
             <div id="zoom-menu-box" class="zoom-dropdown">
                 <label>Ukuran Layar:</label>
                 <select id="zoom-level" onchange="setZoom(this.value)">
                     <option value="0.5">Level 1 (50%)</option>
-                    <option value="0.6" selected>Level 2 (60%)</option> 
+                    <option value="0.6" selected>Level 2 (60%)</option>
                     <option value="0.7">Level 3 (70%)</option>
                     <option value="0.8">Level 4 (80%)</option>
                     <option value="0.9">Level 5 (90%)</option>
                     <option value="1.0">Level 6 (Normal)</option>
-                    <option value="1.1">Level 7 (110%)</option>
-                    <option value="1.2">Level 8 (120%)</option>
-                    <option value="1.3">Level 9 (130%)</option>
-                    <option value="1.4">Level 10 (140%)</option>
                 </select>
             </div>
         </div>
@@ -282,18 +243,16 @@
 
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
         function setZoom(val) { document.body.style.zoom = val; }
         function toggleZoomMenu() {
             const menu = document.getElementById('zoom-menu-box');
             menu.classList.toggle('show-menu');
         }
-    </script>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getDatabase, ref, update, onValue, remove, off } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyBublDvXwqKWK3lACZ_plD3ORMS1h2MvTM",
@@ -305,9 +264,10 @@
             appId: "1:851984555383:web:e47824f590620b73849572"
         };
 
-        const app = initializeApp(firebaseConfig);
-        const db = getDatabase(app);
-        const auth = getAuth(app);
+        // Initialize Firebase (Versi 8 Compat)
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        const auth = firebase.auth();
 
         const ADMIN_UID = "G6N2sLEF6vX0e3X9ndbmft1oHVg2"; 
 
@@ -318,20 +278,16 @@
         const historyContainer = document.getElementById('history-container'); 
         const historyListDiv = document.getElementById('history-list');
 
-        let activeListener = null;
-        let givenListener = null; 
-        let historyListener = null;
-
-        // GLOBAL DATA STORE UNTUK SINKRONISASI
         let globalVouchers = {};
         let globalGiven = {};
 
-        onAuthStateChanged(auth, (user) => {
+        // AUTH STATE CHANGE
+        auth.onAuthStateChanged((user) => {
             if (user) {
                 if (user.uid === ADMIN_UID) {
                     loginBtn.innerHTML = `✅ Admin: <b>${user.email.split('@')[0]}</b> (Logout)`;
                     loginBtn.style.background = "#27ae60";
-                    loginBtn.onclick = () => signOut(auth);
+                    loginBtn.onclick = () => auth.signOut();
 
                     genBtn.disabled = false;
                     genBtn.innerText = "⚡ GENERATE VOUCHER (12 DIGIT)";
@@ -343,20 +299,17 @@
                     historyListDiv.innerHTML = "Memuat riwayat...";
 
                     startListeningData();
-
                 } else {
                     loginBtn.innerHTML = `⚠️ AKSES DITOLAK: ${user.email}`;
                     loginBtn.style.background = "#e74c3c";
-                    loginBtn.onclick = () => signOut(auth);
+                    loginBtn.onclick = () => auth.signOut();
                     genBtn.disabled = true;
                     genBtn.innerText = "⛔ ANDA BUKAN ADMIN";
                     genBtn.style.background = "#95a5a6";
                     historyContainer.style.display = "none";
                     activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔ AKSES DITOLAK</div>';
                     givenListDiv.innerHTML = '';
-                    stopListeningData();
                 }
-
             } else {
                 loginBtn.innerHTML = `🔑 Login Admin (Google)`;
                 loginBtn.style.background = "#4285F4";
@@ -367,30 +320,29 @@
                 historyContainer.style.display = "none";
                 activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
                 givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
-                stopListeningData();
             }
         });
 
         function loginGoogle() {
-            const provider = new GoogleAuthProvider();
-            signInWithPopup(auth, provider).catch(error => myAlert("Gagal Login: " + error.message));
+            const provider = new firebase.auth.GoogleAuthProvider();
+            auth.signInWithPopup(provider).catch(error => myAlert("Gagal Login: " + error.message));
         }
 
         function startListeningData() {
-            // Listener 1: Master Vouchers (Real Database)
-            activeListener = onValue(ref(db, 'vouchers'), (snapshot) => {
+            // 1. Ambil Data Voucher Master
+            db.ref('vouchers').on('value', (snapshot) => {
                 globalVouchers = snapshot.exists() ? snapshot.val() : {};
                 renderAllLists();
             });
 
-            // Listener 2: Given Tracker
-            givenListener = onValue(ref(db, 'vouchers_given'), (snapshot) => {
+            // 2. Ambil Data Given Tracker
+            db.ref('vouchers_given').on('value', (snapshot) => {
                 globalGiven = snapshot.exists() ? snapshot.val() : {};
                 renderAllLists();
             });
 
-            // Listener 3: History
-            historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
+            // 3. Ambil Riwayat
+            db.ref('voucher_history').on('value', (snapshot) => {
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
                     let html = "";
@@ -422,16 +374,10 @@
             });
         }
 
-        function stopListeningData() {
-            if (activeListener) off(ref(db, 'vouchers'));
-            if (givenListener) off(ref(db, 'vouchers_given')); 
-            if (historyListener) off(ref(db, 'voucher_history'));
-        }
-
-        // --- FUNGSI RENDER PINTAR (Cross-Check Data) ---
         function renderAllLists() {
-            // 1. Render Active List (Hanya yang belum dikirim ke Given)
+            // A. LOGIKA UTAMA: Hanya tampilkan di "Aktif" jika belum ada di "Given"
             const activeEntries = Object.entries(globalVouchers).filter(([code, type]) => !globalGiven[code]);
+            
             const getSortIndex = (type) => {
                 let clean = type.toLowerCase().replace('promo_', '');
                 const map = { '7_days': 1, '30_days': 2, '90_days': 3, '365_days': 4 };
@@ -452,28 +398,45 @@
                     else if(type.includes('diamond')) borderColor = '#00e5ff';
                     else if(type.includes('30_days')) borderColor = '#9b59b6';
                     
-                    html += createVoucherHTML(code, badge, borderColor, 'act', 'KIRIM >>', 'bg-send');
+                    html += `
+                        <div class="swipe-wrapper">
+                            <div class="swipe-bg bg-send">KIRIM >></div>
+                            <div class="item-row" id="act-${code}" style="border-left-color: ${borderColor}">
+                                <div style="flex:1;">
+                                    <span class="code-text">${code}</span>
+                                    <span class="badge ${badge.css}">${badge.text}</span>
+                                </div>
+                                <div>
+                                    <button class="btn-mini btn-copy" onclick="copyV('${code}', '${type}')">Salin</button>
+                                    <button class="btn-mini btn-del" onclick="delV('${code}')">Hapus</button>
+                                </div>
+                            </div>
+                        </div>`;
                 });
                 activeListDiv.innerHTML = html;
-                // Pasang listener
+                
+                // Pasang Event Listener Swipe setelah HTML jadi
                 activeEntries.forEach(([code, type]) => {
-                    const el = document.getElementById(`act-${code}`).parentNode;
-                    addSwipeLogic(el.querySelector('.item-row'), () => moveVoucherToGiven(code, type));
+                    const row = document.getElementById(`act-${code}`);
+                    if(row) addSwipeLogic(row, () => moveVoucherToGiven(code, type));
                 });
+
             } else {
                 activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
             }
 
-            // 2. Render Given List (Cek validitas ke Master Data)
+            // B. RENDER GIVEN LIST (VOUCHER TETAP HIDUP DI DB UTAMA)
             const givenEntries = Object.entries(globalGiven);
             
             if (givenEntries.length > 0) {
                 let html = "";
                 givenEntries.forEach(([code, type]) => {
-                    // AUTO-CLEANUP: Jika voucher sudah tidak ada di Master (berarti sudah dipakai user), hapus dari Given
+                    // *** LOGIKA HANGUS OTOMATIS ***
+                    // Jika voucher ada di 'Given' TAPI sudah tidak ada di 'GlobalVouchers' (berarti sudah diredeem/dihapus)
+                    // Maka hapus juga dari list 'Given' (agar bersih)
                     if (!globalVouchers[code]) {
-                        remove(ref(db, `vouchers_given/${code}`)); // Hapus otomatis
-                        return; // Jangan tampilkan
+                        db.ref(`vouchers_given/${code}`).remove(); 
+                        return; // Skip rendering
                     }
 
                     const badge = getBadgeInfo(type);
@@ -492,11 +455,12 @@
                         </div>`;
                 });
                 givenListDiv.innerHTML = html;
-                // Pasang listener
+
+                // Pasang listener swipe back
                 givenEntries.forEach(([code, type]) => {
-                    if (globalVouchers[code]) { // Cek lagi biar aman
-                        const el = document.getElementById(`giv-${code}`);
-                        if(el) addSwipeLogic(el, () => returnToActive(code));
+                    if (globalVouchers[code]) {
+                        const row = document.getElementById(`giv-${code}`);
+                        if(row) addSwipeLogic(row, () => returnToActive(code));
                     }
                 });
             } else {
@@ -504,23 +468,7 @@
             }
         }
 
-        function createVoucherHTML(code, badge, border, idPrefix, swipeText, swipeBg) {
-            return `
-                <div class="swipe-wrapper">
-                    <div class="swipe-bg ${swipeBg}">${swipeText}</div>
-                    <div class="item-row" id="${idPrefix}-${code}" style="border-left-color: ${border}">
-                        <div style="flex:1;">
-                            <span class="code-text">${code}</span>
-                            <span class="badge ${badge.css}">${badge.text}</span>
-                        </div>
-                        <div>
-                            <button class="btn-mini btn-copy" onclick="copyV('${code}', '${badge.label}')">Salin</button>
-                            <button class="btn-mini btn-del" onclick="delV('${code}')">Hapus</button>
-                        </div>
-                    </div>
-                </div>`;
-        }
-
+        // --- CORE LOGIC SWIPE ---
         function addSwipeLogic(element, actionCallback) {
             let startX = 0;
             let currentTranslate = 0;
@@ -536,7 +484,7 @@
                 if (!isDragging) return;
                 const currentX = e.touches[0].clientX;
                 const diff = currentX - startX;
-                if (diff < 0) {
+                if (diff < 0) { // Hanya geser kiri
                     currentTranslate = diff;
                     if (currentTranslate < -150) currentTranslate = -150;
                     element.style.transform = `translateX(${currentTranslate}px)`;
@@ -546,7 +494,7 @@
             element.addEventListener('touchend', () => {
                 isDragging = false;
                 element.style.transition = 'transform 0.3s ease-out';
-                if (currentTranslate < -80) {
+                if (currentTranslate < -80) { // Ambang batas geser
                     element.style.transform = `translateX(-100%)`; 
                     setTimeout(() => actionCallback(), 200);
                 } else {
@@ -582,43 +530,55 @@
             return result;
         }
 
-        // --- FUNGSI UTAMA (FIXED: TIDAK HAPUS DARI VOUCHERS) ---
+        // --- FUNGSI AKSI ---
+        
+        // 1. Pindah ke Given (HANYA MENCATAT, TIDAK HAPUS)
         window.moveVoucherToGiven = (code, type) => {
             const info = getBadgeInfo(type);
             navigator.clipboard.writeText(`${code} = ${info.label}`);
             myAlert("Disalin & Dipindahkan!");
             
-            // HANYA MENCATAT DI VOUCHERS_GIVEN (JANGAN HAPUS DARI VOUCHERS)
-            update(ref(db), { [`vouchers_given/${code}`]: type });
+            if (!auth.currentUser) return;
+            // KUNCI PERBAIKAN: Hanya update 'vouchers_given', jangan sentuh 'vouchers'
+            db.ref(`vouchers_given/${code}`).set(type);
         };
 
+        // 2. Kembalikan ke Aktif (Hapus Catatan Given)
         window.returnToActive = (code) => {
             myAlert("Dikembalikan ke Stok Aktif!");
-            // CUKUP HAPUS DARI TRACKER
-            remove(ref(db, `vouchers_given/${code}`));
+            db.ref(`vouchers_given/${code}`).remove();
         };
 
-        window.copyV = (code, label) => {
-             navigator.clipboard.writeText(`${code} = ${label.label || label}`); // Fix label obj check
-             myAlert("Disalin: " + `${code} = ${label.label || label}`);
+        window.copyV = (code, typeLabel) => {
+             const info = getBadgeInfo(typeLabel); // Pastikan ini string type
+             // Cek jika typeLabel object atau string
+             let label = typeLabel;
+             if(typeof typeLabel === 'string' && (typeLabel.includes('days') || typeLabel.includes('key'))) {
+                 const i = getBadgeInfo(typeLabel);
+                 label = i.label;
+             }
+             
+             navigator.clipboard.writeText(`${code} = ${label}`);
+             myAlert("Disalin: " + `${code} = ${label}`);
         };
 
         window.delV = (code) => {
             myConfirm("Hapus permanen?", () => {
-                // Hapus dari KEDUA TEMPAT biar bersih
-                const updates = {};
-                updates[`vouchers/${code}`] = null;
-                updates[`vouchers_given/${code}`] = null;
-                update(ref(db), updates);
+                // Hapus Total dari kedua tempat
+                db.ref(`vouchers/${code}`).remove();
+                db.ref(`vouchers_given/${code}`).remove();
             });
         };
 
         document.getElementById('generate-btn').onclick = () => {
+            if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return myAlert("Login dulu!");
+            
             const type = document.getElementById('plan-select').value;
             const qty = parseInt(document.getElementById('voucher-qty').value);
             const updates = {};
             for (let i = 0; i < qty; i++) updates[makeCode(12)] = type;
-            update(ref(db, 'vouchers'), updates)
+            
+            db.ref('vouchers').update(updates)
                 .then(() => myAlert(`✅ Sukses buat ${qty} voucher!`))
                 .catch(e => myAlert("Gagal: " + e.message));
         };
