@@ -100,7 +100,7 @@
             border-left: 5px solid;
         }
 
-        .head-active { margin-top: 80px !important; border-left-color: #3498db; }
+        .head-active { margin-top: 70px !important; border-left-color: #3498db; }
         .head-given { margin-top: 80px !important; border-left-color: var(--warning); }
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c; }
 
@@ -181,7 +181,7 @@
         </div>
         
         <div class="header-container">
-            <h1>🛠️ Generator</h1>
+            <h1></h1>
             <button id="login-btn">🔑 LOGIN ADMIN (Google)</button>
         </div>
         
