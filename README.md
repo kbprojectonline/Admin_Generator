@@ -1,9 +1,8 @@
-<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Final Fix Spacing)</title>
+    <title>Admin - Master Generator (Final Spacing)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -22,7 +21,7 @@
             --badge-diamond: #00e5ff;
         }
 
-        /* ZOOM LEVEL 2 (60%) */
+        /* DEFAULT ZOOM LEVEL 2 (60%) */
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; zoom: 0.6; }
         
         .admin-box { 
@@ -92,9 +91,8 @@
         button#generate-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
         button#generate-btn:disabled { background: #ccc; cursor: not-allowed; }
 
-        /* --- PENGATURAN JARAK HEADER (FIXED) --- */
+        /* --- PENGATURAN JARAK HEADER --- */
         
-        /* Default H3 Style */
         h3 {
             margin-bottom: 15px; 
             color: #555; 
@@ -103,9 +101,9 @@
             border-left: 5px solid;
         }
 
-        /* 1. KHUSUS VOUCHER AKTIF (JARAK 100px DARI ATAS) */
+        /* 1. KHUSUS VOUCHER AKTIF (JARAK 90px) */
         .head-active {
-            margin-top: 100px !important; 
+            margin-top: 90px !important; 
             border-left-color: #3498db; 
         }
 
@@ -173,7 +171,10 @@
         .bg-diamond { background: var(--badge-diamond); }
 
         .code-text { font-family: 'Courier New', monospace; font-weight: 800; font-size: 1.05rem; color: #333; letter-spacing: 3px; }
-        .user-info { display: block; font-size: 0.85rem; color: #444; margin-top: 8px; line-height: 1.4; }
+        
+        /* USER INFO (DENGAN JARAK ATAS 8px untuk pemisah dari Judul) */
+        .user-info { display: block; font-size: 0.85rem; color: #444; margin-top: 8px; }
+        
         .date-info { font-size: 0.85rem; color: #d35400; font-weight: bold; margin-bottom: 12px; display: block; width: 100%; border-bottom: 1px dashed #ddd; padding-bottom: 8px; letter-spacing: 1.5px; }
 
         .btn-mini { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; color: white; font-weight: 600; margin-left: 4px; }
@@ -431,7 +432,7 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Voucher Telah Diberikan
+            // 2. Ambil Voucher Telah Diberikan (FIX LAYOUT)
             givenListener = onValue(ref(db, 'vouchers_given'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
@@ -467,7 +468,7 @@
                 }
             });
 
-            // 3. Ambil Riwayat (KODE DIGIT DIPERKECIL LAGI)
+            // 3. Ambil Riwayat (FIX SPACING ANTAR BARIS)
             historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
@@ -486,10 +487,11 @@
                             <div style="width: 100%;">
                                 <span class="code-text" style="font-size: 0.9rem;">${item.code}</span>
                                 <span class="badge ${badge.css}">${badge.text}</span> 
+                                
                                 <span class="user-info">
-                                    👤 Dipakai: <b>${item.user || 'Unknown'}</b><br>
-                                    ${item.email ? `@${item.email}` : ''}<br>
-                                    <span style="font-size: 0.8rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</span>
+                                    <div style="margin-bottom: 6px;">👤 Dipakai: <b>${item.user || 'Unknown'}</b></div>
+                                    <div style="margin-bottom: 6px;">${item.email ? `@${item.email}` : ''}</div>
+                                    <div style="margin-bottom: 6px; font-size: 0.8rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</div>
                                 </span>
                             </div>
                         </div>`;
