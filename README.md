@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (FIXED FINAL)</title>
+    <title>Admin - Master Generator (Auto-Sync Fix)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -21,7 +21,7 @@
             --badge-diamond: #00e5ff;
         }
 
-        /* ZOOM LEVEL 2 (60%) SECARA DEFAULT */
+        /* ZOOM LEVEL 2 (60%) */
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; zoom: 0.6; }
         
         .admin-box { 
@@ -100,13 +100,13 @@
             border-left: 5px solid;
         }
 
-        /* VOUCHER AKTIF: Jarak Jauh (120px) */
-        .head-active { margin-top: 120px !important; border-left-color: #3498db; }
+        /* 1. VOUCHER AKTIF: Jarak 90px */
+        .head-active { margin-top: 90px !important; border-left-color: #3498db; }
 
-        /* VOUCHER TELAH DIBERIKAN: Jarak 80px */
+        /* 2. VOUCHER TELAH DIBERIKAN: Jarak 80px */
         .head-given { margin-top: 80px !important; border-left-color: var(--warning); }
 
-        /* RIWAYAT: Jarak 80px */
+        /* 3. RIWAYAT: Jarak 80px */
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c; }
 
         .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
@@ -139,7 +139,9 @@
 
         .code-text { font-family: 'Courier New', monospace; font-weight: 800; font-size: 1.05rem; color: #333; letter-spacing: 3px; }
         
+        /* USER INFO (Spacing Rapi) */
         .user-info { display: block; font-size: 0.85rem; color: #444; margin-top: 8px; }
+        
         .date-info { font-size: 0.85rem; color: #d35400; font-weight: bold; margin-bottom: 12px; display: block; width: 100%; border-bottom: 1px dashed #ddd; padding-bottom: 8px; letter-spacing: 1.5px; }
 
         .btn-mini { padding: 8px 12px; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; color: white; font-weight: 600; margin-left: 4px; }
@@ -264,7 +266,6 @@
             appId: "1:851984555383:web:e47824f590620b73849572"
         };
 
-        // Initialize Firebase (Versi 8 Compat)
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         const auth = firebase.auth();
@@ -280,8 +281,9 @@
 
         let globalVouchers = {};
         let globalGiven = {};
+        let isMasterLoaded = false; // FLAG PENTING
 
-        // AUTH STATE CHANGE
+        // AUTH STATE
         auth.onAuthStateChanged((user) => {
             if (user) {
                 if (user.uid === ADMIN_UID) {
@@ -305,7 +307,6 @@
                     loginBtn.onclick = () => auth.signOut();
                     genBtn.disabled = true;
                     genBtn.innerText = "⛔ ANDA BUKAN ADMIN";
-                    genBtn.style.background = "#95a5a6";
                     historyContainer.style.display = "none";
                     activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔ AKSES DITOLAK</div>';
                     givenListDiv.innerHTML = '';
@@ -329,9 +330,10 @@
         }
 
         function startListeningData() {
-            // 1. Ambil Data Voucher Master
+            // 1. Ambil Data Master & Aktifkan Flag Loading Selesai
             db.ref('vouchers').on('value', (snapshot) => {
                 globalVouchers = snapshot.exists() ? snapshot.val() : {};
+                isMasterLoaded = true; // DATA UTAMA SUDAH MASUK
                 renderAllLists();
             });
 
@@ -375,7 +377,7 @@
         }
 
         function renderAllLists() {
-            // A. LOGIKA UTAMA: Hanya tampilkan di "Aktif" jika belum ada di "Given"
+            // A. RENDER ACTIVE LIST
             const activeEntries = Object.entries(globalVouchers).filter(([code, type]) => !globalGiven[code]);
             
             const getSortIndex = (type) => {
@@ -415,7 +417,6 @@
                 });
                 activeListDiv.innerHTML = html;
                 
-                // Pasang Event Listener Swipe setelah HTML jadi
                 activeEntries.forEach(([code, type]) => {
                     const row = document.getElementById(`act-${code}`);
                     if(row) addSwipeLogic(row, () => moveVoucherToGiven(code, type));
@@ -425,19 +426,24 @@
                 activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
             }
 
-            // B. RENDER GIVEN LIST (VOUCHER TETAP HIDUP DI DB UTAMA)
+            // B. RENDER GIVEN LIST (DENGAN LOGIKA AUTO-HANGUS)
             const givenEntries = Object.entries(globalGiven);
             
             if (givenEntries.length > 0) {
                 let html = "";
                 givenEntries.forEach(([code, type]) => {
-                    // *** LOGIKA HANGUS OTOMATIS ***
-                    // Jika voucher ada di 'Given' TAPI sudah tidak ada di 'GlobalVouchers' (berarti sudah diredeem/dihapus)
-                    // Maka hapus juga dari list 'Given' (agar bersih)
-                    if (!globalVouchers[code]) {
-                        db.ref(`vouchers_given/${code}`).remove(); 
-                        return; // Skip rendering
+                    
+                    // --- LOGIKA UTAMA PERBAIKAN ---
+                    // Cek: Apakah master data sudah dimuat?
+                    if (isMasterLoaded) {
+                        // Cek: Apakah voucher ini masih ada di master database?
+                        // Jika tidak ada (undefined), berarti sudah dipakai/dihapus -> Hapus juga dari sini!
+                        if (!globalVouchers[code]) {
+                            db.ref(`vouchers_given/${code}`).remove(); 
+                            return; // Jangan render, langsung skip
+                        }
                     }
+                    // ------------------------------
 
                     const badge = getBadgeInfo(type);
                     html += `
@@ -456,9 +462,8 @@
                 });
                 givenListDiv.innerHTML = html;
 
-                // Pasang listener swipe back
                 givenEntries.forEach(([code, type]) => {
-                    if (globalVouchers[code]) {
+                    if (globalVouchers[code]) { // Cek eksistensi sebelum pasang listener
                         const row = document.getElementById(`giv-${code}`);
                         if(row) addSwipeLogic(row, () => returnToActive(code));
                     }
@@ -468,7 +473,7 @@
             }
         }
 
-        // --- CORE LOGIC SWIPE ---
+        // --- SWIPE LOGIC ---
         function addSwipeLogic(element, actionCallback) {
             let startX = 0;
             let currentTranslate = 0;
@@ -484,7 +489,7 @@
                 if (!isDragging) return;
                 const currentX = e.touches[0].clientX;
                 const diff = currentX - startX;
-                if (diff < 0) { // Hanya geser kiri
+                if (diff < 0) { 
                     currentTranslate = diff;
                     if (currentTranslate < -150) currentTranslate = -150;
                     element.style.transform = `translateX(${currentTranslate}px)`;
@@ -494,7 +499,7 @@
             element.addEventListener('touchend', () => {
                 isDragging = false;
                 element.style.transition = 'transform 0.3s ease-out';
-                if (currentTranslate < -80) { // Ambang batas geser
+                if (currentTranslate < -80) { 
                     element.style.transform = `translateX(-100%)`; 
                     setTimeout(() => actionCallback(), 200);
                 } else {
@@ -530,49 +535,41 @@
             return result;
         }
 
-        // --- FUNGSI AKSI ---
+        // --- ACTIONS ---
         
-        // 1. Pindah ke Given (HANYA MENCATAT, TIDAK HAPUS)
         window.moveVoucherToGiven = (code, type) => {
             const info = getBadgeInfo(type);
             navigator.clipboard.writeText(`${code} = ${info.label}`);
             myAlert("Disalin & Dipindahkan!");
             
             if (!auth.currentUser) return;
-            // KUNCI PERBAIKAN: Hanya update 'vouchers_given', jangan sentuh 'vouchers'
+            // HANYA MENCATAT (JANGAN HAPUS DARI VOUCHERS)
             db.ref(`vouchers_given/${code}`).set(type);
         };
 
-        // 2. Kembalikan ke Aktif (Hapus Catatan Given)
         window.returnToActive = (code) => {
             myAlert("Dikembalikan ke Stok Aktif!");
             db.ref(`vouchers_given/${code}`).remove();
         };
 
         window.copyV = (code, typeLabel) => {
-             const info = getBadgeInfo(typeLabel); // Pastikan ini string type
-             // Cek jika typeLabel object atau string
              let label = typeLabel;
              if(typeof typeLabel === 'string' && (typeLabel.includes('days') || typeLabel.includes('key'))) {
                  const i = getBadgeInfo(typeLabel);
                  label = i.label;
              }
-             
              navigator.clipboard.writeText(`${code} = ${label}`);
              myAlert("Disalin: " + `${code} = ${label}`);
         };
 
         window.delV = (code) => {
             myConfirm("Hapus permanen?", () => {
-                // Hapus Total dari kedua tempat
                 db.ref(`vouchers/${code}`).remove();
                 db.ref(`vouchers_given/${code}`).remove();
             });
         };
 
         document.getElementById('generate-btn').onclick = () => {
-            if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) return myAlert("Login dulu!");
-            
             const type = document.getElementById('plan-select').value;
             const qty = parseInt(document.getElementById('voucher-qty').value);
             const updates = {};
