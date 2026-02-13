@@ -2,14 +2,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Final Release)</title>
+    <title>Admin - Master Generator (Final Layout Fix)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
     <style>
         :root {
             --primary: #2c3e50;
-            --danger: #c0392b;
+            --danger: #c0392b; /* MERAH */
             --warning: #f39c12; 
             --return: #3498db; 
             --badge-7days: #3498db;
@@ -101,8 +101,12 @@
         }
 
         .head-active { margin-top: 90px !important; border-left-color: #3498db; }
-        .head-given { margin-top: 80px !important; border-left-color: var(--warning); }
-        .head-history { margin-top: 80px !important; border-left-color: #e74c3c; }
+        
+        /* HEADER DIBERIKAN: MERAH (Sama kayak History) */
+        .head-given { margin-top: 80px !important; border-left-color: var(--danger); }
+
+        /* HEADER RIWAYAT: MERAH */
+        .head-history { margin-top: 80px !important; border-left-color: var(--danger); }
 
         .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
 
@@ -119,10 +123,18 @@
         .item-row { 
             position: relative; z-index: 2; display: flex; justify-content: space-between; align-items: center; 
             background: white; padding: 12px; border-radius: 8px; 
-            /* BORDER LEFT DIHILANGKAN TOTAL (LOGO RANTAI HILANG) */
             box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: transform 0.2s ease-out; 
         }
-        .history-row { flex-direction: column; align-items: flex-start; margin-bottom: 30px; padding: 18px; box-shadow: 0 4px 8px rgba(0,0,0,0.08); }
+        
+        /* STYLE KHUSUS RIWAYAT */
+        .history-row { 
+            flex-direction: column; 
+            align-items: flex-start; 
+            border-left: 5px solid #555; /* Tetap abu-abu gelap untuk item riwayat */
+            margin-bottom: 30px; 
+            padding: 18px; 
+            box-shadow: 0 4px 8px rgba(0,0,0,0.08); 
+        }
 
         .badge { padding: 4px 10px; border-radius: 4px; font-size: 0.75rem; font-weight: 800; color: #fff; margin-left: 5px; text-transform: uppercase; display: inline-block; vertical-align: middle; }
         .bg-7days { background: var(--badge-7days); }
@@ -231,7 +243,7 @@
         <div id="active-list" class="list-box">Silakan Login...</div>
 
         <h3 class="head-given">📤 Voucher Telah Diberikan (Geser Kiri = Kembalikan)</h3>
-        <div id="given-list" class="list-box" style="background: #fff8e1;">Menunggu Login...</div>
+        <div id="given-list" class="list-box" style="background: #fffafa;">Menunggu Login...</div>
 
         <div id="history-container" style="display: none;">
             <h3 class="head-history">📜 Riwayat Voucher</h3>
@@ -325,10 +337,10 @@
         }
 
         function startListeningData() {
-            // 1. Ambil Data Master
+            // 1. Ambil Data Master & Aktifkan Flag Loading Selesai
             db.ref('vouchers').on('value', (snapshot) => {
                 globalVouchers = snapshot.exists() ? snapshot.val() : {};
-                isMasterLoaded = true; 
+                isMasterLoaded = true; // DATA UTAMA SUDAH MASUK
                 renderAllLists();
             });
 
@@ -354,10 +366,10 @@
                         <div class="item-row history-row">
                             <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
                             <div style="width: 100%;">
-                                <span class="code-text" style="font-size: 0.95rem;">${item.code}</span>
-                                
-                                <span class="badge ${badge.css}" style="font-size: 0.65rem;">${badge.text}</span> 
-                                
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                                    <span class="code-text" style="font-size: 0.95rem;">${item.code}</span>
+                                    <span class="badge ${badge.css}" style="font-size: 0.65rem;">${badge.text}</span> 
+                                </div>
                                 <span class="user-info">
                                     <div style="margin-bottom: 6px;">👤 Dipakai: <b>${item.user || 'Unknown'}</b></div>
                                     <div style="margin-bottom: 6px;">${item.email ? `@${item.email}` : ''}</div>
@@ -392,6 +404,7 @@
                 activeEntries.forEach(([code, type]) => {
                     const badge = getBadgeInfo(type);
                     
+                    // WARNA GARIS DIHILANGKAN (JADI CLEAN)
                     html += `
                         <div class="swipe-wrapper">
                             <div class="swipe-bg bg-send">KIRIM >></div>
@@ -418,7 +431,7 @@
                 activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Tidak ada voucher aktif.</div>';
             }
 
-            // B. RENDER GIVEN LIST
+            // B. RENDER GIVEN LIST (DENGAN LOGIKA AUTO-HANGUS)
             const givenEntries = Object.entries(globalGiven);
             
             if (givenEntries.length > 0) {
@@ -433,10 +446,11 @@
                     }
 
                     const badge = getBadgeInfo(type);
+                    // BORDER DIUBAH JADI MERAH (#c0392b)
                     html += `
                         <div class="swipe-wrapper">
                             <div class="swipe-bg bg-return">KEMBALIKAN >></div>
-                            <div class="item-row" id="giv-${code}" style="border-left: 5px solid #f39c12; background: #fff;">
+                            <div class="item-row" id="giv-${code}" style="border-left: 5px solid #c0392b; background: #fff;">
                                 <div style="display: flex; flex-direction: column; width: 100%;">
                                     <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                                         <span class="code-text" style="color: #333;">${code}</span>
@@ -456,7 +470,8 @@
                     }
                 });
             } else {
-                givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada voucher yang dikirim.</div>';
+                // TEXT DIHILANGKAN TOTAL (BLANK)
+                givenListDiv.innerHTML = '';
             }
         }
 
@@ -522,13 +537,13 @@
             return result;
         }
 
-        // --- FUNGSI AKSI ---
+        // --- FUNGSI AKSI (ALERT YANG DIPERBAIKI) ---
         
         window.moveVoucherToGiven = (code, rawType) => {
             const info = getBadgeInfo(rawType);
             const textToCopy = `${code} = ${info.label}`;
             navigator.clipboard.writeText(textToCopy);
-            myAlert(textToCopy); // FIXED: Hapus "Disalin:"
+            myAlert(textToCopy); 
             
             if (!auth.currentUser) return;
             db.ref(`vouchers_given/${code}`).set(rawType);
@@ -543,7 +558,7 @@
              const info = getBadgeInfo(rawType); 
              const textToCopy = `${code} = ${info.label}`;
              navigator.clipboard.writeText(textToCopy);
-             myAlert(textToCopy); // FIXED: Hapus "Disalin:"
+             myAlert(textToCopy); 
         };
 
         window.delV = (code) => {
@@ -567,7 +582,6 @@
         window.myAlert = (msg) => {
             const toast = document.getElementById('custom-toast');
             toast.innerText = msg; toast.style.display = 'block';
-            // ALERT: 5 DETIK
             setTimeout(() => toast.style.display = 'none', 5000);
         };
         
