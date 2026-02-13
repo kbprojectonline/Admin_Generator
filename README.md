@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Final Polish)</title>
+    <title>Admin - Master Generator (Final Polish 2)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -91,12 +91,13 @@
         button#generate-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
         button#generate-btn:disabled { background: #ccc; cursor: not-allowed; }
 
-        /* JARAK VOUCHER AKTIF DITAMBAH (margin-top 50px) */
-        h3 { margin-top: 50px; margin-bottom: 15px; color: #555; font-size: 1.1rem; border-left: 5px solid #3498db; padding-left: 10px; }
+        /* JARAK VOUCHER AKTIF DITAMBAH LAGI (margin-top 70px) BIAR SAMA RAPI */
+        h3 { margin-top: 70px; margin-bottom: 15px; color: #555; font-size: 1.1rem; border-left: 5px solid #3498db; padding-left: 10px; }
         
+        /* JARAK RIWAYAT */
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c !important; }
         
-        /* JARAK VOUCHER TELAH DIBERIKAN DITAMBAH (margin-top 60px) */
+        /* JARAK VOUCHER TELAH DIBERIKAN */
         .head-given { border-left-color: var(--warning) !important; margin-top: 60px !important; }
 
         .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
@@ -445,7 +446,7 @@
                 }
             });
 
-            // 3. Ambil Riwayat
+            // 3. Ambil Riwayat (FIX UKURAN KODE 12 DIGIT)
             historyListener = onValue(ref(db, 'voucher_history'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
@@ -462,7 +463,7 @@
                         <div class="item-row history-row">
                             <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
                             <div style="width: 100%;">
-                                <span class="code-text" style="font-size: 1rem;">${item.code}</span>
+                                <span class="code-text" style="font-size: 0.9rem;">${item.code}</span>
                                 <span class="badge ${badge.css}">${badge.text}</span> 
                                 <span class="user-info">
                                     👤 Dipakai: <b>${item.user || 'Unknown'}</b><br>
