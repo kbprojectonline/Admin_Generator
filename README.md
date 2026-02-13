@@ -2,7 +2,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Admin - Master Generator (Final Perfect)</title>
+    <title>Admin - Master Generator (Final Polish)</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600;700;900&display=swap" rel="stylesheet">
 
@@ -21,7 +21,7 @@
             --badge-diamond: #00e5ff;
         }
 
-        /* ZOOM DEFAULT DIGANTI KE 0.6 (Level 2) */
+        /* DEFAULT ZOOM LEVEL 2 (60%) */
         body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 15px; display: flex; flex-direction: column; align-items: center; margin: 0; transition: zoom 0.2s ease; zoom: 0.6; }
         
         .admin-box { 
@@ -91,9 +91,13 @@
         button#generate-btn { width: 100%; padding: 15px; background: var(--primary); color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.2s; }
         button#generate-btn:disabled { background: #ccc; cursor: not-allowed; }
 
-        h3 { margin-top: 30px; margin-bottom: 15px; color: #555; font-size: 1.1rem; border-left: 5px solid #3498db; padding-left: 10px; }
+        /* JARAK VOUCHER AKTIF DITAMBAH (margin-top 50px) */
+        h3 { margin-top: 50px; margin-bottom: 15px; color: #555; font-size: 1.1rem; border-left: 5px solid #3498db; padding-left: 10px; }
+        
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c !important; }
-        .head-given { border-left-color: var(--warning) !important; margin-top: 40px !important; }
+        
+        /* JARAK VOUCHER TELAH DIBERIKAN DITAMBAH (margin-top 60px) */
+        .head-given { border-left-color: var(--warning) !important; margin-top: 60px !important; }
 
         .list-box { background: #f8f9fa; padding: 10px; height: 350px; overflow-y: auto; border: 1px solid #eee; border-radius: 10px; }
 
@@ -119,9 +123,7 @@
             z-index: 1;
             border-radius: 8px;
         }
-        /* Background Oranye untuk Kirim */
         .bg-send { background: var(--warning); }
-        /* Background Biru untuk Kembalikan */
         .bg-return { background: var(--return); }
 
         .item-row { 
@@ -407,7 +409,7 @@
                 activeListDiv.innerHTML = '<div style="color:red; text-align:center;">⛔ Gagal memuat data (Permission Denied).</div>';
             });
 
-            // 2. Ambil Voucher Telah Diberikan (FIX LAYOUT & SWIPE BACK)
+            // 2. Ambil Voucher Telah Diberikan (FIX LAYOUT)
             givenListener = onValue(ref(db, 'vouchers_given'), (snapshot) => {
                 if (snapshot.exists()) {
                     const data = snapshot.val();
@@ -460,12 +462,12 @@
                         <div class="item-row history-row">
                             <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
                             <div style="width: 100%;">
-                                <span class="code-text">${item.code}</span>
+                                <span class="code-text" style="font-size: 1rem;">${item.code}</span>
                                 <span class="badge ${badge.css}">${badge.text}</span> 
                                 <span class="user-info">
                                     👤 Dipakai: <b>${item.user || 'Unknown'}</b><br>
                                     ${item.email ? `@${item.email}` : ''}<br>
-                                    <span style="font-size: 0.9rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</span>
+                                    <span style="font-size: 0.8rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</span>
                                 </span>
                             </div>
                         </div>`;
