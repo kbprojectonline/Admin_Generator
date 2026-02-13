@@ -92,7 +92,7 @@
         button#generate-btn:disabled { background: #ccc; cursor: not-allowed; }
 
         /* JARAK VOUCHER AKTIF DITAMBAH LAGI (margin-top 70px) BIAR SAMA RAPI */
-        h3 { margin-top: 70px; margin-bottom: 15px; color: #555; font-size: 1.1rem; border-left: 5px solid #3498db; padding-left: 10px; }
+        h3 { margin-top: 100px; margin-bottom: 15px; color: #555; font-size: 1.1rem; border-left: 5px solid #3498db; padding-left: 10px; }
         
         /* JARAK RIWAYAT */
         .head-history { margin-top: 80px !important; border-left-color: #e74c3c !important; }
