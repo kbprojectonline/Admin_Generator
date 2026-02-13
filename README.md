@@ -396,40 +396,60 @@
                 }
             }
             // --- SWIPE LOGIC ---
-            function addSwipeLogic(element, actionCallback) {
-                let startX = 0;
-                let currentTranslate = 0;
-                let isDragging = false;
-                element.addEventListener('touchstart', (e) => {
-                    // LOGIKA BARU: Cek jumlah jari (hanya 1 jari yang boleh)
-                    if (e.touches.length > 1) return;
-                    startX = e.touches[0].clientX;
-                    isDragging = true;
-                    element.style.transition = 'none';
-                });
-                element.addEventListener('touchmove', (e) => {
-                    // LOGIKA BARU: Cek jumlah jari
-                    if (e.touches.length > 1) return;
-                    if (!isDragging) return;
-                    const currentX = e.touches[0].clientX;
-                    const diff = currentX - startX;
-                    if (diff < 0) {
-                        currentTranslate = diff;
-                        if (currentTranslate < -150) currentTranslate = -150;
-                        element.style.transform = `translateX(${currentTranslate}px)`;
-                    }
-                });
-                element.addEventListener('touchend', () => {
-                    isDragging = false;
-                    element.style.transition = 'transform 0.3s ease-out';
-                    if (currentTranslate < -80) {
-                        element.style.transform = `translateX(-100%)`;
-                        setTimeout(() => actionCallback(), 200);
-                    } else {
-                        element.style.transform = `translateX(0)`;
-                    }
-                });
-            }
+function addSwipeLogic(element, actionCallback) {
+            let startX = 0;
+            let startY = 0; // Tambahan: Deteksi posisi atas-bawah
+            let currentTranslate = 0;
+            let isDragging = false;
+
+            element.addEventListener('touchstart', (e) => {
+                if (e.touches.length > 1) return; 
+
+                startX = e.touches[0].clientX;
+                startY = e.touches[0].clientY; // Simpan posisi awal Y
+                isDragging = true;
+                element.style.transition = 'none'; 
+            });
+
+            element.addEventListener('touchmove', (e) => {
+                if (e.touches.length > 1) return; 
+                if (!isDragging) return;
+
+                const currentX = e.touches[0].clientX;
+                const currentY = e.touches[0].clientY;
+                
+                const diffX = currentX - startX;
+                const diffY = currentY - startY;
+
+                // LOGIKA PENTING:
+                // Jika gerakan menyamping (X) lebih besar daripada gerakan atas-bawah (Y)
+                // Maka matikan scroll (preventDefault) agar fokus swipe voucher
+                if (Math.abs(diffX) > Math.abs(diffY)) {
+                    if (e.cancelable) e.preventDefault(); 
+                } else {
+                    return; // Jika geraknya vertikal, biarkan scrolling halaman, jangan geser voucher
+                }
+
+                // Hanya geser voucher jika arahnya ke kiri (negatif)
+                if (diffX < 0) {
+                    currentTranslate = diffX;
+                    if (currentTranslate < -150) currentTranslate = -150;
+                    element.style.transform = `translateX(${currentTranslate}px)`;
+                }
+            });
+
+            element.addEventListener('touchend', () => {
+                isDragging = false;
+                element.style.transition = 'transform 0.3s ease-out';
+
+                if (currentTranslate < -80) {
+                    element.style.transform = `translateX(-100%)`; 
+                    setTimeout(() => actionCallback(), 200);
+                } else {
+                    element.style.transform = `translateX(0)`;
+                }
+            });
+        }
             function getBadgeInfo(type) {
                 if (!type) return { text: 'UNKNOWN', css: 'bg-7days', label: 'Unknown' };
                 let raw = type.toLowerCase();
