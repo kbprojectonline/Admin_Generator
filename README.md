@@ -259,7 +259,7 @@
                         givenListDiv.innerHTML = '';
                     }
                 } else {
-                    loginBtn.innerHTML = `🔑 Login Admin (Google)`;
+                    loginBtn.innerHTML = `🔑 Login Sebagai Admin (Google)`;
                     loginBtn.style.background = "#4285F4";
                     loginBtn.onclick = loginGoogle;
                     genBtn.disabled = true;
@@ -495,7 +495,7 @@ function addSwipeLogic(element, actionCallback) {
                 myAlert(textToCopy);
             };
 window.delV = (code) => {
-    myConfirm("Yakin, Hapus Permanent?", () => {
+    myConfirm("Hapus Permanent?", () => {
         const updates = {};
         updates['vouchers/' + code] = null;
         updates['vouchers_given/' + code] = null;
