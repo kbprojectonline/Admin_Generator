@@ -324,46 +324,31 @@
                 const activeEntries = Object.entries(globalVouchers).filter(([code, type]) => !globalGiven[code]);
 // GANTI BAGIAN INI (LENGKAP DARI TAHUNAN SAMPAI DIAMOND)
 const getSortIndex = (type) => {
-    // 1. Bersihkan string (ubah ke huruf kecil & hapus spasi/promo jika ada)
     let clean = type.toLowerCase().replace('promo_', '').trim();
-
-    // 2. DAFTAR URUTAN (Angka makin kecil = Posisi makin atas)
     const priority = {
-        // --- SPESIAL: 1 TAHUN PALING ATAS ---
-        '365_days': 1, 
-
-        // --- SISA PAKET WAKTU (Opsional, ditaruh setelah 1 tahun) ---
-        '90_days': 2,
-        '30_days': 3,
-        '7_days': 4,
-
-        // --- PAKET SILVER (Urut dari kecil ke besar) ---
-        'silver_1': 10,
-        'silver_5': 11,
-        'silver': 12,      // Ini value untuk 10 kunci silver
-        'silver_20': 13,
-        'silver_50': 14,
-        'silver_100': 15,
-
-        // --- PAKET GOLD (Urut dari kecil ke besar) ---
-        'gold_1': 20,
-        'gold_5': 21,
-        'gold': 22,        // Ini value untuk 10 kunci gold
-        'gold_20': 23,
-        'gold_50': 24,
-        'gold_70': 25,
-
-        // --- PAKET DIAMOND (Urut dari kecil ke besar) ---
-        'diamond_1': 30,
-        'diamond_5': 31,
-        'diamond': 32,     // Ini value untuk 10 kunci diamond
-        'diamond_15': 33,
-        'diamond_30': 34
+        '7_days': 1,
+        '30_days': 2,
+        '90_days': 3,
+        '365_days': 4,
+        'silver_1': 5,
+        'silver_5': 6,
+        'silver': 7,
+        'silver_20': 8,
+        'silver_50': 9,
+        'silver_100': 10,
+        'gold_1': 11,
+        'gold_5': 12,
+        'gold': 13,
+        'gold_20': 14,
+        'gold_50': 15,
+        'gold_70': 16,
+        'diamond_1': 17,
+        'diamond_5': 18,
+        'diamond': 19,
+        'diamond_15': 20,
+        'diamond_30': 21
     };
-
-    // 3. Cek apakah tipe voucher ada di daftar 'priority'
-    // Jika ada, pakai angkanya. Jika tidak, kasih angka 999 (paling bawah).
-    return priority[clean] || 999; 
+    return priority[clean] || 99;
 };
                 activeEntries.sort((a, b) => getSortIndex(a[1]) - getSortIndex(b[1]));
                 if (activeEntries.length > 0) {
