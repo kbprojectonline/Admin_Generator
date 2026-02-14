@@ -494,12 +494,21 @@ function addSwipeLogic(element, actionCallback) {
                 navigator.clipboard.writeText(textToCopy);
                 myAlert(textToCopy);
             };
-            window.delV = (code) => {
-                myConfirm("Hapus permanen?", () => {
-                    db.ref(`vouchers/${code}`).remove();
-                    db.ref(`vouchers_given/${code}`).remove();
-                });
-            };
+window.delV = (code) => {
+    myConfirm("Hapus Permanent", () => {
+        const updates = {};
+        updates['vouchers/' + code] = null;
+        updates['vouchers_given/' + code] = null;
+
+        db.ref().update(updates)
+            .then(() => {
+                myAlert("✅ Voucher Berhasil Dihapus!");
+            })
+            .catch((error) => {
+                myAlert("❌ Gagal: " + error.message);
+            });
+    });
+};
             document.getElementById('generate-btn').onclick = () => {
                 const type = document.getElementById('plan-select').value;
                 const qty = parseInt(document.getElementById('voucher-qty').value);
