@@ -276,7 +276,7 @@
             }
             function startListeningData() {
                 // 1. Ambil Data Master & Aktifkan Flag Loading Selesai
-                db.ref('vouchers').limitToLast(100).on('value', (snapshot) => {
+                db.ref('vouchers').on('value', (snapshot) => {
                     globalVouchers = snapshot.exists() ? snapshot.val() : {};
                     isMasterLoaded = true; // DATA UTAMA SUDAH MASUK
                     renderAllLists();
@@ -287,7 +287,7 @@
                     renderAllLists();
                 });
                 // 3. Ambil Riwayat
-                db.ref('voucher_history').limitToLast(50).on('value', (snapshot) => {
+                db.ref('voucher_history').on('value', (snapshot) => {
                     if (snapshot.exists()) {
                         const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
                         let html = "";
