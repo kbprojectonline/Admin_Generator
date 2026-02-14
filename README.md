@@ -495,14 +495,14 @@ function addSwipeLogic(element, actionCallback) {
                 myAlert(textToCopy);
             };
 window.delV = (code) => {
-    myConfirm("Hapus Permanent", () => {
+    myConfirm("Yakin, Hapus Permanent?", () => {
         const updates = {};
         updates['vouchers/' + code] = null;
         updates['vouchers_given/' + code] = null;
 
         db.ref().update(updates)
             .then(() => {
-                myAlert("✅ Voucher Berhasil Dihapus!");
+                myAlert("✅ Voucher Berhasil Dihapus Permanent!");
             })
             .catch((error) => {
                 myAlert("❌ Gagal: " + error.message);
