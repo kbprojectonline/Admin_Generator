@@ -269,6 +269,27 @@
         <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Hanya Menghapus stok yang Voucher Aktif Saja.</p>
     </div>
 </div>
+
+
+<div id="history-delete-container" style="display: none; width: 100%; margin-top: 40px;">
+        <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #2c3e50; margin-bottom: 15px;">📜 Menghapus Riwayat Voucher</h3>
+        <div style="background: #fffafb; border: 1px solid #eee; padding: 20px; border-radius: 12px;">
+            <div style="display: flex; gap: 12px; align-items: center;">
+                <select id="hist-del-qty" style="flex: 1; height: 60px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; font-weight: bold; background-color: white;">
+                    <option value="1">Hapus 1 Riwayat Terlama</option>
+                    <option value="2">Hapus 2 Riwayat Terlama</option>
+                    <option value="3">Hapus 3 Riwayat Terlama</option>
+                    <option value="4">Hapus 4 Riwayat Terlama</option>
+                    <option value="5">Hapus 5 Riwayat Terlama</option>
+                    <option value="10">Hapus 10 Riwayat Terlama</option>
+                </select>
+                <button onclick="runHistoryDelete()" style="flex: 1; background: #2c3e50; color: white; border: none; padding: 18px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
+                    HAPUS RIWAYAT LAMA
+                </button>
+            </div>
+            <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: center;">*Menghapus data permanen dari daftar riwayat paling awal.</p>
+        </div>
+    </div>
         </div> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
@@ -706,6 +727,37 @@ window.runMassDelete = () => {
         db.ref().update(updates)
             .then(() => myAlert(`✅ Berhasil menghapus ${matches.length} stok ${namaPaket}!`))
             .catch(err => myAlert("Gagal: " + err.message));
+    });
+};
+window.runHistoryDelete = () => {
+    const qty = parseInt(document.getElementById('hist-del-qty').value);
+    
+    db.ref('voucher_history').once('value', (snapshot) => {
+        if (!snapshot.exists()) {
+            myAlert("❌ Tidak ada riwayat untuk dihapus!");
+            return;
+        }
+
+        const historyData = [];
+        snapshot.forEach((child) => {
+            historyData.push({ key: child.key, date: child.val().date });
+        });
+
+        // Urutkan dari yang paling lama (angka date terkecil)
+        historyData.sort((a, b) => a.date - b.date);
+
+        const targets = historyData.slice(0, qty);
+
+        myConfirm(`Hapus ${targets.length} riwayat paling lama?`, () => {
+            const updates = {};
+            targets.forEach(item => {
+                updates[`voucher_history/${item.key}`] = null;
+            });
+
+            db.ref().update(updates)
+                .then(() => myAlert(`✅ Berhasil menghapus ${targets.length} riwayat lama!`))
+                .catch(err => myAlert("Gagal: " + err.message));
+        });
     });
 };
         </script>
