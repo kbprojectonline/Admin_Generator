@@ -400,7 +400,7 @@ db.ref('voucher_history').on('value', (snapshot) => {
                     
                     // Asumsi nama disimpan dalam field 'nama', 'name', atau 'displayName'
                     // Ganti 'userData.nama' sesuai dengan nama key yang kamu pakai di database
-                    const realName = userData.nama || userData.name || userData.displayName || userData.username || 'Unknown'; 
+                    const realName = userData.profilename || item.user || 'Unknown';
                     
                     // Timpa nama lama yang tersimpan permanen dengan nama Realtime
                     document.querySelectorAll(`.realtime-name[data-uid="${uid}"]`).forEach(el => {
