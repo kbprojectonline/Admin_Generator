@@ -203,24 +203,6 @@
             </div>
             <button id="generate-btn" disabled>🔒 LOGIN DULU UNTUK GENERATE</button>
 
-            <div id="mass-delete-container" class="mass-delete-area">
-                <p style="margin: 0 0 10px 0; font-size: 12px; font-weight: 900; color: #c0392b; text-transform: uppercase;">🗑️ Hapus Stok Voucher (Masal)</p>
-                <div class="mass-delete-flex">
-                    <select id="mass-del-type">
-                        <option value="7_days">Paket 7 Hari</option>
-                        <option value="30_days">Paket 1 Bulan</option>
-                        <option value="silver">Paket Silver</option>
-                        <option value="gold">Paket Gold</option>
-                        <option value="diamond">Paket Diamond</option>
-                    </select>
-                    <select id="mass-del-qty">
-                        <option value="10">10 Voucher</option>
-                        <option value="20">20 Voucher</option>
-                        <option value="30">30 Voucher</option>
-                    </select>
-                    <button class="btn-mass-del" onclick="runMassDelete()">HAPUS</button>
-                </div>
-            </div>
             <h3 class="head-active">🎫 Voucher Aktif</h3>
             <div id="active-list" class="list-box" style="background: #fffafa;">Silakan Login...</div>
             <h3 class="head-given">📤 Voucher Telah Diberikan</h3>
