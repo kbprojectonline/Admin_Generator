@@ -216,7 +216,7 @@
     
     <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
         
-        <select id="mass-del-type" style="width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; border: 1px solid #ccc; text-align: center; text-align-last: center;">
+        <select id="mass-del-type" style="width: 100%; padding: 20px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold;">
             <optgroup label="PAKET WAKTU">
                 <option value="7_days">🗓️ Paket 7 Hari</option>
                 <option value="30_days">📅 Paket 1 Bulan</option>
