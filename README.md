@@ -391,22 +391,25 @@ db.ref('voucher_history').on('value', (snapshot) => {
         // Cetak HTML-nya terlebih dahulu
         historyListDiv.innerHTML = html;
 
-        // FITUR BARU: Tarik data nama asli secara realtime dari tabel User
         uniqueUids.forEach(uid => {
             // PERHATIAN: Sesuaikan path 'users/' ini dengan struktur database kamu
             db.ref('users/' + uid).once('value').then(userSnap => {
                 if(userSnap.exists()) {
                     const userData = userSnap.val();
                     
-                    // Asumsi nama disimpan dalam field 'nama', 'name', atau 'displayName'
-                    // Ganti 'userData.nama' sesuai dengan nama key yang kamu pakai di database
-                    const realName = userData.profilename || item.user || 'Unknown';
+                    // Ambil nilai profilename secara dinamis
+                    // JANGAN gunakan item.user di sini karena 'item' sudah di luar scope
+                    const dynamicName = userData.profilename;
                     
-                    // Timpa nama lama yang tersimpan permanen dengan nama Realtime
-                    document.querySelectorAll(`.realtime-name[data-uid="${uid}"]`).forEach(el => {
-                        el.innerText = realName;
-                    });
+                    // Jika dynamicName ada isinya (tidak kosong/null), timpa nama di HTML
+                    if (dynamicName) {
+                        document.querySelectorAll(`.realtime-name[data-uid="${uid}"]`).forEach(el => {
+                            el.innerText = dynamicName;
+                        });
+                    }
                 }
+            }).catch(err => {
+                console.error("Gagal menarik data untuk UID: " + uid, err);
             });
         });
 
