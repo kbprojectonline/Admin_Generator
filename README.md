@@ -257,7 +257,7 @@
             <option value="100">100 Pcs</option>
         </select>
 
-<button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 25px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 18px;">
+<button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 8px;">
     HAPUS STOK PERMANENT
 </button>
     </div>
