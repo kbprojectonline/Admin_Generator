@@ -262,7 +262,7 @@
             </select>
 
             <button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
-                HAPUS STOK PERMANENT
+                HAPUS PERMANENT
             </button>
         </div>
         
@@ -286,7 +286,7 @@
             </select>
             
             <button onclick="runHistoryDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
-                HAPUS RIWAYAT LAMA
+                HAPUS PERMANENT
             </button>
             
         </div>
