@@ -332,6 +332,15 @@
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
+                    const userStatusRef = db.ref(`users/${user.uid}/isOnline`);
+                    db.ref('.info/connected').on('value', (snapshot) => {
+                        if (snapshot.val() == false) { return; }
+                        // Jika tab ditutup/koneksi putus, otomatis ubah ke false
+                        userStatusRef.onDisconnect().set(false).then(() => {
+                            // Saat ini sedang aktif, ubah ke true
+                            userStatusRef.set(true);
+                        });
+                    });
                     if (user.uid === ADMIN_UID) {
                         loginBtn.innerHTML = `✅ Admin: <b>${user.email.split('@')[0]}</b> (Logout)`;
                         loginBtn.style.background = "#27ae60";
