@@ -629,20 +629,40 @@ window.delV = (code) => {
             });
     });
 };
-            document.getElementById('generate-btn').onclick = () => {
-                const type = document.getElementById('plan-select').value;
-                const qty = parseInt(document.getElementById('voucher-qty').value);
-                const updates = {};
-                for (let i = 0; i < qty; i++) updates[makeCode(12)] = type;
-                db.ref('vouchers').update(updates)
-                .then(() => myAlert(`✅ Sukses buat ${qty} voucher!`))
-                .catch(e => myAlert("Gagal: " + e.message));
-            };
-            window.myAlert = (msg) => {
-                const toast = document.getElementById('custom-toast');
-                toast.innerText = msg; toast.style.display = 'block';
-                setTimeout(() => toast.style.display = 'none', 5000);
-            };
+document.getElementById('generate-btn').onclick = () => {
+    const type = document.getElementById('plan-select').value;
+    const qty = parseInt(document.getElementById('voucher-qty').value);
+    const updates = {};
+    for (let i = 0; i < qty; i++) updates[makeCode(12)] = type;
+
+    // LANGSUNG MUNCULKAN POP-UP (Tanpa nunggu database selesai)
+    myAlert(`⚡ Sedang membuat ${qty} voucher...`);
+
+    db.ref('vouchers').update(updates)
+    .then(() => {
+        // UPDATE POP-UP JADI SUKSES
+        myAlert(`✅ Sukses buat ${qty} voucher!`);
+    })
+    .catch(e => myAlert("Gagal: " + e.message));
+};
+window.myAlert = (msg) => {
+    const toast = document.getElementById('custom-toast');
+    
+    // Reset tampilan dulu supaya kalau diklik berkali-kali dia muncul terus
+    toast.style.display = 'none'; 
+    
+    setTimeout(() => {
+        toast.innerText = msg;
+        toast.style.display = 'block';
+    }, 10); // Jeda tipis biar browser sadar ada perubahan
+
+    // Hapus timer lama kalau ada (opsional, tapi ini bikin stabil)
+    if(window.toastTimer) clearTimeout(window.toastTimer);
+    
+    window.toastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+    }, 5000);
+};
             window.myConfirm = (msg, action) => {
                 document.getElementById('modal-msg').innerText = msg;
                 document.getElementById('custom-overlay').style.display = 'flex';
