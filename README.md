@@ -123,6 +123,15 @@
             .modal-content { background: white; padding: 20px; border-radius: 15px; width: 100%; max-width: 350px; text-align: center; }
             .modal-btns { display: flex; gap: 10px; margin-top: 20px; }
             .modal-btns button { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer; }
+
+            /* // INI TAMBAHNYA: Style Box Hapus Masal */
+            .mass-delete-area {
+                background: #fff5f5; padding: 15px; border: 2px dashed #fab1a0; border-radius: 12px;
+                margin-top: 15px; display: none; 
+            }
+            .mass-delete-flex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+            .mass-delete-flex select { padding: 10px; border-radius: 8px; border: 1px solid #ccc; flex: 1; font-weight: bold; }
+            .btn-mass-del { background: var(--danger); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 900; cursor: pointer; }
         </style>
     </head>
     <body style="zoom: 0.6;">
@@ -193,6 +202,25 @@
                 </select>
             </div>
             <button id="generate-btn" disabled>🔒 LOGIN DULU UNTUK GENERATE</button>
+
+            <div id="mass-delete-container" class="mass-delete-area">
+                <p style="margin: 0 0 10px 0; font-size: 12px; font-weight: 900; color: #c0392b; text-transform: uppercase;">🗑️ Hapus Stok Voucher (Masal)</p>
+                <div class="mass-delete-flex">
+                    <select id="mass-del-type">
+                        <option value="7_days">Paket 7 Hari</option>
+                        <option value="30_days">Paket 1 Bulan</option>
+                        <option value="silver">Paket Silver</option>
+                        <option value="gold">Paket Gold</option>
+                        <option value="diamond">Paket Diamond</option>
+                    </select>
+                    <select id="mass-del-qty">
+                        <option value="10">10 Voucher</option>
+                        <option value="20">20 Voucher</option>
+                        <option value="30">30 Voucher</option>
+                    </select>
+                    <button class="btn-mass-del" onclick="runMassDelete()">HAPUS</button>
+                </div>
+            </div>
             <h3 class="head-active">🎫 Voucher Aktif</h3>
             <div id="active-list" class="list-box" style="background: #fffafa;">Silakan Login...</div>
             <h3 class="head-given">📤 Voucher Telah Diberikan</h3>
@@ -243,6 +271,7 @@
                         genBtn.disabled = false;
                         genBtn.innerText = "⚡ GENERATE VOUCHER (12 DIGIT)";
                         genBtn.style.background = "#2c3e50";
+                        document.getElementById('mass-delete-container').style.display = "block"; // // INI TAMBAHNYA
                         historyContainer.style.display = "block";
                         activeListDiv.innerHTML = "Memuat data...";
                         givenListDiv.innerHTML = "Memuat data terkirim...";
@@ -255,6 +284,7 @@
                         genBtn.disabled = true;
                         genBtn.innerText = "⛔ ANDA BUKAN ADMIN";
                         historyContainer.style.display = "none";
+                        document.getElementById('mass-delete-container').style.display = "none"; // // INI TAMBAHNYA
                         activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔ AKSES DITOLAK</div>';
                         givenListDiv.innerHTML = '';
                     }
@@ -266,6 +296,7 @@
                     genBtn.innerText = "🔒 Login Terlebih Dahulu";
                     genBtn.style.background = "#ccc";
                     historyContainer.style.display = "none";
+                    document.getElementById('mass-delete-container').style.display = "none"; // // INI TAMBAHNYA
                     activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
                     givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
                 }
@@ -549,6 +580,32 @@ window.delV = (code) => {
                 document.getElementById('modal-confirm-btn').onclick = () => { action(); closeModal(); };
             };
             window.closeModal = () => document.getElementById('custom-overlay').style.display = 'none';
+            // // INI TAMBAHNYA: Fungsi Logika Hapus Masal
+            window.runMassDelete = () => {
+                const targetType = document.getElementById('mass-del-type').value;
+                const targetQty = parseInt(document.getElementById('mass-del-qty').value);
+
+                // Filter voucher: Cocok tipe & Belum ada di daftar 'vouchers_given'
+                const matches = Object.entries(globalVouchers)
+                    .filter(([code, type]) => type.toLowerCase().includes(targetType) && !globalGiven[code])
+                    .slice(0, targetQty);
+
+                if (matches.length === 0) {
+                    myAlert("❌ Tidak ditemukan stok aktif untuk kategori ini.");
+                    return;
+                }
+
+                myConfirm(`Hapus ${matches.length} voucher ${targetType.toUpperCase()}?`, () => {
+                    const updates = {};
+                    matches.forEach(([code]) => {
+                        updates[`vouchers/${code}`] = null;
+                    });
+
+                    db.ref().update(updates)
+                        .then(() => myAlert(`✅ Berhasil menghapus ${matches.length} voucher!`))
+                        .catch(err => myAlert("Gagal: " + err.message));
+                });
+            };
         </script>
     </body>
 </html>
