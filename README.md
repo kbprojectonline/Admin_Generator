@@ -630,39 +630,38 @@ window.delV = (code) => {
     });
 };
 document.getElementById('generate-btn').onclick = () => {
-    const type = document.getElementById('plan-select').value;
-    const qty = parseInt(document.getElementById('voucher-qty').value);
-    
-    // 1. LANGSUNG TRIGER POP-UP (Biar kerasa pas diklik)
-    myAlert(`⚡ Proses membuat ${qty} voucher...`);
+    // LANGSUNG PANGGIL: Begitu jari nyentuh tombol, panggil alert-nya
+    const qty = document.getElementById('voucher-qty').value;
+    myAlert(`⚡ Menambah ${qty} voucher...`); 
 
+    const type = document.getElementById('plan-select').value;
     const updates = {};
-    for (let i = 0; i < qty; i++) updates[makeCode(12)] = type;
-    
+    for (let i = 0; i < parseInt(qty); i++) updates[makeCode(12)] = type;
+
     db.ref('vouchers').update(updates)
     .then(() => {
-        // 2. TIMPA DENGAN POP-UP SUKSES
-        myAlert(`✅ Sukses buat ${qty} voucher!`);
+        myAlert(`✅ Berhasil dibuat!`); // Begitu data masuk, alert-nya ke-reset lagi jadi centang
     })
     .catch(e => myAlert("Gagal: " + e.message));
 };
 window.myAlert = (msg) => {
     const toast = document.getElementById('custom-toast');
     
-    // PAKSA RESET: Hilangkan class/display dan hentikan timer sebelumnya
-    toast.style.display = 'none';
+    // 1. HENTIKAN timer yang sedang berjalan supaya nggak mati mendadak
     if (window.toastTimer) clearTimeout(window.toastTimer);
 
-    // Kasih jeda 10ms biar browser sempat ngerender "hilang" sebelum muncul lagi
-    setTimeout(() => {
-        toast.innerText = msg;
-        toast.style.display = 'block';
-        
-        // Timer buat ngilangin otomatis
-        window.toastTimer = setTimeout(() => {
-            toast.style.display = 'none';
-        }, 5000);
-    }, 10); 
+    // 2. PAKSA REFLOW (Trik CSS supaya browser reset paksa animasi/tampilan)
+    toast.style.display = 'none';
+    void toast.offsetWidth; // Baris sakti: Ini memaksa browser nge-reset tampilan saat itu juga
+    
+    // 3. MUNCULKAN LAGI detik itu juga
+    toast.innerText = msg;
+    toast.style.display = 'block';
+
+    // 4. Pasang timer baru untuk menghilang (5 detik)
+    window.toastTimer = setTimeout(() => {
+        toast.style.display = 'none';
+    }, 5000);
 };
             window.myConfirm = (msg, action) => {
                 document.getElementById('modal-msg').innerText = msg;
