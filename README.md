@@ -211,28 +211,51 @@
                 <h3 class="head-history">📜 Riwayat Voucher</h3>
                 <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
             </div>
-            <div id="mass-delete-container" class="mass-delete-area" style="margin-top: 30px; border: 2px dashed #eee; padding: 15px; border-radius: 12px; display: none;">
+<div id="mass-delete-container" class="mass-delete-area" style="margin-top: 30px; border: 2px dashed #eee; padding: 15px; border-radius: 12px; display: none;">
     <h3 style="margin-top: 0; font-size: 14px; color: #c0392b;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
     <div class="mass-delete-flex" style="display: flex; gap: 8px;">
-        <select id="mass-del-type" style="flex: 2; padding: 8px; border-radius: 5px;">
-            <option value="7_days">🗓️ Paket 7 Hari</option>
-            <option value="30_days">📅 Paket 1 Bulan</option>
-            <option value="90_days">📊 Paket 3 Bulan</option>
-            <option value="365_days">🏆 Paket 1 Tahun</option>
-            <option value="silver">🥈 Semua Paket Silver</option>
-            <option value="gold">👑 Semua Paket Gold</option>
-            <option value="diamond">💎 Semua Paket Diamond</option>
+        <select id="mass-del-type" style="flex: 2; padding: 8px; border-radius: 5px; font-size: 12px;">
+            <optgroup label="PAKET WAKTU">
+                <option value="7_days">🗓️ Paket 7 Hari</option>
+                <option value="30_days">📅 Paket 1 Bulan</option>
+                <option value="90_days">📊 Paket 3 Bulan</option>
+                <option value="365_days">🏆 Paket 1 Tahun</option>
+            </optgroup>
+            <optgroup label="PAKET SILVER">
+                <option value="silver_1">🥈 1 Kunci Silver</option>
+                <option value="silver_5">🥈 5 Kunci Silver</option>
+                <option value="silver">🥈 10 Kunci Silver</option>
+                <option value="silver_20">🥈 20 Kunci Silver</option>
+                <option value="silver_50">🥈 50 Kunci Silver</option>
+                <option value="silver_100">🥈 100 Kunci Silver</option>
+            </optgroup>
+            <optgroup label="PAKET GOLD">
+                <option value="gold_1">👑 1 Kunci Gold</option>
+                <option value="gold_5">👑 5 Kunci Gold</option>
+                <option value="gold">👑 10 Kunci Gold</option>
+                <option value="gold_20">👑 20 Kunci Gold</option>
+                <option value="gold_50">👑 50 Kunci Gold</option>
+                <option value="gold_70">👑 70 Kunci Gold</option>
+            </optgroup>
+            <optgroup label="PAKET DIAMOND">
+                <option value="diamond_1">💎 1 Kunci Diamond</option>
+                <option value="diamond_5">💎 5 Kunci Diamond</option>
+                <option value="diamond">💎 10 Kunci Diamond</option>
+                <option value="diamond_15">💎 15 Kunci Diamond</option>
+                <option value="diamond_30">💎 30 Kunci Diamond</option>
+            </optgroup>
         </select>
         <select id="mass-del-qty" style="flex: 1; padding: 8px; border-radius: 5px;">
-            <option value="10">10</option>
-            <option value="20">20</option>
-            <option value="30">30</option>
-            <option value="40">40</option>
-            <option value="50">50</option>
-            <option value="100">100</option>
+            <option value="10">10 Pcs</option>
+            <option value="20">20 Pcs</option>
+            <option value="30">30 Pcs</option>
+            <option value="40">40 Pcs</option>
+            <option value="50">50 Pcs</option>
+            <option value="100">100 Pcs</option>
         </select>
         <button onclick="runMassDelete()" style="background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">HAPUS</button>
     </div>
+    <p style="font-size: 11px; color: #888; margin-top: 8px; margin-bottom: 0;">*Hanya menghapus stok yang belum terkirim ke user.</p>
 </div>
         </div>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -585,32 +608,32 @@ window.delV = (code) => {
                 document.getElementById('modal-confirm-btn').onclick = () => { action(); closeModal(); };
             };
             window.closeModal = () => document.getElementById('custom-overlay').style.display = 'none';
-            // // INI TAMBAHNYA: Fungsi Logika Hapus Masal
 window.runMassDelete = () => {
     const targetType = document.getElementById('mass-del-type').value;
     const targetQty = parseInt(document.getElementById('mass-del-qty').value);
 
+    // Filter STRICT: Harus sama persis dengan value yang dipilih
     const matches = Object.entries(globalVouchers)
         .filter(([code, type]) => {
-            const isMatch = type.toLowerCase().includes(targetType.toLowerCase());
+            const isMatch = (type === targetType); // Mencari yang tipenya SAMA PERSIS
             const isNotGiven = !globalGiven[code];
             return isMatch && isNotGiven;
         })
         .slice(0, targetQty);
 
     if (matches.length === 0) {
-        myAlert("❌ Tidak ditemukan stok aktif untuk kategori ini.");
+        myAlert("❌ Stok " + targetType.toUpperCase() + " kosong!");
         return;
     }
 
-    myConfirm(`Hapus permanen ${matches.length} stok voucher ${targetType.toUpperCase()}?`, () => {
+    myConfirm(`Hapus permanen ${matches.length} stok ${targetType.toUpperCase()}?`, () => {
         const updates = {};
         matches.forEach(([code]) => {
             updates[`vouchers/${code}`] = null;
         });
 
         db.ref().update(updates)
-            .then(() => myAlert(`✅ Berhasil menghapus ${matches.length} voucher!`))
+            .then(() => myAlert(`✅ Berhasil membersihkan ${matches.length} stok!`))
             .catch(err => myAlert("Gagal: " + err.message));
     });
 };
