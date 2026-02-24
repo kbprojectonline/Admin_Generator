@@ -632,15 +632,16 @@ window.delV = (code) => {
 document.getElementById('generate-btn').onclick = () => {
     const type = document.getElementById('plan-select').value;
     const qty = parseInt(document.getElementById('voucher-qty').value);
+    
+    // 1. LANGSUNG TRIGER POP-UP (Biar kerasa pas diklik)
+    myAlert(`⚡ Proses membuat ${qty} voucher...`);
+
     const updates = {};
     for (let i = 0; i < qty; i++) updates[makeCode(12)] = type;
-
-    // LANGSUNG MUNCULKAN POP-UP (Tanpa nunggu database selesai)
-    myAlert(`⚡ Sedang membuat ${qty} voucher...`);
-
+    
     db.ref('vouchers').update(updates)
     .then(() => {
-        // UPDATE POP-UP JADI SUKSES
+        // 2. TIMPA DENGAN POP-UP SUKSES
         myAlert(`✅ Sukses buat ${qty} voucher!`);
     })
     .catch(e => myAlert("Gagal: " + e.message));
@@ -648,20 +649,20 @@ document.getElementById('generate-btn').onclick = () => {
 window.myAlert = (msg) => {
     const toast = document.getElementById('custom-toast');
     
-    // Reset tampilan dulu supaya kalau diklik berkali-kali dia muncul terus
-    toast.style.display = 'none'; 
-    
+    // PAKSA RESET: Hilangkan class/display dan hentikan timer sebelumnya
+    toast.style.display = 'none';
+    if (window.toastTimer) clearTimeout(window.toastTimer);
+
+    // Kasih jeda 10ms biar browser sempat ngerender "hilang" sebelum muncul lagi
     setTimeout(() => {
         toast.innerText = msg;
         toast.style.display = 'block';
-    }, 10); // Jeda tipis biar browser sadar ada perubahan
-
-    // Hapus timer lama kalau ada (opsional, tapi ini bikin stabil)
-    if(window.toastTimer) clearTimeout(window.toastTimer);
-    
-    window.toastTimer = setTimeout(() => {
-        toast.style.display = 'none';
-    }, 5000);
+        
+        // Timer buat ngilangin otomatis
+        window.toastTimer = setTimeout(() => {
+            toast.style.display = 'none';
+        }, 5000);
+    }, 10); 
 };
             window.myConfirm = (msg, action) => {
                 document.getElementById('modal-msg').innerText = msg;
