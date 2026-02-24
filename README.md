@@ -391,25 +391,33 @@ db.ref('voucher_history').on('value', (snapshot) => {
         // Cetak HTML-nya terlebih dahulu
         historyListDiv.innerHTML = html;
 
+// FITUR BARU: Tarik data nama asli secara realtime dari tabel User
         uniqueUids.forEach(uid => {
-            // PERHATIAN: Sesuaikan path 'users/' ini dengan struktur database kamu
+            console.log("🔍 Mencari data untuk UID:", uid);
+
+            // PERHATIAN: Pastikan folder di Firebase namanya benar-benar 'users' (huruf kecil semua)
+            // Kalau di Firebase namanya 'Users', ganti tulisan 'users/' di bawah ini jadi 'Users/'
             db.ref('users/' + uid).once('value').then(userSnap => {
                 if(userSnap.exists()) {
                     const userData = userSnap.val();
+                    console.log("✅ Data user ditemukan di database:", userData);
                     
-                    // Ambil nilai profilename secara dinamis
-                    // JANGAN gunakan item.user di sini karena 'item' sudah di luar scope
-                    const dynamicName = userData.profilename;
+                    // Kita coba tangkap beberapa kemungkinan penulisan profilename
+                    const dynamicName = userData.profilename || userData.profileName || userData.ProfileName;
                     
-                    // Jika dynamicName ada isinya (tidak kosong/null), timpa nama di HTML
                     if (dynamicName) {
+                        console.log("🎯 Berhasil! Nama diubah menjadi:", dynamicName);
                         document.querySelectorAll(`.realtime-name[data-uid="${uid}"]`).forEach(el => {
                             el.innerText = dynamicName;
                         });
+                    } else {
+                        console.warn("⚠️ Data user ada, TAPI 'profilename' tidak ditemukan di dalam data ini!");
                     }
+                } else {
+                    console.error("❌ Folder pengguna dengan UID " + uid + " TIDAK ADA di database!");
                 }
             }).catch(err => {
-                console.error("Gagal menarik data untuk UID: " + uid, err);
+                console.error("🚨 Gagal koneksi ke Firebase:", err);
             });
         });
 
