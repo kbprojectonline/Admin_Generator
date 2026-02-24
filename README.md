@@ -211,11 +211,7 @@
                 <h3 class="head-history">📜 Riwayat Voucher</h3>
                 <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
             </div>
-<div id="mass-delete-container" class="mass-delete-area" style="margin-top: 100px; border: 2px dashed #ddd; padding: 20px; border-radius: 12px; display: none; background: #fffafb;">
-    <h3 style="margin-top: 0; font-size: 14px; color: #c0392b; text-align: left: 5px;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
-    
-    <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
-        
+            
 <div id="mass-delete-container" style="display: none; width: 100%; margin-top: 40px;">
                 <h3 style="color: #555; font-size: 1.1rem; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
                 
@@ -255,6 +251,7 @@
                         </select>
 
                         <select id="mass-del-qty" style="width: 100%; height: 80px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white; cursor: pointer;">
+                            <option value="5">5 Pcs</option>
                             <option value="10">10 Pcs</option>
                             <option value="20">20 Pcs</option>
                             <option value="30">30 Pcs</option>
