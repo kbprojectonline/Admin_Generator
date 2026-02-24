@@ -216,7 +216,7 @@
     
     <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
         
-        <select id="mass-del-type" style="width: 100%; padding: 30px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold;">
+        <select id="mass-del-type" style="width: 100%; padding: 40px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold;">
             <optgroup label="PAKET WAKTU">
                 <option value="7_days">🗓️ Paket 7 Hari</option>
                 <option value="30_days">📅 Paket 1 Bulan</option>
@@ -248,7 +248,7 @@
             </optgroup>
         </select>
 
-        <select id="mass-del-qty" style="width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; border: 1px solid #ccc; text-align: center; text-align-last: center;">
+        <select id="mass-del-qty" style="width: 100%; padding: 40px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold;">
             <option value="10">10 Pcs</option>
             <option value="20">20 Pcs</option>
             <option value="30">30 Pcs</option>
@@ -257,9 +257,9 @@
             <option value="100">100 Pcs</option>
         </select>
 
-        <button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;">
-            HAPUS STOK PERMANENT
-        </button>
+<button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 25px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 18px;">
+    HAPUS STOK PERMANENT
+</button>
     </div>
     
     <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: center;">*Hanya menghapus stok yang belum terkirim ke user.</p>
