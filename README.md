@@ -229,6 +229,29 @@
                 <h3 class="head-history">📜 Riwayat Voucher</h3>
                 <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
             </div>
+            <div id="mass-delete-container" class="mass-delete-area" style="margin-top: 30px; border: 2px dashed #eee; padding: 15px; border-radius: 12px; display: none;">
+    <h3 style="margin-top: 0; font-size: 14px; color: #c0392b;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
+    <div class="mass-delete-flex" style="display: flex; gap: 8px;">
+        <select id="mass-del-type" style="flex: 2; padding: 8px; border-radius: 5px;">
+            <option value="7_days">🗓️ Paket 7 Hari</option>
+            <option value="30_days">📅 Paket 1 Bulan</option>
+            <option value="90_days">📊 Paket 3 Bulan</option>
+            <option value="365_days">🏆 Paket 1 Tahun</option>
+            <option value="silver">🥈 Semua Paket Silver</option>
+            <option value="gold">👑 Semua Paket Gold</option>
+            <option value="diamond">💎 Semua Paket Diamond</option>
+        </select>
+        <select id="mass-del-qty" style="flex: 1; padding: 8px; border-radius: 5px;">
+            <option value="10">10</option>
+            <option value="20">20</option>
+            <option value="30">30</option>
+            <option value="40">40</option>
+            <option value="50">50</option>
+            <option value="100">100</option>
+        </select>
+        <button onclick="runMassDelete()" style="background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">HAPUS</button>
+    </div>
+</div>
         </div>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -581,31 +604,34 @@ window.delV = (code) => {
             };
             window.closeModal = () => document.getElementById('custom-overlay').style.display = 'none';
             // // INI TAMBAHNYA: Fungsi Logika Hapus Masal
-            window.runMassDelete = () => {
-                const targetType = document.getElementById('mass-del-type').value;
-                const targetQty = parseInt(document.getElementById('mass-del-qty').value);
+window.runMassDelete = () => {
+    const targetType = document.getElementById('mass-del-type').value;
+    const targetQty = parseInt(document.getElementById('mass-del-qty').value);
 
-                // Filter voucher: Cocok tipe & Belum ada di daftar 'vouchers_given'
-                const matches = Object.entries(globalVouchers)
-                    .filter(([code, type]) => type.toLowerCase().includes(targetType) && !globalGiven[code])
-                    .slice(0, targetQty);
+    const matches = Object.entries(globalVouchers)
+        .filter(([code, type]) => {
+            const isMatch = type.toLowerCase().includes(targetType.toLowerCase());
+            const isNotGiven = !globalGiven[code];
+            return isMatch && isNotGiven;
+        })
+        .slice(0, targetQty);
 
-                if (matches.length === 0) {
-                    myAlert("❌ Tidak ditemukan stok aktif untuk kategori ini.");
-                    return;
-                }
+    if (matches.length === 0) {
+        myAlert("❌ Tidak ditemukan stok aktif untuk kategori ini.");
+        return;
+    }
 
-                myConfirm(`Hapus ${matches.length} voucher ${targetType.toUpperCase()}?`, () => {
-                    const updates = {};
-                    matches.forEach(([code]) => {
-                        updates[`vouchers/${code}`] = null;
-                    });
+    myConfirm(`Hapus permanen ${matches.length} stok voucher ${targetType.toUpperCase()}?`, () => {
+        const updates = {};
+        matches.forEach(([code]) => {
+            updates[`vouchers/${code}`] = null;
+        });
 
-                    db.ref().update(updates)
-                        .then(() => myAlert(`✅ Berhasil menghapus ${matches.length} voucher!`))
-                        .catch(err => myAlert("Gagal: " + err.message));
-                });
-            };
+        db.ref().update(updates)
+            .then(() => myAlert(`✅ Berhasil menghapus ${matches.length} voucher!`))
+            .catch(err => myAlert("Gagal: " + err.message));
+    });
+};
         </script>
     </body>
 </html>
