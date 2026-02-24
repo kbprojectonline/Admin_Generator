@@ -648,36 +648,45 @@ window.runMassDelete = function() {
     const typeSelect = document.getElementById('mass-del-type');
     const qtySelect = document.getElementById('mass-del-qty');
     
-    // Ambil Teks tapi kita hapus Emojinya biar gak muncul logo aneh di pop-up
-    let namaPaket = typeSelect.options[typeSelect.selectedIndex].text;
-    namaPaket = namaPaket.replace(/[^\x00-\x7F]/g, "").replace("Paket", "").trim(); 
-    
-    const jumlahPcs = qtySelect.value;
     const typeValue = typeSelect.value;
-    const qtyLimit = parseInt(jumlahPcs);
+    const qtyLimit = parseInt(qtySelect.value);
+    
+    // Ambil nama paket dan bersihkan dari emoji
+    let namaPaket = typeSelect.options[typeSelect.selectedIndex].text;
+    namaPaket = namaPaket.replace(/[^\x00-\x7F]/g, "").replace("Paket", "").trim();
 
-    // Pop-up simpel tanpa logo-logoan
-    if (!confirm("Hapus permanen " + jumlahPcs + " stok " + namaPaket + "?")) return;
-
+    // 1. Cek stok dulu ke database
     db.ref('vouchers').once('value', snapshot => {
         const updates = {};
-        let count = 0;
+        let matches = [];
         
         snapshot.forEach(child => {
             const data = child.val();
-            if (count < qtyLimit && data.status === "unused" && data.type === typeValue) {
-                updates[`vouchers/${child.key}`] = null;
-                count++;
+            // Filter stok yang sesuai
+            if (data.status === "unused" && data.type === typeValue) {
+                matches.push(child.key);
             }
         });
 
-        if (Object.keys(updates).length === 0) {
-            alert("Stok tidak ditemukan!");
+        // 2. Ambil yang terkecil antara pilihan user (misal 100) vs stok asli (misal 8)
+        const totalHapus = Math.min(matches.length, qtyLimit);
+
+        if (totalHapus === 0) {
+            alert("Stok " + namaPaket + " sudah habis!");
             return;
         }
 
+        // 3. BARU MUNCUL POP-UP dengan angka asli (8)
+        if (!confirm("Hapus permanen " + totalHapus + " stok " + namaPaket + "?")) return;
+
+        // 4. Proses masukkan ke daftar hapus
+        for (let i = 0; i < totalHapus; i++) {
+            updates[`vouchers/${matches[i]}`] = null;
+        }
+
+        // 5. Eksekusi hapus
         db.ref().update(updates)
-            .then(() => alert("Berhasil menghapus " + count + " stok " + namaPaket))
+            .then(() => alert("✅ Berhasil menghapus " + totalHapus + " stok " + namaPaket))
             .catch(err => alert("Gagal: " + err.message));
     });
 };
