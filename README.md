@@ -648,15 +648,16 @@ window.runMassDelete = function() {
     const typeSelect = document.getElementById('mass-del-type');
     const qtySelect = document.getElementById('mass-del-qty');
     
-    // Ini bagian yang bikin pop-up pakai nama bagus (7 Hari), bukan (7_days)
-    const namaPaket = typeSelect.options[typeSelect.selectedIndex].text;
-    const jumlahPcs = qtySelect.options[qtySelect.selectedIndex].text;
+    // Ambil Teks tapi kita hapus Emojinya biar gak muncul logo aneh di pop-up
+    let namaPaket = typeSelect.options[typeSelect.selectedIndex].text;
+    namaPaket = namaPaket.replace(/[^\x00-\x7F]/g, "").replace("Paket", "").trim(); 
     
+    const jumlahPcs = qtySelect.value;
     const typeValue = typeSelect.value;
-    const qtyLimit = parseInt(qtySelect.value);
+    const qtyLimit = parseInt(jumlahPcs);
 
-    // Pop-up konfirmasi yang kamu minta
-    if (!confirm(`Hapus permanen ${jumlahPcs} stok ${namaPaket}?`)) return;
+    // Pop-up simpel tanpa logo-logoan
+    if (!confirm("Hapus permanen " + jumlahPcs + " stok " + namaPaket + "?")) return;
 
     db.ref('vouchers').once('value', snapshot => {
         const updates = {};
@@ -664,7 +665,6 @@ window.runMassDelete = function() {
         
         snapshot.forEach(child => {
             const data = child.val();
-            // Cek status masih unused dan tipenya cocok dengan yang dipilih
             if (count < qtyLimit && data.status === "unused" && data.type === typeValue) {
                 updates[`vouchers/${child.key}`] = null;
                 count++;
@@ -677,7 +677,7 @@ window.runMassDelete = function() {
         }
 
         db.ref().update(updates)
-            .then(() => alert(`✅ Berhasil menghapus ${count} stok ${namaPaket}!`))
+            .then(() => alert("Berhasil menghapus " + count + " stok " + namaPaket))
             .catch(err => alert("Gagal: " + err.message));
     });
 };
