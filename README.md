@@ -352,38 +352,68 @@
                     globalGiven = snapshot.exists() ? snapshot.val() : {};
                     renderAllLists();
                 });
-                // 3. Ambil Riwayat
-                db.ref('voucher_history').on('value', (snapshot) => {
-                    if (snapshot.exists()) {
-                        const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
-                        let html = "";
-                        data.forEach(item => {
-                            const badge = getBadgeInfo(item.type);
-                            const dateObj = new Date(item.date);
-                            const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
-                            const jam = dateObj.toLocaleTimeString('id-ID').replace(/\./g, ':');
-                            const tgl = dateObj.toLocaleDateString('id-ID').split('/').join('.');
-                            html += `
-                            <div class="item-row history-row">
-                                <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
-                                <div style="width: 100%;">
-                                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                                        <span class="code-text" style="font-size: 0.95rem;">${item.code}</span>
-                                        <span class="badge ${badge.css}" style="font-size: 0.65rem;">${badge.text}</span>
-                                    </div>
-                                    <span class="user-info">
-                                        <div style="margin-bottom: 6px;">👤 Dipakai: <b>${item.user || 'Unknown'}</b></div>
-                                        <div style="margin-bottom: 6px;">${item.email ? `@${item.email}` : ''}</div>
-                                        <div style="margin-bottom: 6px; font-size: 0.8rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</div>
-                                    </span>
-                                </div>
-                            </div>`;
-                        });
-                        historyListDiv.innerHTML = html;
-                    } else {
-                        historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
-                    }
-                });
+// 3. Ambil Riwayat (Diperbarui dengan Realtime Name)
+db.ref('voucher_history').on('value', (snapshot) => {
+    if (snapshot.exists()) {
+        const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
+        let html = "";
+        let uniqueUids = []; // Menampung UID unik untuk mempercepat proses penarikan data
+
+        data.forEach(item => {
+            const badge = getBadgeInfo(item.type);
+            const dateObj = new Date(item.date);
+            const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+            const jam = dateObj.toLocaleTimeString('id-ID').replace(/\./g, ':');
+            const tgl = dateObj.toLocaleDateString('id-ID').split('/').join('.');
+            
+            // Masukkan UID ke dalam array jika belum ada
+            if (item.uid && !uniqueUids.includes(item.uid)) {
+                uniqueUids.push(item.uid);
+            }
+
+            html += `
+            <div class="item-row history-row">
+                <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
+                <div style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                        <span class="code-text" style="font-size: 0.95rem;">${item.code}</span>
+                        <span class="badge ${badge.css}" style="font-size: 0.65rem;">${badge.text}</span>
+                    </div>
+                    <span class="user-info">
+                        <div style="margin-bottom: 6px;">👤 Dipakai: <b class="realtime-name" data-uid="${item.uid}">${item.user || 'Unknown'}</b></div>
+                        <div style="margin-bottom: 6px;">${item.email ? `@${item.email}` : ''}</div>
+                        <div style="margin-bottom: 6px; font-size: 0.8rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</div>
+                    </span>
+                </div>
+            </div>`;
+        });
+        
+        // Cetak HTML-nya terlebih dahulu
+        historyListDiv.innerHTML = html;
+
+        // FITUR BARU: Tarik data nama asli secara realtime dari tabel User
+        uniqueUids.forEach(uid => {
+            // PERHATIAN: Sesuaikan path 'users/' ini dengan struktur database kamu
+            db.ref('users/' + uid).once('value').then(userSnap => {
+                if(userSnap.exists()) {
+                    const userData = userSnap.val();
+                    
+                    // Asumsi nama disimpan dalam field 'nama', 'name', atau 'displayName'
+                    // Ganti 'userData.nama' sesuai dengan nama key yang kamu pakai di database
+                    const realName = userData.nama || userData.name || userData.displayName || userData.username || 'Unknown'; 
+                    
+                    // Timpa nama lama yang tersimpan permanen dengan nama Realtime
+                    document.querySelectorAll(`.realtime-name[data-uid="${uid}"]`).forEach(el => {
+                        el.innerText = realName;
+                    });
+                }
+            });
+        });
+
+    } else {
+        historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
+    }
+});
             }
             function renderAllLists() {
                 // A. RENDER ACTIVE LIST
