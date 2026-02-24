@@ -213,7 +213,7 @@
             </div>
             
 <div id="mass-delete-container" style="display: none; width: 100%; margin-top: 100px;">
-    <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ Menghapus Stok Voucher</h3>
+    <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ Menghapus Voucher Aktif</h3>
     
     <div style="background: #fffafb; border: 1px solid #eee; padding: 20px; border-radius: 12px;">
         <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
@@ -291,7 +291,7 @@
             
         </div>
         
-        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Menghapus Riwayat Voucher dari Riwayat Paling Awal.</p>
+        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Menghapus Riwayat Voucher dari Riwayat Lama.</p>
     </div>
 </div>
         </div> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -754,7 +754,7 @@ window.runHistoryDelete = () => {
 
         const targets = historyData.slice(0, qty);
 
-        myConfirm(`Hapus ${targets.length} Riwayat Paling Lama?`, () => {
+        myConfirm(`Yakin, Hapus ${targets.length} Riwayat, Dari yang Paling Lama?`, () => {
             const updates = {};
             targets.forEach(item => {
                 updates[`voucher_history/${item.key}`] = null;
