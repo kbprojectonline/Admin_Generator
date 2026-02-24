@@ -212,7 +212,7 @@
                 <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
             </div>
 <div id="mass-delete-container" class="mass-delete-area" style="margin-top: 100px; border: 2px dashed #ddd; padding: 20px; border-radius: 12px; display: none; background: #fffafb;">
-    <h3 style="margin-top: 0; font-size: 14px; color: #c0392b; text-align: center;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
+    <h3 style="margin-top: 0; font-size: 14px; color: #c0392b; text-align: left: 5px;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
     
     <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
         
@@ -257,12 +257,12 @@
             <option value="100">100 Pcs</option>
         </select>
 
-<button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 16px; border-radius: 14px; cursor: pointer; font-weight: bold; font-size: 17px;">
+<button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
     HAPUS STOK PERMANENT
 </button>
     </div>
     
-    <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: center;">*Hanya menghapus stok yang belum terkirim ke user.</p>
+    <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: center;">*Hanya Menghapus stok yang Voucher Aktif Saja.</p>
 </div>
         </div>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
@@ -642,6 +642,43 @@ window.runMassDelete = () => {
         db.ref().update(updates)
             .then(() => myAlert(`✅ Berhasil membersihkan ${matches.length} stok!`))
             .catch(err => myAlert("Gagal: " + err.message));
+    });
+};
+window.runMassDelete = function() {
+    const typeSelect = document.getElementById('mass-del-type');
+    const qtySelect = document.getElementById('mass-del-qty');
+    
+    // Ini bagian yang bikin pop-up pakai nama bagus (7 Hari), bukan (7_days)
+    const namaPaket = typeSelect.options[typeSelect.selectedIndex].text;
+    const jumlahPcs = qtySelect.options[qtySelect.selectedIndex].text;
+    
+    const typeValue = typeSelect.value;
+    const qtyLimit = parseInt(qtySelect.value);
+
+    // Pop-up konfirmasi yang kamu minta
+    if (!confirm(`Hapus permanen ${jumlahPcs} stok ${namaPaket}?`)) return;
+
+    db.ref('vouchers').once('value', snapshot => {
+        const updates = {};
+        let count = 0;
+        
+        snapshot.forEach(child => {
+            const data = child.val();
+            // Cek status masih unused dan tipenya cocok dengan yang dipilih
+            if (count < qtyLimit && data.status === "unused" && data.type === typeValue) {
+                updates[`vouchers/${child.key}`] = null;
+                count++;
+            }
+        });
+
+        if (Object.keys(updates).length === 0) {
+            alert("Stok tidak ditemukan!");
+            return;
+        }
+
+        db.ref().update(updates)
+            .then(() => alert(`✅ Berhasil menghapus ${count} stok ${namaPaket}!`))
+            .catch(err => alert("Gagal: " + err.message));
     });
 };
         </script>
