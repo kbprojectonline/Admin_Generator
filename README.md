@@ -255,7 +255,6 @@
                         </select>
 
                         <select id="mass-del-qty" style="width: 100%; height: 80px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white; cursor: pointer;">
-                            <option value="5">5 Pcs</option>
                             <option value="10">10 Pcs</option>
                             <option value="20">20 Pcs</option>
                             <option value="30">30 Pcs</option>
