@@ -616,78 +616,41 @@ window.delV = (code) => {
             };
             window.closeModal = () => document.getElementById('custom-overlay').style.display = 'none';
 window.runMassDelete = () => {
-    const targetType = document.getElementById('mass-del-type').value;
+    const typeSelect = document.getElementById('mass-del-type');
+    const targetType = typeSelect.value;
     const targetQty = parseInt(document.getElementById('mass-del-qty').value);
 
-    // Filter STRICT: Harus sama persis dengan value yang dipilih
+    // Ambil teks label (misal: "7 Hari"), bersihkan emoji agar pop-up rapi
+    let namaPaket = typeSelect.options[typeSelect.selectedIndex].text;
+    namaPaket = namaPaket.replace(/[^\x00-\x7F]/g, "").replace("Paket", "").trim();
+
+    // 1. Filter stok yang ada di memori (globalVouchers)
     const matches = Object.entries(globalVouchers)
         .filter(([code, type]) => {
-            const isMatch = (type === targetType); // Mencari yang tipenya SAMA PERSIS
-            const isNotGiven = !globalGiven[code];
+            const isMatch = (type === targetType);
+            const isNotGiven = !globalGiven[code]; // Belum dikasih ke user
             return isMatch && isNotGiven;
         })
         .slice(0, targetQty);
 
+    // 2. Jika benar-benar kosong
     if (matches.length === 0) {
-        myAlert("❌ Stok " + targetType.toUpperCase() + " kosong!");
+        myAlert("❌ Stok " + namaPaket + " sudah habis!");
         return;
     }
 
-    myConfirm(`Hapus permanen ${matches.length} stok ${targetType.toUpperCase()}?`, () => {
+    // 3. Panggil Pop-up INTERNAL kamu (myConfirm)
+    // Angka yang muncul adalah matches.length (angka asli di stok)
+    myConfirm(`Hapus permanen ${matches.length} stok ${namaPaket}?`, () => {
         const updates = {};
         matches.forEach(([code]) => {
             updates[`vouchers/${code}`] = null;
         });
 
+        // 4. Proses Hapus ke Database
         db.ref().update(updates)
-            .then(() => myAlert(`✅ Berhasil membersihkan ${matches.length} stok!`))
+            .then(() => myAlert(`✅ Berhasil menghapus ${matches.length} stok ${namaPaket}!`))
             .catch(err => myAlert("Gagal: " + err.message));
-    });
-};
-window.runMassDelete = function() {
-    const typeSelect = document.getElementById('mass-del-type');
-    const qtySelect = document.getElementById('mass-del-qty');
-    
-    const typeValue = typeSelect.value;
-    const qtyLimit = parseInt(qtySelect.value);
-    
-    // Ambil nama paket dan bersihkan dari emoji
-    let namaPaket = typeSelect.options[typeSelect.selectedIndex].text;
-    namaPaket = namaPaket.replace(/[^\x00-\x7F]/g, "").replace("Paket", "").trim();
-
-    // 1. Cek stok dulu ke database
-    db.ref('vouchers').once('value', snapshot => {
-        const updates = {};
-        let matches = [];
-        
-        snapshot.forEach(child => {
-            const data = child.val();
-            // Filter stok yang sesuai
-            if (data.status === "unused" && data.type === typeValue) {
-                matches.push(child.key);
-            }
-        });
-
-        // 2. Ambil yang terkecil antara pilihan user (misal 100) vs stok asli (misal 8)
-        const totalHapus = Math.min(matches.length, qtyLimit);
-
-        if (totalHapus === 0) {
-            alert("Stok " + namaPaket + " sudah habis!");
-            return;
-        }
-
-        // 3. BARU MUNCUL POP-UP dengan angka asli (8)
-        if (!confirm("Hapus permanen " + totalHapus + " stok " + namaPaket + "?")) return;
-
-        // 4. Proses masukkan ke daftar hapus
-        for (let i = 0; i < totalHapus; i++) {
-            updates[`vouchers/${matches[i]}`] = null;
-        }
-
-        // 5. Eksekusi hapus
-        db.ref().update(updates)
-            .then(() => alert("✅ Berhasil menghapus " + totalHapus + " stok " + namaPaket))
-            .catch(err => alert("Gagal: " + err.message));
     });
 };
         </script>
