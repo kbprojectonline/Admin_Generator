@@ -212,8 +212,8 @@
                 <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
             </div>
             
-<div id="mass-delete-container" style="display: none; width: 100%; margin-top: 40px;">
-                <h3 style="color: #555; font-size: 1.1rem; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
+<div id="mass-delete-container" style="display: none; width: 100%; margin-top: 100px;">
+                <h3 style="color: #c0392b; font-size: 14px; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
                 
                 <div style="background: #fffafb; border: 2px dashed #fab1a0; padding: 20px; border-radius: 12px;">
                     <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
@@ -268,6 +268,7 @@
                     <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Hanya Menghapus stok yang Voucher Aktif Saja.</p>
                 </div>
             </div>
+            
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
