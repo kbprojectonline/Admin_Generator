@@ -213,7 +213,7 @@
             </div>
             
 <div id="mass-delete-container" style="display: none; width: 100%; margin-top: 100px;">
-    <h3 style="color: #555; font-size: 16px; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ Menghapus Stok Voucher</h3>
+    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ Menghapus Stok Voucher</h3>
     
     <div style="background: #fffafb; border: 2px dashed #fab1a0; padding: 20px; border-radius: 12px;">
         <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
