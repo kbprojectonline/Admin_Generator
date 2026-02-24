@@ -332,6 +332,7 @@
                         genBtn.innerText = "⚡ GENERATE VOUCHER (12 DIGIT)";
                         genBtn.style.background = "#2c3e50";
                         document.getElementById('mass-delete-container').style.display = "block"; // // INI TAMBAHNYA
+                        document.getElementById('history-delete-container').style.display = "block";
                         historyContainer.style.display = "block";
                         activeListDiv.innerHTML = "Memuat data...";
                         givenListDiv.innerHTML = "Memuat data terkirim...";
@@ -345,6 +346,7 @@
                         genBtn.innerText = "⛔ ANDA BUKAN ADMIN";
                         historyContainer.style.display = "none";
                         document.getElementById('mass-delete-container').style.display = "none"; // // INI TAMBAHNYA
+                        document.getElementById('history-delete-container').style.display = "none";
                         activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔ AKSES DITOLAK</div>';
                         givenListDiv.innerHTML = '';
                     }
