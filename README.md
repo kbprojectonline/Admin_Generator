@@ -211,10 +211,12 @@
                 <h3 class="head-history">📜 Riwayat Voucher</h3>
                 <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
             </div>
-<div id="mass-delete-container" class="mass-delete-area" style="margin-top: 30px; border: 2px dashed #eee; padding: 15px; border-radius: 12px; display: none;">
-    <h3 style="margin-top: 0; font-size: 14px; color: #c0392b;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
-    <div class="mass-delete-flex" style="display: flex; gap: 8px;">
-        <select id="mass-del-type" style="flex: 2; padding: 8px; border-radius: 5px; font-size: 12px;">
+<div id="mass-delete-container" class="mass-delete-area" style="margin-top: 100px; border: 2px dashed #ddd; padding: 20px; border-radius: 12px; display: none; background: #fffafb;">
+    <h3 style="margin-top: 0; font-size: 14px; color: #c0392b; text-align: center;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
+    
+    <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
+        
+        <select id="mass-del-type" style="width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; border: 1px solid #ccc;">
             <optgroup label="PAKET WAKTU">
                 <option value="7_days">🗓️ Paket 7 Hari</option>
                 <option value="30_days">📅 Paket 1 Bulan</option>
@@ -245,7 +247,8 @@
                 <option value="diamond_30">💎 30 Kunci Diamond</option>
             </optgroup>
         </select>
-        <select id="mass-del-qty" style="flex: 1; padding: 8px; border-radius: 5px;">
+
+        <select id="mass-del-qty" style="width: 100%; padding: 12px; border-radius: 8px; font-size: 14px; border: 1px solid #ccc;">
             <option value="10">10 Pcs</option>
             <option value="20">20 Pcs</option>
             <option value="30">30 Pcs</option>
@@ -253,9 +256,13 @@
             <option value="50">50 Pcs</option>
             <option value="100">100 Pcs</option>
         </select>
-        <button onclick="runMassDelete()" style="background: #e74c3c; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold;">HAPUS</button>
+
+        <button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;">
+            HAPUS STOK PERMANENT
+        </button>
     </div>
-    <p style="font-size: 11px; color: #888; margin-top: 8px; margin-bottom: 0;">*Hanya menghapus stok yang belum terkirim ke user.</p>
+    
+    <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: center;">*Hanya menghapus stok yang belum terkirim ke user.</p>
 </div>
         </div>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
