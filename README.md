@@ -215,7 +215,7 @@
 <div id="mass-delete-container" style="display: none; width: 100%; margin-top: 100px;">
     <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ Menghapus Stok Voucher</h3>
     
-    <div style="background: #fffafb; border: 2px dashed #fab1a0; padding: 20px; border-radius: 12px;">
+    <div style="background: #f8f9fa; border: 1px solid #eee; padding: 20px; border-radius: 12px;">
         <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
             
             <select id="mass-del-type" style="width: 100%; height: 80px; padding: 10px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white;">
