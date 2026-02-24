@@ -389,8 +389,11 @@
                     globalGiven = snapshot.exists() ? snapshot.val() : {};
                     renderAllLists();
                 });
-                db.ref('users').on('value', (snapshot) => {
+db.ref('users').on('value', (snapshot) => {
                     renderUsersList(snapshot.val());
+                }, (error) => {
+                    // Jika ditolak oleh Firebase, error akan muncul langsung di layar
+                    document.getElementById('users-list').innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Gagal memuat data (Firebase): ${error.message} <br><br>Mohon cek Tab "Rules" di Realtime Database Anda.</div>`;
                 });
 // 3. Ambil Riwayat (Diperbarui dengan Realtime Name)
 db.ref('voucher_history').on('value', (snapshot) => {
@@ -777,7 +780,6 @@ window.runHistoryDelete = () => {
 };
 // === FITUR MANAJEMEN PENGGUNA (USERS) ===
 
-// 1. Fungsi untuk merender daftar user ke HTML
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     if (!usersData) {
@@ -787,38 +789,47 @@ function renderUsersList(usersData) {
 
     let html = "";
     
-    Object.entries(usersData).forEach(([uid, user]) => {
-        // Cek status online (asumsi di database ada flag isOnline: true)
-        let isActive = user.isOnline === true; 
+    try {
+        Object.entries(usersData).forEach(([uid, user]) => {
+            // KEAMANAN EKSTRA: Jika data user kosong/bukan object, lewati (jangan sampai bikin macet)
+            if (!user || typeof user !== 'object') return; 
+
+            // Cek status online (asumsi di database ada flag isOnline: true)
+            let isActive = user.isOnline === true; 
+            
+            // Atur warna dan teks status
+            let statusColor = user.disabled ? "#c0392b" : (isActive ? "#27ae60" : "#95a5a6");
+            let statusText = user.disabled ? "🔴 DISABLED" : (isActive ? "🟢 ACTIVE NOW" : "⚫ OFFLINE");
+            let borderLeft = (isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7";
+
+            // Ambil nama dari database (menyesuaikan kemungkinan penulisan key)
+            const userName = user.profilename || user.profileName || user.ProfileName || user.name || "User Tanpa Nama";
+            const userEmail = user.email || "Email tidak tersedia";
+
+            html += `
+            <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px; border-left: ${borderLeft};">
+                <div style="flex: 1; overflow: hidden; padding-right: 10px;">
+                    <div style="font-weight: bold; color: #333; font-size: 1.05rem; margin-bottom: 4px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">${userName}</div>
+                    <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;">📧 ${userEmail}</div>
+                    <div style="font-size: 0.75rem; color: #888; font-family: monospace;">UID: ${uid}</div>
+                    <div style="color: ${statusColor}; font-weight: bold; font-size: 0.8rem; margin-top: 6px;">${statusText}</div>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 8px; min-width: 80px;">
+                    ${user.disabled ? 
+                        `<button style="padding: 10px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', false)">Enable</button>` : 
+                        `<button style="padding: 10px; background: #f39c12; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', true)">Disable</button>`
+                    }
+                    <button style="padding: 10px; background: #c0392b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>
+                </div>
+            </div>`;
+        });
+
+        usersListDiv.innerHTML = html;
         
-        // Atur warna dan teks status
-        let statusColor = user.disabled ? "#c0392b" : (isActive ? "#27ae60" : "#95a5a6");
-        let statusText = user.disabled ? "🔴 DISABLED" : (isActive ? "🟢 ACTIVE NOW" : "⚫ OFFLINE");
-        let borderLeft = (isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7";
-
-        // Ambil nama dari database (menyesuaikan kemungkinan penulisan key)
-        const userName = user.profilename || user.profileName || user.ProfileName || user.name || "User Tanpa Nama";
-        const userEmail = user.email || "Email tidak tersedia";
-
-        html += `
-        <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px; border-left: ${borderLeft};">
-            <div style="flex: 1; overflow: hidden; padding-right: 10px;">
-                <div style="font-weight: bold; color: #333; font-size: 1.05rem; margin-bottom: 4px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">${userName}</div>
-                <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;">📧 ${userEmail}</div>
-                <div style="font-size: 0.75rem; color: #888; font-family: monospace;">UID: ${uid}</div>
-                <div style="color: ${statusColor}; font-weight: bold; font-size: 0.8rem; margin-top: 6px;">${statusText}</div>
-            </div>
-            <div style="display: flex; flex-direction: column; gap: 8px; min-width: 80px;">
-                ${user.disabled ? 
-                    `<button style="padding: 10px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', false)">Enable</button>` : 
-                    `<button style="padding: 10px; background: #f39c12; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', true)">Disable</button>`
-                }
-                <button style="padding: 10px; background: #c0392b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>
-            </div>
-        </div>`;
-    });
-
-    usersListDiv.innerHTML = html;
+    } catch (e) {
+        // Jika ada kode yang macet, tampilkan pesan macetnya di layar (tidak stuck)
+        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Terjadi kesalahan Javascript: ${e.message}</div>`;
+    }
 }
 
 // 2. Fungsi Tombol Disable / Enable
