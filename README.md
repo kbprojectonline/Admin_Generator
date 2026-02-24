@@ -641,7 +641,7 @@ window.runMassDelete = () => {
 
     // 3. Panggil Pop-up INTERNAL kamu (myConfirm)
     // Angka yang muncul adalah matches.length (angka asli di stok)
-    myConfirm(`Hapus permanen ${matches.length} stok ${namaPaket}?`, () => {
+    myConfirm(`Hapus Permanen ${matches.length} Stok, ${namaPaket}?`, () => {
         const updates = {};
         matches.forEach(([code]) => {
             updates[`vouchers/${code}`] = null;
