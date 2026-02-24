@@ -258,6 +258,7 @@
                 <option value="40">40 Pcs</option>
                 <option value="50">50 Pcs</option>
                 <option value="100">100 Pcs</option>
+                <option value="1000">Hapus All</option>
             </select>
 
             <button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
