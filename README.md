@@ -217,61 +217,61 @@
     <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
         
 <div id="mass-delete-container" style="display: none; width: 100%; margin-top: 40px;">
-    <h3 style="color: #555; font-size: 1.1rem; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
-    
-    <div style="background: #fffafb; border: 2px dashed #fab1a0; padding: 20px; border-radius: 12px;">
-        <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
-            
-            <select id="mass-del-type" style="width: 100%; height: 80px; padding: 10px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white;">
-                <optgroup label="PAKET WAKTU">
-                    <option value="7_days">🗓️ Paket 7 Hari</option>
-                    <option value="30_days">📅 Paket 1 Bulan</option>
-                    <option value="90_days">📊 Paket 3 Bulan</option>
-                    <option value="365_days">🏆 Paket 1 Tahun</option>
-                </optgroup>
-                <optgroup label="PAKET SILVER">
-                    <option value="silver_1">🥈 1 Kunci Silver</option>
-                    <option value="silver_5">🥈 5 Kunci Silver</option>
-                    <option value="silver">🥈 10 Kunci Silver</option>
-                    <option value="silver_20">🥈 20 Kunci Silver</option>
-                    <option value="silver_50">🥈 50 Kunci Silver</option>
-                    <option value="silver_100">🥈 100 Kunci Silver</option>
-                </optgroup>
-                <optgroup label="PAKET GOLD">
-                    <option value="gold_1">👑 1 Kunci Gold</option>
-                    <option value="gold_5">👑 5 Kunci Gold</option>
-                    <option value="gold">👑 10 Kunci Gold</option>
-                    <option value="gold_20">👑 20 Kunci Gold</option>
-                    <option value="gold_50">👑 50 Kunci Gold</option>
-                    <option value="gold_70">👑 70 Kunci Gold</option>
-                </optgroup>
-                <optgroup label="PAKET DIAMOND">
-                    <option value="diamond_1">💎 1 Kunci Diamond</option>
-                    <option value="diamond_5">💎 5 Kunci Diamond</option>
-                    <option value="diamond">💎 10 Kunci Diamond</option>
-                    <option value="diamond_15">💎 15 Kunci Diamond</option>
-                    <option value="diamond_30">💎 30 Kunci Diamond</option>
-                </optgroup>
-            </select>
+                <h3 style="color: #555; font-size: 1.1rem; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ PEMBERSIHAN STOK VOUCHER</h3>
+                
+                <div style="background: #fffafb; border: 2px dashed #fab1a0; padding: 20px; border-radius: 12px;">
+                    <div class="mass-delete-flex" style="display: flex; flex-direction: column; gap: 12px;">
+                        
+                        <select id="mass-del-type" style="width: 100%; height: 80px; padding: 10px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white;">
+                            <optgroup label="PAKET WAKTU">
+                                <option value="7_days">🗓️ Paket 7 Hari</option>
+                                <option value="30_days">📅 Paket 1 Bulan</option>
+                                <option value="90_days">📊 Paket 3 Bulan</option>
+                                <option value="365_days">🏆 Paket 1 Tahun</option>
+                            </optgroup>
+                            <optgroup label="PAKET SILVER">
+                                <option value="silver_1">🥈 1 Kunci Silver</option>
+                                <option value="silver_5">🥈 5 Kunci Silver</option>
+                                <option value="silver">🥈 10 Kunci Silver</option>
+                                <option value="silver_20">🥈 20 Kunci Silver</option>
+                                <option value="silver_50">🥈 50 Kunci Silver</option>
+                                <option value="silver_100">🥈 100 Kunci Silver</option>
+                            </optgroup>
+                            <optgroup label="PAKET GOLD">
+                                <option value="gold_1">👑 1 Kunci Gold</option>
+                                <option value="gold_5">👑 5 Kunci Gold</option>
+                                <option value="gold">👑 10 Kunci Gold</option>
+                                <option value="gold_20">👑 20 Kunci Gold</option>
+                                <option value="gold_50">👑 50 Kunci Gold</option>
+                                <option value="gold_70">👑 70 Kunci Gold</option>
+                            </optgroup>
+                            <optgroup label="PAKET DIAMOND">
+                                <option value="diamond_1">💎 1 Kunci Diamond</option>
+                                <option value="diamond_5">💎 5 Kunci Diamond</option>
+                                <option value="diamond">💎 10 Kunci Diamond</option>
+                                <option value="diamond_15">💎 15 Kunci Diamond</option>
+                                <option value="diamond_30">💎 30 Kunci Diamond</option>
+                            </optgroup>
+                        </select>
 
-            <select id="mass-del-qty" style="width: 100%; height: 80px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white; cursor: pointer;">
-                <option value="5">5 Pcs</option>
-                <option value="10">10 Pcs</option>
-                <option value="20">20 Pcs</option>
-                <option value="30">30 Pcs</option>
-                <option value="40">40 Pcs</option>
-                <option value="50">50 Pcs</option>
-                <option value="100">100 Pcs</option>
-            </select>
+                        <select id="mass-del-qty" style="width: 100%; height: 80px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white; cursor: pointer;">
+                            <option value="5">5 Pcs</option>
+                            <option value="10">10 Pcs</option>
+                            <option value="20">20 Pcs</option>
+                            <option value="30">30 Pcs</option>
+                            <option value="40">40 Pcs</option>
+                            <option value="50">50 Pcs</option>
+                            <option value="100">100 Pcs</option>
+                        </select>
 
-            <button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
-                HAPUS STOK PERMANENT
-            </button>
-        </div>
-        
-        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: center;">*Hanya Menghapus stok yang Voucher Aktif Saja.</p>
-    </div>
-</div>
+                        <button onclick="runMassDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
+                            HAPUS STOK PERMANENT
+                        </button>
+                    </div>
+                    
+                    <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Hanya Menghapus stok yang Voucher Aktif Saja.</p>
+                </div>
+            </div>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
