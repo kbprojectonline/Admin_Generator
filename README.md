@@ -803,7 +803,7 @@ window.runHistoryDelete = () => {
     });
 };
 
-// === 1. FUNGSI TAMPILAN USER (VERSI PRO: DENGAN INFO KUNCI) ===
+// === 1. FUNGSI TAMPILAN USER (VERSI PRO: URUTAN ONLINE & INFO KUNCI) ===
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     
@@ -829,9 +829,32 @@ function renderUsersList(usersData) {
 
     let html = "";
     try {
-        Object.entries(combinedData).forEach(([uid, user]) => {
-            if (!user || typeof user !== 'object' || uid === ADMIN_UID) return;
+        // --- LOGIKA PENGURUTAN BARU ---
+        // 1. Ubah objek jadi array & filter data yang tidak valid / Admin
+        let userArray = Object.entries(combinedData).filter(([uid, user]) => {
+            return user && typeof user === 'object' && uid !== ADMIN_UID;
+        });
 
+        // 2. Mulai proses mengurutkan
+        userArray.sort((a, b) => {
+            const userA = a[1];
+            const userB = b[1];
+            
+            const isOnlineA = userA.isOnline === true;
+            const isOnlineB = userB.isOnline === true;
+
+            // Prioritas 1: Yang Online ditarik ke paling atas
+            if (isOnlineA && !isOnlineB) return -1;
+            if (!isOnlineA && isOnlineB) return 1;
+
+            // Prioritas 2: Jika sama-sama offline, yang baru saja keluar taruh di atas
+            const timeA = typeof userA.isOnline === 'number' ? userA.isOnline : 0;
+            const timeB = typeof userB.isOnline === 'number' ? userB.isOnline : 0;
+            return timeB - timeA; 
+        });
+
+        // 3. Render array yang sudah diurutkan ke layar
+        userArray.forEach(([uid, user]) => {
             const isDeleted = !usersData || !usersData[uid]; 
             const isActive = user.isOnline === true;
             
@@ -844,15 +867,14 @@ function renderUsersList(usersData) {
             }
 
             const borderLeft = isDeleted ? "5px solid #c0392b" : ((isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7");
-// Ambil nama dari berbagai sumber
+            
+            // Ambil nama dari berbagai sumber
             let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
-
             // PAKSA POTONG: Maksimal 8 karakter agar sama dengan Index
             const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
-
             const userEmail = user.email || "Email tidak tersedia";
 
-// AMBIL DATA KUNCI (Cek di root user ATAU di dalam folder 'kunci'/'keys')
+            // AMBIL DATA KUNCI
             const dKunci = user.diamond || (user.kunci && user.kunci.diamond) || (user.keys && user.keys.diamond) || 0;
             const gKunci = user.gold || (user.kunci && user.kunci.gold) || (user.keys && user.keys.gold) || 0;
             const sKunci = user.silver || (user.kunci && user.kunci.silver) || (user.keys && user.keys.silver) || 0;
@@ -865,7 +887,7 @@ function renderUsersList(usersData) {
                     <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${userEmail}</div>
                     <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 6px;">UID: ${uid}</div>
                     
-<div style="display: flex; justify-content: space-around; align-items: center; background: #f9f9f9; padding: 15px 12px; border-radius: 12px; margin: 18px 0; border: 1px solid #eee; width: 100%; box-sizing: border-box;">
+                    <div style="display: flex; justify-content: space-around; align-items: center; background: #f9f9f9; padding: 15px 12px; border-radius: 12px; margin: 18px 0; border: 1px solid #eee; width: 100%; box-sizing: border-box;">
                         <div style="text-align: center;">
                             <div style="font-size: 1.1rem; margin-bottom: 2px;">💎</div>
                             <div style="font-size: 0.85rem; font-weight: 900; color: #008b8b;">${dKunci}</div>
