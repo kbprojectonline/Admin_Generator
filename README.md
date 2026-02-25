@@ -828,26 +828,31 @@ let lastActiveCache = {};
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     
-    // 1. Bersihkan Memori Cooldown (Hapus tuntas kalau waktu sudah habis)
     let memChanged = false;
     Object.keys(recentlyDeleted).forEach(id => {
-        const bannedUntil = currentBannedData[id];
-        // Jika tidak ada di daftar banned ATAU waktunya sudah lewat 5 menit
-        if (!bannedUntil || Date.now() > bannedUntil) {
+        const isBanned = currentBannedData[id] && Date.now() < currentBannedData[id];
+        const hasReLoggedIn = usersData && usersData[id] && usersData[id].email;
+        if (!isBanned && hasReLoggedIn) {
             delete recentlyDeleted[id];
             memChanged = true;
         }
     });
     if(memChanged) localStorage.setItem('memDeleted', JSON.stringify(recentlyDeleted));
     
-    const combinedData = { ...(usersData || {}), ...recentlyDeleted };
-    
-    // AMBIL UID YANG MASIH AKTIF SAJA (Masa hukuman sudah lewat langsung dibuang)
-    const activeBannedUids = Object.keys(currentBannedData).filter(uid => Date.now() < currentBannedData[uid]);
-    const allUids = new Set([...Object.keys(combinedData), ...activeBannedUids]);
+    const allUids = new Set([...Object.keys(usersData || {}), ...Object.keys(recentlyDeleted), ...Object.keys(currentBannedData)]);
     
     let userArray = Array.from(allUids).map(uid => {
-        return [uid, combinedData[uid] || { isDeleted: true }];
+        const oldData = recentlyDeleted[uid] || {};
+        const newData = (usersData && usersData[uid]) || {};
+        const mergedUser = { ...oldData, ...newData };
+        
+        if (!newData.email && oldData.email) mergedUser.email = oldData.email;
+        if (!newData.profilename && oldData.profilename) mergedUser.profilename = oldData.profilename;
+        if (!newData.diamond && oldData.diamond) mergedUser.diamond = oldData.diamond;
+        if (!newData.gold && oldData.gold) mergedUser.gold = oldData.gold;
+        if (!newData.silver && oldData.silver) mergedUser.silver = oldData.silver;
+        
+        return [uid, mergedUser];
     }).filter(([uid]) => uid !== ADMIN_UID);
 
     if (userArray.length === 0) {
@@ -855,7 +860,6 @@ function renderUsersList(usersData) {
         return;
     }
 
-    // 2. LOGIKA UI LOCK 15 DETIK (Biar gak gampang mental offline)
     const getStatusInfo = (uid, userOnlineStatus) => {
         const sekarang = Date.now();
         if (userOnlineStatus === true) {
@@ -865,63 +869,65 @@ function renderUsersList(usersData) {
         const waktuTerakhir = lastActiveCache[uid] || userOnlineStatus || 0;
         const selisih = Math.floor((sekarang - waktuTerakhir) / 1000);
 
-if (selisih <= 60) return { text: "🟢 ACTIVE NOW", active: true }; 
-const mins = Math.floor(selisih / 60);
-if (mins < 60) return { text: `⚫ Online ${mins} menit lalu`, active: false };
-const hours = Math.floor(mins / 60);
-if (hours < 24) return { text: `⚫ Online ${hours} jam lalu`, active: false };
-return { text: "⚫ OFFLINE", active: false };
+        if (selisih <= 60) return { text: "🟢 ACTIVE NOW", active: true }; 
+        const mins = Math.floor(selisih / 60);
+        if (mins < 60) return { text: `⚫ Online ${mins} menit lalu`, active: false };
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return { text: `⚫ Online ${hours} jam lalu`, active: false };
+        return { text: "⚫ OFFLINE", active: false };
     };
 
-// 3. SORTING PATEN (Active Atas, Cooldown/Deleted Paling Bawah)
     userArray.sort((a, b) => {
-        // Cek apakah akun A atau B sedang Cooldown / Deleted
-        const isBottomA = (!usersData || !usersData[a[0]]) || (currentBannedData[a[0]] && Date.now() < currentBannedData[a[0]]);
-        const isBottomB = (!usersData || !usersData[b[0]]) || (currentBannedData[b[0]] && Date.now() < currentBannedData[b[0]]);
+        const getRank = (uid, user) => {
+            const isBanned = currentBannedData[uid] && Date.now() < currentBannedData[uid];
+            const isGhost = !user.email;
+            
+            if (isBanned) return 4;
+            if (isGhost) return 3;
+            
+            const info = getStatusInfo(uid, user.isOnline);
+            if (info.active) return 1;
+            return 2;
+        };
 
-        // Kalau satu Cooldown dan yang lain nggak, lempar paksa yang Cooldown ke bawah
-        if (isBottomA && !isBottomB) return 1;
-        if (!isBottomA && isBottomB) return -1;
+        const rankA = getRank(a[0], a[1]);
+        const rankB = getRank(b[0], b[1]);
 
-        // Kalau sama-sama bukan Cooldown, baru cek status Active
-        const infoA = getStatusInfo(a[0], a[1].isOnline);
-        const infoB = getStatusInfo(b[0], b[1].isOnline);
-        if (infoA.active && !infoB.active) return -1;
-        if (!infoA.active && infoB.active) return 1;
+        if (rankA !== rankB) return rankA - rankB;
 
-        // Kalau kastanya sama (sama-sama Active atau sama-sama Offline biasa), urut abjad
         let nameA = (a[1].profilename || a[1].profileName || a[1].displayName || a[1].email || "").toLowerCase();
         let nameB = (b[1].profilename || b[1].profileName || b[1].displayName || b[1].email || "").toLowerCase();
         return nameA.localeCompare(nameB); 
     });
 
-    // 4. RENDER LAYOUT
     let html = "";
     try {
         userArray.forEach(([uid, user]) => {
-            const isDeleted = !usersData || !usersData[uid];
-            const bannedUntil = currentBannedData[uid];
-            const isBanned = bannedUntil && Date.now() < bannedUntil;
+            const isBanned = currentBannedData[uid] && Date.now() < currentBannedData[uid];
+            const isGhost = !user.email; 
 
-            const status = getStatusInfo(uid, user.isOnline);
-            let statusText = isDeleted ? "🔴 DELETED" : status.text;
-            const isReallyActive = status.active;
+            let statusText = "";
+            let statusColor = "";
+            let isReallyActive = false;
 
-            let statusColor = isReallyActive ? "#27ae60" : (isDeleted ? "#c0392b" : "#7f8c8d");
-            
-            // LOGIKA DISABLED & BANNED (ASLI PUNYA LO)
-            if (!isDeleted && user.disabled) { 
-                statusText = "⛔ DISABLED"; 
-                statusColor = "#c0392b"; 
-            }
             if (isBanned) {
-                const sisaMenit = Math.ceil((bannedUntil - Date.now()) / 60000);
+                const sisaMenit = Math.ceil((currentBannedData[uid] - Date.now()) / 60000);
                 statusText = `⏳ COOLDOWN (${sisaMenit} Menit)`;
                 statusColor = "#e67e22";
+            } else if (isGhost) {
+                statusText = "🔒 SILAKAN LOGIN";
+                statusColor = "#7f8c8d";
+            } else if (user.disabled) {
+                statusText = "⛔ DISABLED";
+                statusColor = "#c0392b";
+            } else {
+                const status = getStatusInfo(uid, user.isOnline);
+                statusText = status.text;
+                statusColor = status.active ? "#27ae60" : "#7f8c8d";
+                isReallyActive = status.active;
             }
 
-            // BORDER MENGELILINGI CARD (Sesuai Permintaan Lo)
-            const cardBorder = isBanned ? "3px solid #e67e22" : (isDeleted ? "3px solid #c0392b" : (isReallyActive ? "3px solid #27ae60" : "1px solid #ddd"));
+            const cardBorder = isBanned ? "3px solid #e67e22" : (isGhost ? "3px solid #7f8c8d" : (isReallyActive ? "3px solid #27ae60" : "1px solid #ddd"));
 
             let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
             const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
@@ -947,11 +953,11 @@ return { text: "⚫ OFFLINE", active: false };
                 </div>
                 <div style="display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 12px;">
                     ${isBanned ? `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold;">⚠️ Akun Telah Di Delete</div>` : 
-                    (isDeleted ? `<div style="flex:1; text-align:center; font-size:0.75rem; color:#e74c3c; font-weight:bold;">⚠️ Dihapus</div>` : 
+                    (isGhost ? `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold;">⚠️ Menunggu Login</div>` : 
                     `<button style="flex: 1; padding: 10px; background: ${user.disabled ? '#27ae60':'#f39c12'}; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', ${!user.disabled})">${user.disabled ? 'Enable':'Disable'}</button>
                      <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>`)}
                 </div>
-                ${(!isDeleted && !isBanned) ? `<button style="width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 10px;" onclick="sendPromoMessage('${uid}')">💬 Kirim Pesan</button>` : ''}
+                ${(!isGhost && !isBanned) ? `<button style="width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 10px;" onclick="sendPromoMessage('${uid}')">💬 Kirim Pesan</button>` : ''}
             </div>`;
         });
         usersListDiv.innerHTML = html;
