@@ -840,12 +840,11 @@ function renderUsersList(usersData) {
             }
 
             const borderLeft = isDeleted ? "5px solid #c0392b" : ((isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7");
-// PRIORITAS: Nama Profil > Nama Google > Nama Email > User Baru
-            const userName = user.profilename || 
-                             user.profileName || 
-                             user.displayName || 
-                             user.name || 
-                             (user.email ? user.email.split('@')[0] : "User Baru");
+// Ambil nama dari berbagai sumber
+            let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
+
+            // PAKSA POTONG: Maksimal 8 karakter agar sama dengan Index
+            const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
 
             const userEmail = user.email || "Email tidak tersedia";
 
