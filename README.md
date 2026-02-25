@@ -831,6 +831,8 @@ function renderUsersList(usersData) {
             if (user.disabled) statusColor = "#c0392b";
 
             const borderLeft = (isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7";
+            
+            // PRIORITAS NAMA: profilename dulu, baru profileName, baru name asli
             const userName = user.profilename || user.profileName || user.name || "User Tanpa Nama";
             const userEmail = user.email || "Email tidak tersedia";
 
