@@ -823,7 +823,7 @@ window.runHistoryDelete = () => {
     });
 };
 
-// let lastActiveCache = {}; 
+let lastActiveCache = {}; 
 
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
