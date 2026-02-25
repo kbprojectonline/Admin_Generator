@@ -843,10 +843,10 @@ function renderUsersList(usersData) {
             const userName = user.profilename || user.profileName || user.name || "User Tanpa Nama";
             const userEmail = user.email || "Email tidak tersedia";
 
-            // AMBIL DATA KUNCI (Default ke 0 jika data tidak ada)
-            const dKunci = user.diamond || 0;
-            const gKunci = user.gold || 0;
-            const sKunci = user.silver || 0;
+// AMBIL DATA KUNCI (Cek di root user ATAU di dalam folder 'kunci'/'keys')
+            const dKunci = user.diamond || (user.kunci && user.kunci.diamond) || (user.keys && user.keys.diamond) || 0;
+            const gKunci = user.gold || (user.kunci && user.kunci.gold) || (user.keys && user.keys.gold) || 0;
+            const sKunci = user.silver || (user.kunci && user.kunci.silver) || (user.keys && user.keys.silver) || 0;
 
             html += `
             <div style="display: flex; flex-direction: column; background: ${isDeleted ? '#fff5f5' : 'white'}; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: ${borderLeft}; opacity: ${isDeleted ? '0.7' : '1'}; transition: 0.3s;">
