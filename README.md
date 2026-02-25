@@ -332,17 +332,17 @@
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
-const userRef = db.ref(`users/${user.uid}`);
-                    db.ref('.info/connected').on('value', (snapshot) => {
-                        if (snapshot.val() === true) {
-                            userRef.child('isOnline').onDisconnect().set(false);
-                            userRef.update({
-                                isOnline: true,
-                                email: user.email || "Email tidak tersedia",
-                                profilename: user.displayName || (user.email ? user.email.split('@')[0] : "Admin Kuis")
-                            });
-                        }
-                    });
+const userRef = firebase.database().ref('users/' + user.uid);
+firebase.database().ref('.info/connected').on('value', (snapshot) => {
+    if (snapshot.val() === true) {
+        userRef.child('isOnline').onDisconnect().set(false);
+        userRef.update({
+            isOnline: true,
+            email: user.email,
+            profilename: user.displayName || user.email.split('@')[0]
+        });
+    }
+});
                     if (user.uid === ADMIN_UID) {
                         loginBtn.innerHTML = `✅ Admin: <b>${user.email.split('@')[0]}</b> (Logout)`;
                         loginBtn.style.background = "#27ae60";
