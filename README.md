@@ -728,16 +728,16 @@ window.myAlert = (msg) => {
     }, 10); 
 };
 window.myConfirm = (msg, action, btnText = "Hapus", btnColor = "var(--danger)") => {
-                document.getElementById('modal-msg').innerText = msg;
-                
-                // Ubah teks dan warna tombol secara otomatis
-                const confirmBtn = document.getElementById('modal-confirm-btn');
-                confirmBtn.innerText = btnText;
-                confirmBtn.style.background = btnColor;
-                
-                document.getElementById('custom-overlay').style.display = 'flex';
-                confirmBtn.onclick = () => { action(); closeModal(); };
-            };
+    document.getElementById('modal-msg').innerText = msg;
+    
+    // Ganti teks dan PAKSA ganti warna background
+    const confirmBtn = document.getElementById('modal-confirm-btn');
+    confirmBtn.innerText = btnText;
+    confirmBtn.style.backgroundColor = btnColor; 
+    
+    document.getElementById('custom-overlay').style.display = 'flex';
+    confirmBtn.onclick = () => { action(); closeModal(); };
+};
             window.closeModal = () => document.getElementById('custom-overlay').style.display = 'none';
 window.runMassDelete = () => {
     const typeSelect = document.getElementById('mass-del-type');
@@ -935,15 +935,15 @@ function renderUsersList(usersData) {
 window.toggleDisableUser = (uid, disable) => {
     const actionText = disable ? "Menonaktifkan" : "Mengaktifkan";
     
-    // Set teks dan warna (Disable = Oranye, Enable = Hijau)
+    // Teks dan Warna (Disable = Oranye, Enable = Hijau)
     const btnText = disable ? "Disable" : "Enable";
-    const btnColor = disable ? "#f39c12" : "#27ae60";
+    const btnColor = disable ? "var(--warning)" : "#27ae60";
 
     myConfirm(`Yakin ingin ${actionText} akun ini?`, () => {
         db.ref(`users/${uid}/disabled`).set(disable)
             .then(() => myAlert(`✅ Akun berhasil di-${disable ? 'disable' : 'enable'}!`))
             .catch(err => myAlert("❌ Gagal: " + err.message));
-    }, btnText, btnColor); // Mengirim instruksi teks & warna ke Pop-up
+    }, btnText, btnColor);
 };
 
 window.deleteUser = (uid) => {
