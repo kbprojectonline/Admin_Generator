@@ -965,12 +965,10 @@ window.deleteUser = (uid) => {
 
 // === 3. FUNGSI KIRIM PESAN PROMO ===
 window.sendPromoMessage = (uid) => {
-    myConfirm("Kirim pesan Penawaran Spesial ke user ini?", () => {
-        // Kirim 'sinyal' ke database user tersebut
-        db.ref(`users/${uid}/promoMessage`).set(true)
-            .then(() => myAlert("✅ Pesan berhasil dikirim!"))
-            .catch(err => myAlert("❌ Gagal: " + err.message));
-    });
+    // Langsung tembak ke database tanpa konfirmasi
+    db.ref(`users/${uid}/promoMessage`).set(true)
+        .then(() => myAlert("✅ Pesan berhasil dikirim!"))
+        .catch(err => myAlert("❌ Gagal: " + err.message));
 };
 
         </script>
