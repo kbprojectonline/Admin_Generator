@@ -964,6 +964,7 @@ window.deleteUser = (uid) => {
         return;
     }
 
+    // Perhatikan tambahan , "Delete" di akhir penutup kurung myConfirm
     myConfirm(`Yakin hapus PERMANENT user ini?`, () => {
         // 2. TANDAI DULU di memori (Sebelum dihapus di server)
         recentlyDeleted[uid] = { ...userData };
@@ -980,7 +981,7 @@ window.deleteUser = (uid) => {
                 delete recentlyDeleted[uid];
                 myAlert("❌ Gagal: " + err.message);
             });
-    });
+    }, "Delete"); // <--- KATA "Delete" DITAMBAHKAN DI SINI
 };
 
 // === 3. FUNGSI KIRIM PESAN PROMO ===
