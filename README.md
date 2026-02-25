@@ -809,13 +809,20 @@ function renderUsersList(usersData) {
         if (!ts || ts === false) return "⚫ OFFLINE";
         
         const diff = Math.floor((Date.now() - ts) / 1000);
-        if (diff < 60) return "Baru saja OFFLINE";
+        
+        // 1. Kurang dari 1 menit
+        if (diff < 60) return "⚫ Baru saja OFFLINE";
+        
+        // 2. Hitung Menit
         const mins = Math.floor(diff / 60);
-        if (mins < 60) return `Online ${mins} menit lalu`;
+        if (mins < 60) return `⚫ Online ${mins} menit lalu`;
+        
+        // 3. Hitung Jam
         const hours = Math.floor(mins / 60);
-        if (hours < 24) return `Online ${hours} jam lalu`;
-        const days = Math.floor(hours / 24);
-        return `Online ${days} hari lalu`;
+        if (hours < 24) return `⚫ Online ${hours} jam lalu`;
+        
+        // 4. Lebih dari 24 Jam (Sesuai permintaan Anda, langsung set OFFLINE)
+        return "⚫ OFFLINE";
     };
 
     let html = "";
@@ -826,13 +833,13 @@ function renderUsersList(usersData) {
             const isActive = user.isOnline === true;
             const statusText = getTimeAgo(user.isOnline);
             
+            // Atur warna teks (Active = Hijau, Lainnya = Abu-abu, Disabled = Merah)
             let statusColor = "#7f8c8d"; 
             if (isActive) statusColor = "#27ae60";
             if (user.disabled) statusColor = "#c0392b";
 
             const borderLeft = (isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7";
             
-            // PRIORITAS NAMA: profilename dulu, baru profileName, baru name asli
             const userName = user.profilename || user.profileName || user.name || "User Tanpa Nama";
             const userEmail = user.email || "Email tidak tersedia";
 
