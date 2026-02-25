@@ -850,19 +850,29 @@ function renderUsersList(usersData) {
             return user && typeof user === 'object' && uid !== ADMIN_UID;
         });
 
-        // 2. Mulai proses mengurutkan
+// 2. Mulai proses mengurutkan
         userArray.sort((a, b) => {
+            const uidA = a[0];
             const userA = a[1];
+            const uidB = b[0];
             const userB = b[1];
+            
+            // Cek apakah akun ini statusnya sudah terhapus
+            const isDeletedA = !usersData || !usersData[uidA];
+            const isDeletedB = !usersData || !usersData[uidB];
+
+            // PRIORITAS UTAMA: Kalau akun sudah di-delete, langsung lempar ke paling bawah
+            if (isDeletedA && !isDeletedB) return 1;
+            if (!isDeletedA && isDeletedB) return -1;
             
             const isOnlineA = userA.isOnline === true;
             const isOnlineB = userB.isOnline === true;
 
-            // Prioritas 1: Yang Online ditarik ke paling atas
+            // Prioritas 2: Yang Online ditarik ke paling atas
             if (isOnlineA && !isOnlineB) return -1;
             if (!isOnlineA && isOnlineB) return 1;
 
-            // Prioritas 2: Jika sama-sama offline, yang baru saja keluar taruh di atas
+            // Prioritas 3: Jika sama-sama offline, yang baru saja keluar taruh di atas
             const timeA = typeof userA.isOnline === 'number' ? userA.isOnline : 0;
             const timeB = typeof userB.isOnline === 'number' ? userB.isOnline : 0;
             return timeB - timeA; 
