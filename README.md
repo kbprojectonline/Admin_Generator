@@ -865,14 +865,14 @@ function renderUsersList(usersData) {
     };
 
     // 3. Sorting (User Online naik ke atas)
+// 3. Sorting Berdasarkan Nama (Biar posisi kartu paten/statis)
     userArray.sort((a, b) => {
-        const statusA = getTimeAgo(a[1].isOnline);
-        const statusB = getTimeAgo(b[1].isOnline);
-        if (statusA.includes("ACTIVE") && !statusB.includes("ACTIVE")) return -1;
-        if (!statusA.includes("ACTIVE") && statusB.includes("ACTIVE")) return 1;
-        const timeA = typeof a[1].isOnline === 'number' ? a[1].isOnline : 0;
-        const timeB = typeof b[1].isOnline === 'number' ? b[1].isOnline : 0;
-        return timeB - timeA; 
+        // Ambil nama dari berbagai kemungkinan field (profilename, email, dll)
+        let nameA = (a[1].profilename || a[1].profileName || a[1].displayName || a[1].email || "User").toLowerCase();
+        let nameB = (b[1].profilename || b[1].profileName || b[1].displayName || b[1].email || "User").toLowerCase();
+        
+        // Urutkan berdasarkan abjad A sampai Z
+        return nameA.localeCompare(nameB);
     });
 
     // 4. Render Layout
