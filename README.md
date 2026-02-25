@@ -866,11 +866,18 @@ function renderUsersList(usersData) {
         return;
     }
 
-    // 4. LOGIKA UI LOCK 60 DETIK (DITAMBAH PENGECEKAN EMAIL)
-    const getStatusInfo = (uid, userOnlineStatus, userEmail) => {
-        // CEGAH "ACTIVE NOW" JIKA BELUM LOGIN GOOGLE (TIDAK ADA EMAIL)
-        if (!userEmail) {
-            return { text: "🔒 MENUNGGU LOGIN", active: false };
+// 4. LOGIKA UI LOCK 60 DETIK
+    const getStatusInfo = (uid, userOnlineStatus) => {
+        // GEMBOK MUTLAK: Ambil email murni dari database, BUKAN dari memori
+        const dbAsli = usersData && usersData[uid];
+        const emailAsli = dbAsli ? dbAsli.email : null;
+        
+        // Deteksi paksa: Kalau emailnya kosong atau cuma tulisan sistem
+        const isNonLogin = !emailAsli || emailAsli === "" || emailAsli === "null" || emailAsli === "undefined" || emailAsli === "No Email";
+        
+        // JIKA AKUN NON-LOGIN, HARAM HUKUMNYA JADI ACTIVE NOW!
+        if (isNonLogin) {
+            return { text: "⚫ BELUM LOGIN", active: false };
         }
 
         const sekarang = Date.now();
