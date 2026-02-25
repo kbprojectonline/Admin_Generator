@@ -799,11 +799,11 @@ window.runHistoryDelete = () => {
     });
 };
 
-// === 1. FUNGSI TAMPILAN USER (VERSI FINAL: ADA TANDA DELETE) ===
+// === 1. FUNGSI TAMPILAN USER (VERSI PRO: DENGAN INFO KUNCI) ===
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     
-    // Gabungkan data asli dengan data yang baru didelete (biar tidak langsung hilang)
+    // Gabungkan data asli dengan data yang baru didelete
     const combinedData = { ...(usersData || {}), ...recentlyDeleted };
 
     if (Object.keys(combinedData).length === 0) {
@@ -828,10 +828,9 @@ function renderUsersList(usersData) {
         Object.entries(combinedData).forEach(([uid, user]) => {
             if (!user || typeof user !== 'object' || uid === ADMIN_UID) return;
 
-            // CEK STATUS: Apakah data ini ada di database atau cuma di memori delete?
             const isDeleted = !usersData || !usersData[uid]; 
-            
             const isActive = user.isOnline === true;
+            
             let statusText = isDeleted ? "🔴 BARU DI-DELETE" : getTimeAgo(user.isOnline);
             let statusColor = isDeleted ? "#c0392b" : (isActive ? "#27ae60" : "#7f8c8d");
             
@@ -844,13 +843,25 @@ function renderUsersList(usersData) {
             const userName = user.profilename || user.profileName || user.name || "User Tanpa Nama";
             const userEmail = user.email || "Email tidak tersedia";
 
+            // AMBIL DATA KUNCI (Default ke 0 jika data tidak ada)
+            const dKunci = user.diamond || 0;
+            const gKunci = user.gold || 0;
+            const sKunci = user.silver || 0;
+
             html += `
             <div style="display: flex; flex-direction: column; background: ${isDeleted ? '#fff5f5' : 'white'}; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: ${borderLeft}; opacity: ${isDeleted ? '0.7' : '1'}; transition: 0.3s;">
                 
                 <div style="margin-bottom: 12px;">
                     <div style="font-weight: 900; color: #333; font-size: 1.1rem; margin-bottom: 4px;">${userName}</div>
                     <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${userEmail}</div>
-                    <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 8px;">UID: ${uid}</div>
+                    <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 6px;">UID: ${uid}</div>
+                    
+                    <div style="display: flex; gap: 12px; background: #f9f9f9; padding: 8px 12px; border-radius: 8px; width: fit-content; margin-bottom: 10px; border: 1px solid #eee;">
+                        <span style="font-size: 0.9rem;">💎 <b style="color:#008b8b;">${dKunci}</b></span>
+                        <span style="font-size: 0.9rem;">👑 <b style="color:#b8860b;">${gKunci}</b></span>
+                        <span style="font-size: 0.9rem;">🥈 <b style="color:#7f8c8d;">${sKunci}</b></span>
+                    </div>
+
                     <div style="color: ${statusColor}; font-weight: 800; font-size: 0.85rem;">${statusText}</div>
                 </div>
 
