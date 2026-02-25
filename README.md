@@ -834,7 +834,7 @@ function renderUsersList(usersData) {
         const dbUser = usersData && usersData[id];
         const isBanned = currentBannedData[id] && Date.now() < currentBannedData[id];
         
-        // HAPUS MEMORI HANYA JIKA: Waktu banned abis DAN user udah beneran login bawa email
+        // Hapus memori HANYA JIKA waktu banned habis dan user sudah benar-benar login membawa email
         if (!isBanned && dbUser && dbUser.email) {
             delete recentlyDeleted[id];
             memChanged = true;
@@ -851,9 +851,9 @@ function renderUsersList(usersData) {
         const dbData = (usersData && usersData[uid]) || {};
         
         let finalUser = { ...dbData };
-        // Paksa masukin data dari memori kalau di DB kosong (gara2 hantu)
+        // KEMBALIKAN SEMUA VARIABEL NAMA LO (Jangan ada yang dihapus)
         if (!finalUser.email) finalUser.email = memData.email;
-        if (!finalUser.profilename) finalUser.profilename = memData.profilename || memData.profileName || memData.displayName;
+        if (!finalUser.profilename) finalUser.profilename = memData.profilename || memData.profileName || memData.displayName || memData.name;
         if (!finalUser.diamond) finalUser.diamond = memData.diamond;
         if (!finalUser.gold) finalUser.gold = memData.gold;
         if (!finalUser.silver) finalUser.silver = memData.silver;
@@ -889,7 +889,7 @@ function renderUsersList(usersData) {
         const getRank = (uid) => {
             const isBanned = currentBannedData[uid] && Date.now() < currentBannedData[uid];
             const dbData = usersData && usersData[uid];
-            const isGhost = !dbData || !dbData.email; // Cek database asli, bukan data gabungan
+            const isGhost = !dbData || !dbData.email; 
             
             if (isBanned) return 4;
             if (isGhost) return 3;
@@ -904,8 +904,9 @@ function renderUsersList(usersData) {
 
         if (rankA !== rankB) return rankA - rankB; 
 
-        let nameA = (a[1].profilename || a[1].email || "").toLowerCase();
-        let nameB = (b[1].profilename || b[1].email || "").toLowerCase();
+        // KEMBALIKAN SORTING NAMA ASLI
+        let nameA = (a[1].profilename || a[1].profileName || a[1].displayName || a[1].name || a[1].email || "").toLowerCase();
+        let nameB = (b[1].profilename || b[1].profileName || b[1].displayName || b[1].name || b[1].email || "").toLowerCase();
         return nameA.localeCompare(nameB); 
     });
 
@@ -915,7 +916,7 @@ function renderUsersList(usersData) {
         userArray.forEach(([uid, user]) => {
             const isBanned = currentBannedData[uid] && Date.now() < currentBannedData[uid];
             
-            // Cek hantu dari DATABASE ASLI (Bukan dari 'user' yg udah di-merge)
+            // Cek hantu dari DATABASE ASLI
             const dbData = usersData && usersData[uid];
             const isGhost = !dbData || !dbData.email; 
 
@@ -942,12 +943,13 @@ function renderUsersList(usersData) {
 
             const cardBorder = isBanned ? "3px solid #e67e22" : (isGhost ? "3px solid #7f8c8d" : (isReallyActive ? "3px solid #27ae60" : "1px solid #ddd"));
 
-            let rawName = user.profilename || user.email || "Menunggu Data...";
-            const userName = rawName.includes('@') ? rawName.split('@')[0] : (rawName.length > 8 ? rawName.substring(0, 8) : rawName);
+            // LOGIKA 8 KARAKTER SUDAH DIKEMBALIKAN 100%
+            let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
+            const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
             
-            const dKunci = user.diamond || 0;
-            const gKunci = user.gold || 0;
-            const sKunci = user.silver || 0;
+            const dKunci = user.diamond || (user.keys && user.keys.diamond) || 0;
+            const gKunci = user.gold || (user.keys && user.keys.gold) || 0;
+            const sKunci = user.silver || (user.keys && user.keys.silver) || 0;
 
             html += `
             <div style="display: flex; flex-direction: column; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: ${cardBorder}; transition: border 0.3s ease;">
