@@ -967,32 +967,32 @@ window.toggleDisableUser = (uid, disable) => {
 };
 
 window.deleteUser = (uid) => {
-    // 1. Ambil data dari "ingatan" Admin (bukan dari server)
     const userData = currentUsersData[uid];
-    
     if (!userData) {
         myAlert("❌ Data tidak ditemukan!");
         return;
     }
 
-    // Perhatikan tambahan , "Delete" di akhir penutup kurung myConfirm
     myConfirm(`Yakin Ingin, Hapus Permanet Akun Ini?`, () => {
-        // 2. TANDAI DULU di memori (Sebelum dihapus di server)
         recentlyDeleted[uid] = { ...userData };
 
-        // 3. Baru suruh Firebase hapus di server
-        db.ref(`users/${uid}`).remove()
+        // --- TAMBAHAN LOGIKA BANNED 5 MENIT ---
+        const bannedUntil = Date.now() + (5 * 60 * 1000); 
+        
+        const updates = {};
+        updates[`users/${uid}`] = null; 
+        updates[`banned_temporary/${uid}`] = bannedUntil; 
+
+        db.ref().update(updates)
             .then(() => {
-                myAlert("✅ User berhasil dihapus permanen!");
-                // 4. Gambar ulang layar agar tanda merah muncul
+                myAlert("✅ User dihapus & dilarang login 5 menit!");
                 renderUsersList(currentUsersData);
             })
             .catch(err => {
-                // Jika gagal, hapus tanda merahnya
                 delete recentlyDeleted[uid];
                 myAlert("❌ Gagal: " + err.message);
             });
-    }, "Delete"); // <--- KATA "Delete" DITAMBAHKAN DI SINI
+    }, "Delete"); 
 };
 
 // === 3. FUNGSI KIRIM PESAN PROMO ===
