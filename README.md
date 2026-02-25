@@ -727,10 +727,16 @@ window.myAlert = (msg) => {
         }, 5000);
     }, 10); 
 };
-            window.myConfirm = (msg, action) => {
+window.myConfirm = (msg, action, btnText = "Hapus", btnColor = "var(--danger)") => {
                 document.getElementById('modal-msg').innerText = msg;
+                
+                // Ubah teks dan warna tombol secara otomatis
+                const confirmBtn = document.getElementById('modal-confirm-btn');
+                confirmBtn.innerText = btnText;
+                confirmBtn.style.background = btnColor;
+                
                 document.getElementById('custom-overlay').style.display = 'flex';
-                document.getElementById('modal-confirm-btn').onclick = () => { action(); closeModal(); };
+                confirmBtn.onclick = () => { action(); closeModal(); };
             };
             window.closeModal = () => document.getElementById('custom-overlay').style.display = 'none';
 window.runMassDelete = () => {
@@ -928,11 +934,16 @@ function renderUsersList(usersData) {
 // === 2. FUNGSI DISABLE / ENABLE ===
 window.toggleDisableUser = (uid, disable) => {
     const actionText = disable ? "Menonaktifkan" : "Mengaktifkan";
+    
+    // Set teks dan warna (Disable = Oranye, Enable = Hijau)
+    const btnText = disable ? "Disable" : "Enable";
+    const btnColor = disable ? "#f39c12" : "#27ae60";
+
     myConfirm(`Yakin ingin ${actionText} akun ini?`, () => {
         db.ref(`users/${uid}/disabled`).set(disable)
             .then(() => myAlert(`✅ Akun berhasil di-${disable ? 'disable' : 'enable'}!`))
             .catch(err => myAlert("❌ Gagal: " + err.message));
-    });
+    }, btnText, btnColor); // Mengirim instruksi teks & warna ke Pop-up
 };
 
 window.deleteUser = (uid) => {
