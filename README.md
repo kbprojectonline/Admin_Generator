@@ -942,11 +942,12 @@ function renderUsersList(usersData) {
 
 // === 2. FUNGSI DISABLE / ENABLE ===
 window.toggleDisableUser = (uid, disable) => {
-    const actionText = disable ? "Menonaktifkan" : "Mengaktifkan";
+    // Ubah kata aksi menjadi Disable / Enable agar sesuai dengan pop-up
+    const actionText = disable ? "Disable" : "Enable";
     
     // Teks dan Warna (Disable = Oranye, Enable = Hijau)
     const btnText = disable ? "Disable" : "Enable";
-    const btnColor = disable ? "var(--warning)" : "#27ae60";
+    const btnColor = disable ? "#f39c12" : "#27ae60"; // <--- Pakai kode Hex warna Oranye di sini!
 
     myConfirm(`Yakin ingin, ${actionText} Akun Ini?`, () => {
         db.ref(`users/${uid}/disabled`).set(disable)
