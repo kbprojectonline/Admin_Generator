@@ -856,7 +856,7 @@ function renderUsersList(usersData) {
                     <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${userEmail}</div>
                     <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 6px;">UID: ${uid}</div>
                     
-<div style="display: flex; justify-content: space-around; align-items: center; background: #f9f9f9; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; width: 100%; box-sizing: border-box;">
+<div style="display: flex; justify-content: space-around; align-items: center; background: #f9f9f9; padding: 15px 12px; border-radius: 12px; margin: 18px 0; border: 1px solid #eee; width: 100%; box-sizing: border-box;">
                         <div style="text-align: center;">
                             <div style="font-size: 1.1rem; margin-bottom: 2px;">💎</div>
                             <div style="font-size: 0.85rem; font-weight: 900; color: #008b8b;">${dKunci}</div>
