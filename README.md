@@ -840,7 +840,13 @@ function renderUsersList(usersData) {
             }
 
             const borderLeft = isDeleted ? "5px solid #c0392b" : ((isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7");
-            const userName = user.profilename || user.profileName || user.name || "User Tanpa Nama";
+// PRIORITAS: Nama Profil > Nama Google > Nama Email > User Baru
+            const userName = user.profilename || 
+                             user.profileName || 
+                             user.displayName || 
+                             user.name || 
+                             (user.email ? user.email.split('@')[0] : "User Baru");
+
             const userEmail = user.email || "Email tidak tersedia";
 
 // AMBIL DATA KUNCI (Cek di root user ATAU di dalam folder 'kunci'/'keys')
