@@ -331,6 +331,7 @@
             let isMasterLoaded = false;
             let recentlyDeleted = {};
             let currentUsersData = {};
+            let currentBannedData = {};
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -481,6 +482,11 @@ db.ref('voucher_history').on('value', (snapshot) => {
         historyListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat penggunaan.</div>';
     }
 });
+db.ref('banned_temporary').on('value', (snapshot) => {
+                currentBannedData = snapshot.val() || {};
+                renderUsersList(currentUsersData); 
+            });
+            
             }
             function renderAllLists() {
                 // A. RENDER ACTIVE LIST
@@ -822,10 +828,19 @@ window.runHistoryDelete = () => {
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     
-    // Gabungkan data asli dengan data yang baru didelete
+    // Gabungkan data live dengan data yang ada di memory (recently deleted)
     const combinedData = { ...(usersData || {}), ...recentlyDeleted };
 
-    if (Object.keys(combinedData).length === 0) {
+    // 1. Kumpulkan semua UID unik dari folder users dan folder banned_temporary
+    // Agar akun yang sudah dihapus di users tapi masih ada di banned tetap muncul di list
+    const allUids = new Set([...Object.keys(combinedData), ...Object.keys(currentBannedData)]);
+    
+    let userArray = Array.from(allUids).map(uid => {
+        // Jika data user tidak ada di folder users (sudah terhapus), beri tanda isDeleted
+        return [uid, combinedData[uid] || { isDeleted: true }];
+    }).filter(([uid]) => uid !== ADMIN_UID);
+
+    if (userArray.length === 0) {
         usersListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-weight: bold;">Tidak ada data user terdaftar.</div>';
         return;
     }
@@ -842,47 +857,46 @@ function renderUsersList(usersData) {
         return "⚫ OFFLINE";
     };
 
-    let html = "";
-    try {
-        // --- LOGIKA PENGURUTAN BARU ---
-        // 1. Ubah objek jadi array & filter data yang tidak valid / Admin
-        let userArray = Object.entries(combinedData).filter(([uid, user]) => {
-            return user && typeof user === 'object' && uid !== ADMIN_UID;
-        });
+    // 2. LOGIKA PENGURUTAN CERDAS
+    userArray.sort((a, b) => {
+        const uidA = a[0], userA = a[1];
+        const uidB = b[0], userB = b[1];
+        
+        // Cek status banned & deleted untuk sortir
+        const isBannedA = currentBannedData[uidA] && Date.now() < currentBannedData[uidA];
+        const isBannedB = currentBannedData[uidB] && Date.now() < currentBannedData[uidB];
+        const isDeletedA = !usersData || !usersData[uidA];
+        const isDeletedB = !usersData || !usersData[uidB];
 
-// 2. Mulai proses mengurutkan
-        userArray.sort((a, b) => {
-            const uidA = a[0];
-            const userA = a[1];
-            const uidB = b[0];
-            const userB = b[1];
-            
-            // Cek apakah akun ini statusnya sudah terhapus
-            const isDeletedA = !usersData || !usersData[uidA];
-            const isDeletedB = !usersData || !usersData[uidB];
+        const problemA = isBannedA || isDeletedA;
+        const problemB = isBannedB || isDeletedB;
 
-            // PRIORITAS UTAMA: Kalau akun sudah di-delete, langsung lempar ke paling bawah
-            if (isDeletedA && !isDeletedB) return 1;
-            if (!isDeletedA && isDeletedB) return -1;
-            
-            const isOnlineA = userA.isOnline === true;
-            const isOnlineB = userB.isOnline === true;
+        // PRIORITAS 1: Akun bermasalah (Banned/Deleted) dipaksa ke paling bawah
+        if (problemA && !problemB) return 1;
+        if (!problemA && problemB) return -1;
+        
+        // PRIORITAS 2: Jika sama-sama normal, yang Online ditarik ke paling atas
+        if (!problemA && !problemB) {
+            if (userA.isOnline === true && userB.isOnline !== true) return -1;
+            if (userA.isOnline !== true && userB.isOnline === true) return 1;
 
-            // Prioritas 2: Yang Online ditarik ke paling atas
-            if (isOnlineA && !isOnlineB) return -1;
-            if (!isOnlineA && isOnlineB) return 1;
-
-            // Prioritas 3: Jika sama-sama offline, yang baru saja keluar taruh di atas
+            // PRIORITAS 3: Jika sama-sama offline, urutkan berdasarkan waktu login terakhir
             const timeA = typeof userA.isOnline === 'number' ? userA.isOnline : 0;
             const timeB = typeof userB.isOnline === 'number' ? userB.isOnline : 0;
             return timeB - timeA; 
-        });
+        }
+        return 0;
+    });
 
-        // 3. Render array yang sudah diurutkan ke layar
+    let html = "";
+    try {
         userArray.forEach(([uid, user]) => {
-            const isDeleted = !usersData || !usersData[uid]; 
-            const isActive = user.isOnline === true;
-            
+            const isDeleted = !usersData || !usersData[uid];
+            const isActive = user.isOnline === true && !isDeleted;
+            const bannedUntil = currentBannedData[uid];
+            const isBanned = bannedUntil && Date.now() < bannedUntil;
+
+            // Tentukan status teks dan warna
             let statusText = isDeleted ? "🔴 BARU DI-DELETE" : getTimeAgo(user.isOnline);
             let statusColor = isDeleted ? "#c0392b" : (isActive ? "#27ae60" : "#7f8c8d");
             
@@ -891,40 +905,37 @@ function renderUsersList(usersData) {
                 statusColor = "#c0392b";
             }
 
-            const borderLeft = isDeleted ? "5px solid #c0392b" : ((isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7");
+            // JIKA SEDANG COOLDOWN (BANNED 5 MENIT)
+            if (isBanned) {
+                const sisaMenit = Math.ceil((bannedUntil - Date.now()) / 60000);
+                statusText = `⏳ COOLDOWN (${sisaMenit} Menit)`;
+                statusColor = "#f39c12"; // Oranye
+            }
+
+            const borderLeft = isBanned ? "5px solid #f39c12" : (isDeleted ? "5px solid #c0392b" : ((isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7"));
             
-            // Ambil nama dari berbagai sumber
+            // Ambil nama & PAKSA POTONG 8 karakter
             let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
-            // PAKSA POTONG: Maksimal 8 karakter agar sama dengan Index
             const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
             const userEmail = user.email || "Email tidak tersedia";
 
             // AMBIL DATA KUNCI
-            const dKunci = user.diamond || (user.kunci && user.kunci.diamond) || (user.keys && user.keys.diamond) || 0;
-            const gKunci = user.gold || (user.kunci && user.kunci.gold) || (user.keys && user.keys.gold) || 0;
-            const sKunci = user.silver || (user.kunci && user.kunci.silver) || (user.keys && user.keys.silver) || 0;
+            const dKunci = user.diamond || (user.keys && user.keys.diamond) || 0;
+            const gKunci = user.gold || (user.keys && user.keys.gold) || 0;
+            const sKunci = user.silver || (user.keys && user.keys.silver) || 0;
 
             html += `
-            <div style="display: flex; flex-direction: column; background: ${isDeleted ? '#fff5f5' : 'white'}; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: ${borderLeft}; opacity: ${isDeleted ? '0.7' : '1'}; transition: 0.3s;">
+            <div style="display: flex; flex-direction: column; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: ${borderLeft};">
                 
                 <div style="margin-bottom: 12px;">
                     <div style="font-weight: 900; color: #333; font-size: 1.1rem; margin-bottom: 4px;">${userName}</div>
                     <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${userEmail}</div>
                     <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 6px;">UID: ${uid}</div>
                     
-                    <div style="display: flex; justify-content: space-around; align-items: center; background: #f9f9f9; padding: 15px 12px; border-radius: 12px; margin: 18px 0; border: 1px solid #eee; width: 100%; box-sizing: border-box;">
-                        <div style="text-align: center;">
-                            <div style="font-size: 1.1rem; margin-bottom: 2px;">💎</div>
-                            <div style="font-size: 0.85rem; font-weight: 900; color: #008b8b;">${dKunci}</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 1.1rem; margin-bottom: 2px;">👑</div>
-                            <div style="font-size: 0.85rem; font-weight: 900; color: #b8860b;">${gKunci}</div>
-                        </div>
-                        <div style="text-align: center;">
-                            <div style="font-size: 1.1rem; margin-bottom: 2px;">🥈</div>
-                            <div style="font-size: 0.85rem; font-weight: 900; color: #7f8c8d;">${sKunci}</div>
-                        </div>
+                    <div style="display: flex; justify-content: space-around; align-items: center; background: #f9f9f9; padding: 12px; border-radius: 12px; margin: 15px 0; border: 1px solid #eee;">
+                        <div style="text-align: center;">💎 <b style="color: #008b8b;">${dKunci}</b></div>
+                        <div style="text-align: center;">👑 <b style="color: #b8860b;">${gKunci}</b></div>
+                        <div style="text-align: center;">🥈 <b style="color: #7f8c8d;">${sKunci}</b></div>
                     </div>
 
                     <div style="color: ${statusColor}; font-weight: 800; font-size: 0.85rem;">${statusText}</div>
@@ -932,8 +943,7 @@ function renderUsersList(usersData) {
 
                 <div style="display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 12px;">
                     ${isDeleted ? 
-                        `<div style="flex:1; text-align:center; font-size:0.75rem; color:#e74c3c; font-weight:bold; font-style:italic;">⚠️ Akun ini telah dihapus permanen</div>` 
-                        : 
+                        `<div style="flex:1; text-align:center; font-size:0.75rem; color:#e74c3c; font-weight:bold; font-style:italic;">⚠️ Data akun telah dihapus (Cooldown)</div>` : 
                         `${user.disabled ? 
                             `<button style="flex: 1; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', false)">Enable</button>` : 
                             `<button style="flex: 1; padding: 10px; background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', true)">Disable</button>`
@@ -946,7 +956,7 @@ function renderUsersList(usersData) {
         });
         usersListDiv.innerHTML = html;
     } catch (e) {
-        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Error: ${e.message}</div>`;
+        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Error Tampilan: ${e.message}</div>`;
     }
 }
 
