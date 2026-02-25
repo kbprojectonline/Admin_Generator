@@ -860,13 +860,12 @@ function renderUsersList(usersData) {
         const waktuTerakhir = lastActiveCache[uid] || userOnlineStatus || 0;
         const selisih = Math.floor((sekarang - waktuTerakhir) / 1000);
 
-        if (selisih <= 15) return { text: "🟢 ACTIVE NOW", active: true }; 
-        if (selisih < 60) return { text: "⚫ Baru saja OFFLINE", active: false };
-        const mins = Math.floor(selisih / 60);
-        if (mins < 60) return `⚫ Online ${mins} menit lalu`;
-        const hours = Math.floor(mins / 60);
-        if (hours < 24) return `⚫ Online ${hours} jam lalu`;
-        return "⚫ OFFLINE";
+if (selisih <= 60) return { text: "🟢 ACTIVE NOW", active: true }; 
+const mins = Math.floor(selisih / 60);
+if (mins < 60) return { text: `⚫ Online ${mins} menit lalu`, active: false };
+const hours = Math.floor(mins / 60);
+if (hours < 24) return { text: `⚫ Online ${hours} jam lalu`, active: false };
+return { text: "⚫ OFFLINE", active: false };
     };
 
     // 3. SORTING PATEN (Active di atas, Urut Abjad A-Z biar anteng)
