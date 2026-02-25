@@ -332,23 +332,17 @@
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
-const userRef = db.ref(`users/${user.uid}`); 
-db.ref('.info/connected').on('value', (snapshot) => {
-    if (snapshot.val() === true) {
-        userRef.child('isOnline').onDisconnect().set(false);
-        const safeEmail = user.email || "Email tidak tersedia";
-        const safeName = user.displayName || (user.email ? user.email.split('@')[0] : "User Kuis");
-        userRef.update({
-            isOnline: true,
-            email: safeEmail,
-            profilename: safeName
-        }).then(() => {
-            console.log("🟢 Sensor Online Bekerja: Status Active terkirim!");
-        }).catch((err) => {
-            alert("❌ Error Sensor Online: " + err.message);
-        });
-    }
-});
+const userRef = db.ref(`users/${user.uid}`);
+                    db.ref('.info/connected').on('value', (snapshot) => {
+                        if (snapshot.val() === true) {
+                            userRef.child('isOnline').onDisconnect().set(false);
+                            userRef.update({
+                                isOnline: true,
+                                email: user.email || "Email tidak tersedia",
+                                profilename: user.displayName || (user.email ? user.email.split('@')[0] : "Admin Kuis")
+                            });
+                        }
+                    });
                     if (user.uid === ADMIN_UID) {
                         loginBtn.innerHTML = `✅ Admin: <b>${user.email.split('@')[0]}</b> (Logout)`;
                         loginBtn.style.background = "#27ae60";
