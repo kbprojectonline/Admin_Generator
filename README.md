@@ -854,10 +854,18 @@ function renderUsersList(usersData) {
         return;
     }
 
-    const getTimeAgo = (ts) => {
+const getTimeAgo = (ts) => {
         if (ts === true) return "🟢 ACTIVE NOW";
         if (!ts || ts === false) return "⚫ OFFLINE";
+        
+        // Hitung selisih waktu sekarang dengan waktu terakhir user aktif (dalam detik)
         const diff = Math.floor((Date.now() - ts) / 1000);
+
+        // --- INI LOGIKA 5 DETIKNYA ---
+        // Jika user baru offline kurang dari atau pas 5 detik, 
+        // Admin tetep ngeliat dia sebagai "Active Now" (Gak langsung berubah)
+        if (diff <= 5) return "🟢 ACTIVE NOW";
+
         if (diff < 60) return "⚫ Baru saja OFFLINE";
         const mins = Math.floor(diff / 60);
         if (mins < 60) return `⚫ Online ${mins} menit lalu`;
@@ -1022,10 +1030,16 @@ myConfirm(`Yakin Ingin, Hapus Permanet Akun Ini?`, () => {
 // === 3. FUNGSI KIRIM PESAN PROMO ===
 window.sendPromoMessage = (uid) => {
     // Langsung tembak ke database tanpa konfirmasi
-    db.ref(`users/${uid}/promoMessage`).set(true)
+db.ref(`users/${uid}/promoMessage`).set(true)
         .then(() => myAlert("✅ Pesan berhasil dikirim!"))
         .catch(err => myAlert("❌ Gagal: " + err.message));
 };
+
+setInterval(() => {
+    if (currentUsersData) {
+        renderUsersList(currentUsersData);
+    }
+}, 1000);
 
         </script>
     </body>
