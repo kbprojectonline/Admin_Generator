@@ -333,15 +333,15 @@
             auth.onAuthStateChanged((user) => {
                 if (user) {
 // ==========================================
-                    // KODE PELACAK STATUS ONLINE (UNTUK USER KUIS)
+                    // SENSOR ONLINE UNTUK APLIKASI KUIS
                     // ==========================================
-                    const userRef = db.ref(`users/${user.uid}`);
-                    db.ref('.info/connected').on('value', (snapshot) => {
+                    const userRef = firebase.database().ref(`users/${user.uid}`);
+                    firebase.database().ref('.info/connected').on('value', (snapshot) => {
                         if (snapshot.val() === true) {
-                            // Jika aplikasi ditutup/koneksi putus, otomatis jadi OFFLINE
+                            // Jika aplikasi kuis ditutup, otomatis jadi OFFLINE
                             userRef.child('isOnline').onDisconnect().set(false);
                             
-                            // Saat ini sedang membuka aplikasi, ubah ke ONLINE & Simpan Nama
+                            // Saat membuka kuis, lapor ke database jadi ONLINE
                             userRef.update({
                                 isOnline: true,
                                 email: user.email,
