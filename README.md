@@ -866,8 +866,13 @@ function renderUsersList(usersData) {
         return;
     }
 
-    // 4. LOGIKA UI LOCK 60 DETIK
-    const getStatusInfo = (uid, userOnlineStatus) => {
+    // 4. LOGIKA UI LOCK 60 DETIK (DITAMBAH PENGECEKAN EMAIL)
+    const getStatusInfo = (uid, userOnlineStatus, userEmail) => {
+        // CEGAH "ACTIVE NOW" JIKA BELUM LOGIN GOOGLE (TIDAK ADA EMAIL)
+        if (!userEmail) {
+            return { text: "🔒 MENUNGGU LOGIN", active: false };
+        }
+
         const sekarang = Date.now();
         if (userOnlineStatus === true) {
             lastActiveCache[uid] = sekarang;
@@ -886,7 +891,7 @@ function renderUsersList(usersData) {
 
     // 5. SORTING KASTA
     userArray.sort((a, b) => {
-        const getRank = (uid) => {
+        const getRank = (uid, userObj) => {
             const isBanned = currentBannedData[uid] && Date.now() < currentBannedData[uid];
             const dbData = usersData && usersData[uid];
             const isGhost = !dbData || !dbData.email; 
@@ -894,13 +899,14 @@ function renderUsersList(usersData) {
             if (isBanned) return 4;
             if (isGhost) return 3;
             
-            const info = getStatusInfo(uid, (dbData && dbData.isOnline));
+            // Pass the email to getStatusInfo
+            const info = getStatusInfo(uid, (dbData && dbData.isOnline), userObj.email);
             if (info.active) return 1;
             return 2;
         };
 
-        const rankA = getRank(a[0]);
-        const rankB = getRank(b[0]);
+        const rankA = getRank(a[0], a[1]);
+        const rankB = getRank(b[0], b[1]);
 
         if (rankA !== rankB) return rankA - rankB; 
 
@@ -935,7 +941,8 @@ function renderUsersList(usersData) {
                 statusText = "⛔ DISABLED";
                 statusColor = "#c0392b";
             } else {
-                const status = getStatusInfo(uid, user.isOnline);
+                // Pass the email to getStatusInfo
+                const status = getStatusInfo(uid, user.isOnline, user.email);
                 statusText = status.text;
                 statusColor = status.active ? "#27ae60" : "#7f8c8d";
                 isReallyActive = status.active;
