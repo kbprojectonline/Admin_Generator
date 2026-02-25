@@ -295,7 +295,7 @@
     </div>
 </div>
 <div id="users-management-container" style="display: none; width: 100%; margin-top: 80px;">
-    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">👥 Manajemen Pengguna (Users)</h3>
+    <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">👥 Manajemen Pengguna</h3>
     <div id="users-list" class="list-box" style="background: #f4fdf8; height: 400px; padding: 15px;">Memuat data users...</div>
 </div>
         </div> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
