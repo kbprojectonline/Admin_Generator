@@ -828,10 +828,12 @@ let lastActiveCache = {};
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     
-    // 1. Bersihkan Memori Cooldown (ASLI PUNYA LO)
+    // 1. Bersihkan Memori Cooldown (Hapus tuntas kalau waktu sudah habis)
     let memChanged = false;
     Object.keys(recentlyDeleted).forEach(id => {
-        if (!currentBannedData[id]) {
+        const bannedUntil = currentBannedData[id];
+        // Jika tidak ada di daftar banned ATAU waktunya sudah lewat 5 menit
+        if (!bannedUntil || Date.now() > bannedUntil) {
             delete recentlyDeleted[id];
             memChanged = true;
         }
@@ -839,7 +841,10 @@ function renderUsersList(usersData) {
     if(memChanged) localStorage.setItem('memDeleted', JSON.stringify(recentlyDeleted));
     
     const combinedData = { ...(usersData || {}), ...recentlyDeleted };
-    const allUids = new Set([...Object.keys(combinedData), ...Object.keys(currentBannedData)]);
+    
+    // AMBIL UID YANG MASIH AKTIF SAJA (Masa hukuman sudah lewat langsung dibuang)
+    const activeBannedUids = Object.keys(currentBannedData).filter(uid => Date.now() < currentBannedData[uid]);
+    const allUids = new Set([...Object.keys(combinedData), ...activeBannedUids]);
     
     let userArray = Array.from(allUids).map(uid => {
         return [uid, combinedData[uid] || { isDeleted: true }];
