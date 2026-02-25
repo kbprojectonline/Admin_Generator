@@ -856,10 +856,19 @@ function renderUsersList(usersData) {
                     <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${userEmail}</div>
                     <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 6px;">UID: ${uid}</div>
                     
-                    <div style="display: flex; gap: 12px; background: #f9f9f9; padding: 8px 12px; border-radius: 8px; width: fit-content; margin-bottom: 10px; border: 1px solid #eee;">
-                        <span style="font-size: 0.9rem;">💎 <b style="color:#008b8b;">${dKunci}</b></span>
-                        <span style="font-size: 0.9rem;">👑 <b style="color:#b8860b;">${gKunci}</b></span>
-                        <span style="font-size: 0.9rem;">🥈 <b style="color:#7f8c8d;">${sKunci}</b></span>
+<div style="display: flex; justify-content: space-around; align-items: center; background: #f9f9f9; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #eee; width: 100%; box-sizing: border-box;">
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.1rem; margin-bottom: 2px;">💎</div>
+                            <div style="font-size: 0.85rem; font-weight: 900; color: #008b8b;">${dKunci}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.1rem; margin-bottom: 2px;">👑</div>
+                            <div style="font-size: 0.85rem; font-weight: 900; color: #b8860b;">${gKunci}</div>
+                        </div>
+                        <div style="text-align: center;">
+                            <div style="font-size: 1.1rem; margin-bottom: 2px;">🥈</div>
+                            <div style="font-size: 0.85rem; font-weight: 900; color: #7f8c8d;">${sKunci}</div>
+                        </div>
                     </div>
 
                     <div style="color: ${statusColor}; font-weight: 800; font-size: 0.85rem;">${statusText}</div>
