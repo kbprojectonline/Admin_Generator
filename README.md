@@ -890,7 +890,7 @@ function renderUsersList(usersData) {
 
     let html = "";
     try {
-        userArray.forEach(([uid, user]) => {
+userArray.forEach(([uid, user]) => {
             const isDeleted = !usersData || !usersData[uid];
             const isActive = user.isOnline === true && !isDeleted;
             const bannedUntil = currentBannedData[uid];
@@ -901,7 +901,7 @@ function renderUsersList(usersData) {
             let statusColor = isDeleted ? "#c0392b" : (isActive ? "#27ae60" : "#7f8c8d");
             
             if (!isDeleted && user.disabled) {
-                statusText = "🔴 DISABLED";
+                statusText = "⛔ DISABLED";
                 statusColor = "#c0392b";
             }
 
@@ -909,10 +909,10 @@ function renderUsersList(usersData) {
             if (isBanned) {
                 const sisaMenit = Math.ceil((bannedUntil - Date.now()) / 60000);
                 statusText = `⏳ COOLDOWN (${sisaMenit} Menit)`;
-                statusColor = "#f39c12"; // Oranye
+                statusColor = "#e67e22"; // Oranye
             }
 
-            const borderLeft = isBanned ? "5px solid #f39c12" : (isDeleted ? "5px solid #c0392b" : ((isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7"));
+            const borderLeft = isBanned ? "5px solid #e67e22" : (isDeleted ? "5px solid #c0392b" : ((isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7"));
             
             // Ambil nama & PAKSA POTONG 8 karakter
             let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
@@ -938,20 +938,24 @@ function renderUsersList(usersData) {
                         <div style="text-align: center;">🥈 <b style="color: #7f8c8d;">${sKunci}</b></div>
                     </div>
 
-                    <div style="color: ${statusColor}; font-weight: 800; font-size: 0.85rem;">${statusText}</div>
+                    <div style="color: ${statusColor}; font-weight: 900; font-size: 0.95rem; text-transform: uppercase;">${statusText}</div>
                 </div>
 
                 <div style="display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 12px;">
-                    ${isDeleted ? 
-                        `<div style="flex:1; text-align:center; font-size:0.75rem; color:#e74c3c; font-weight:bold; font-style:italic;">⚠️ Data akun telah dihapus (Cooldown)</div>` : 
-                        `${user.disabled ? 
-                            `<button style="flex: 1; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', false)">Enable</button>` : 
-                            `<button style="flex: 1; padding: 10px; background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', true)">Disable</button>`
-                        }
-                        <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>`
+                    ${isBanned ? 
+                        // JIKA COOLDOWN: HILANGKAN TOMBOL DISABLE, DELETE, DLL
+                        `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold; font-style:italic;">⚠️ Akun sedang dibatasi (Cooldown)</div>` : 
+                        (isDeleted ? 
+                            `<div style="flex:1; text-align:center; font-size:0.75rem; color:#e74c3c; font-weight:bold; font-style:italic;">⚠️ Data akun telah dihapus</div>` : 
+                            `${user.disabled ? 
+                                `<button style="flex: 1; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', false)">Enable</button>` : 
+                                `<button style="flex: 1; padding: 10px; background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', true)">Disable</button>`
+                            }
+                            <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>`
+                        )
                     }
                 </div>
-                ${!isDeleted ? `<button style="width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onclick="sendPromoMessage('${uid}')">💬 Kirim Pesan</button>` : ''}
+                ${(!isDeleted && !isBanned) ? `<button style="width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onclick="sendPromoMessage('${uid}')">💬 Kirim Pesan</button>` : ''}
             </div>`;
         });
         usersListDiv.innerHTML = html;
