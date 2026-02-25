@@ -864,15 +864,24 @@ function renderUsersList(usersData) {
         return "⚫ OFFLINE";
     };
 
-    // 3. Sorting (User Online naik ke atas)
-// 3. Sorting Berdasarkan Nama (Biar posisi kartu paten/statis)
+// 3. Sorting Mantap: Active di atas, tapi posisi kartu PATEN (berdasarkan Nama)
     userArray.sort((a, b) => {
-        // Ambil nama dari berbagai kemungkinan field (profilename, email, dll)
+        const statusA = getTimeAgo(a[1].isOnline);
+        const statusB = getTimeAgo(b[1].isOnline);
+
+        const isActiveA = statusA.includes("ACTIVE");
+        const isActiveB = statusB.includes("ACTIVE");
+
+        // LEVEL 1: Pisahin Active vs Offline
+        if (isActiveA && !isActiveB) return -1; // Yang Active naik ke atas
+        if (!isActiveA && isActiveB) return 1;  // Yang Offline turun ke bawah
+
+        // LEVEL 2: Kalau sama-sama Active atau sama-sama Offline, URUT NAMA (A-Z)
+        // Ini kuncinya biar kartu lo diem di tempat (statis)
         let nameA = (a[1].profilename || a[1].profileName || a[1].displayName || a[1].email || "User").toLowerCase();
         let nameB = (b[1].profilename || b[1].profileName || b[1].displayName || b[1].email || "User").toLowerCase();
         
-        // Urutkan berdasarkan abjad A sampai Z
-        return nameA.localeCompare(nameB);
+        return nameA.localeCompare(nameB); 
     });
 
     // 4. Render Layout
