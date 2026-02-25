@@ -811,7 +811,7 @@ function renderUsersList(usersData) {
         const diff = Math.floor((Date.now() - ts) / 1000);
         
         // 1. Kurang dari 1 menit
-        if (diff < 60) return "⚫ Baru saja OFFLINE";
+        if (diff < 60) return "⚫ Baru saja Offline";
         
         // 2. Hitung Menit
         const mins = Math.floor(diff / 60);
