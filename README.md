@@ -828,25 +828,37 @@ let lastActiveCache = {};
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     
-    // 1. BERSIHKAN MEMORI DENGAN PINTAR (Hapus memori HANYA JIKA user sudah login ulang pakai email)
+    // 1. BERSIHKAN MEMORI DENGAN AMAN
     let memChanged = false;
     Object.keys(recentlyDeleted).forEach(id => {
+        const dbUser = usersData && usersData[id];
         const isBanned = currentBannedData[id] && Date.now() < currentBannedData[id];
-        const hasReLoggedIn = usersData && usersData[id] && usersData[id].email;
-        if (!isBanned && hasReLoggedIn) {
+        
+        // HAPUS MEMORI HANYA JIKA: Waktu banned abis DAN user udah beneran login bawa email
+        if (!isBanned && dbUser && dbUser.email) {
             delete recentlyDeleted[id];
             memChanged = true;
         }
     });
     if(memChanged) localStorage.setItem('memDeleted', JSON.stringify(recentlyDeleted));
     
-    // 2. GABUNGKAN DATA (Biar nama & email asli gak musnah)
+    // 2. GABUNGKAN SEMUA UID
     const allUids = new Set([...Object.keys(usersData || {}), ...Object.keys(recentlyDeleted), ...Object.keys(currentBannedData)]);
     
+    // 3. MERGE DATA MEMORI & DATABASE BIAR NAMA ASLI AMAN
     let userArray = Array.from(allUids).map(uid => {
-        const dbData = (usersData && usersData[uid]) || {};
         const memData = recentlyDeleted[uid] || {};
-        return [uid, { ...memData, ...dbData }]; // Data memori jadi tameng kalau di DB kosong
+        const dbData = (usersData && usersData[uid]) || {};
+        
+        let finalUser = { ...dbData };
+        // Paksa masukin data dari memori kalau di DB kosong (gara2 hantu)
+        if (!finalUser.email) finalUser.email = memData.email;
+        if (!finalUser.profilename) finalUser.profilename = memData.profilename || memData.profileName || memData.displayName;
+        if (!finalUser.diamond) finalUser.diamond = memData.diamond;
+        if (!finalUser.gold) finalUser.gold = memData.gold;
+        if (!finalUser.silver) finalUser.silver = memData.silver;
+        
+        return [uid, finalUser];
     }).filter(([uid]) => uid !== ADMIN_UID);
 
     if (userArray.length === 0) {
@@ -854,7 +866,7 @@ function renderUsersList(usersData) {
         return;
     }
 
-    // 3. LOGIKA UI LOCK 60 DETIK
+    // 4. LOGIKA UI LOCK 60 DETIK
     const getStatusInfo = (uid, userOnlineStatus) => {
         const sekarang = Date.now();
         if (userOnlineStatus === true) {
@@ -872,38 +884,40 @@ function renderUsersList(usersData) {
         return { text: "⚫ OFFLINE", active: false };
     };
 
-    // 4. SORTING KASTA (Active Atas -> Offline Tengah -> Silakan Login Bawah -> Cooldown Dasar)
+    // 5. SORTING KASTA
     userArray.sort((a, b) => {
-        const getRank = (uid, user) => {
+        const getRank = (uid) => {
             const isBanned = currentBannedData[uid] && Date.now() < currentBannedData[uid];
-            // Dia hantu kalau di database asli gak ada emailnya
-            const isGhost = !usersData || !usersData[uid] || !usersData[uid].email;
+            const dbData = usersData && usersData[uid];
+            const isGhost = !dbData || !dbData.email; // Cek database asli, bukan data gabungan
             
             if (isBanned) return 4;
             if (isGhost) return 3;
             
-            const info = getStatusInfo(uid, user.isOnline);
+            const info = getStatusInfo(uid, (dbData && dbData.isOnline));
             if (info.active) return 1;
             return 2;
         };
 
-        const rankA = getRank(a[0], a[1]);
-        const rankB = getRank(b[0], b[1]);
+        const rankA = getRank(a[0]);
+        const rankB = getRank(b[0]);
 
-        if (rankA !== rankB) return rankA - rankB; // Urut kasta
+        if (rankA !== rankB) return rankA - rankB; 
 
-        // Urut abjad (Ngambil nama dari memori biar tetep urut)
-        let nameA = (a[1].profilename || a[1].profileName || a[1].displayName || a[1].email || "").toLowerCase();
-        let nameB = (b[1].profilename || b[1].profileName || b[1].displayName || b[1].email || "").toLowerCase();
+        let nameA = (a[1].profilename || a[1].email || "").toLowerCase();
+        let nameB = (b[1].profilename || b[1].email || "").toLowerCase();
         return nameA.localeCompare(nameB); 
     });
 
-    // 5. RENDER LAYOUT
+    // 6. RENDER LAYOUT
     let html = "";
     try {
         userArray.forEach(([uid, user]) => {
             const isBanned = currentBannedData[uid] && Date.now() < currentBannedData[uid];
-            const isGhost = !usersData || !usersData[uid] || !usersData[uid].email; 
+            
+            // Cek hantu dari DATABASE ASLI (Bukan dari 'user' yg udah di-merge)
+            const dbData = usersData && usersData[uid];
+            const isGhost = !dbData || !dbData.email; 
 
             let statusText = "";
             let statusColor = "";
@@ -914,7 +928,6 @@ function renderUsersList(usersData) {
                 statusText = `⏳ COOLDOWN (${sisaMenit} Menit)`;
                 statusColor = "#e67e22";
             } else if (isGhost) {
-                // TULISAN BERUBAH JADI INI KALAU 5 MENIT UDAH ABIS
                 statusText = "🔒 SILAKAN LOGIN";
                 statusColor = "#7f8c8d";
             } else if (user.disabled) {
@@ -929,13 +942,12 @@ function renderUsersList(usersData) {
 
             const cardBorder = isBanned ? "3px solid #e67e22" : (isGhost ? "3px solid #7f8c8d" : (isReallyActive ? "3px solid #27ae60" : "1px solid #ddd"));
 
-            // NGAMBIL NAMA ASLI DARI MEMORI (Gak bakal jadi User Baru)
-            let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
-            const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
+            let rawName = user.profilename || user.email || "Menunggu Data...";
+            const userName = rawName.includes('@') ? rawName.split('@')[0] : (rawName.length > 8 ? rawName.substring(0, 8) : rawName);
             
-            const dKunci = user.diamond || (user.keys && user.keys.diamond) || 0;
-            const gKunci = user.gold || (user.keys && user.keys.gold) || 0;
-            const sKunci = user.silver || (user.keys && user.keys.silver) || 0;
+            const dKunci = user.diamond || 0;
+            const gKunci = user.gold || 0;
+            const sKunci = user.silver || 0;
 
             html += `
             <div style="display: flex; flex-direction: column; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: ${cardBorder}; transition: border 0.3s ease;">
