@@ -796,9 +796,7 @@ window.runHistoryDelete = () => {
         });
     });
 };
-// === FITUR MANAJEMEN PENGGUNA (USERS) ===
 
-// === FITUR MANAJEMEN PENGGUNA (VERSI LAST ONLINE) ===
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     if (!usersData) {
@@ -806,7 +804,6 @@ function renderUsersList(usersData) {
         return;
     }
 
-    // FUNGSI HITUNG WAKTU
     const getTimeAgo = (ts) => {
         if (ts === true) return "🟢 ACTIVE NOW";
         if (!ts || ts === false) return "⚫ OFFLINE";
@@ -829,30 +826,32 @@ function renderUsersList(usersData) {
             const isActive = user.isOnline === true;
             const statusText = getTimeAgo(user.isOnline);
             
-            // Atur warna berdasarkan status
-            let statusColor = "#7f8c8d"; // Default Offline (Abu-abu)
-            if (isActive) statusColor = "#27ae60"; // Active (Hijau)
-            if (user.disabled) statusColor = "#c0392b"; // Disabled (Merah)
+            let statusColor = "#7f8c8d"; 
+            if (isActive) statusColor = "#27ae60";
+            if (user.disabled) statusColor = "#c0392b";
 
             const borderLeft = (isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7";
             const userName = user.profilename || user.profileName || user.name || "User Tanpa Nama";
             const userEmail = user.email || "Email tidak tersedia";
 
             html += `
-            <div style="display: flex; justify-content: space-between; align-items: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 10px; border-left: ${borderLeft};">
-                <div style="flex: 1; overflow: hidden; padding-right: 10px;">
-                    <div style="font-weight: bold; color: #333; font-size: 1.05rem; margin-bottom: 4px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">${userName}</div>
-                    <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;">📧 ${userEmail}</div>
-                    <div style="font-size: 0.75rem; color: #888; font-family: monospace;">UID: ${uid}</div>
-                    <div style="color: ${statusColor}; font-weight: bold; font-size: 0.8rem; margin-top: 6px;">${user.disabled ? '🔴 DISABLED' : statusText}</div>
+            <div style="display: flex; flex-direction: column; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: ${borderLeft};">
+                
+                <div style="margin-bottom: 12px;">
+                    <div style="font-weight: 900; color: #333; font-size: 1.1rem; margin-bottom: 4px;">${userName}</div>
+                    <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${userEmail}</div>
+                    <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 8px;">UID: ${uid}</div>
+                    <div style="color: ${statusColor}; font-weight: 800; font-size: 0.85rem;">${user.disabled ? '🔴 DISABLED' : statusText}</div>
                 </div>
-                <div style="display: flex; flex-direction: column; gap: 8px; min-width: 80px;">
+
+                <div style="display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 12px;">
                     ${user.disabled ? 
-                        `<button style="padding: 10px; background: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', false)">Enable</button>` : 
-                        `<button style="padding: 10px; background: #f39c12; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', true)">Disable</button>`
+                        `<button style="flex: 1; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', false)">Enable</button>` : 
+                        `<button style="flex: 1; padding: 10px; background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', true)">Disable</button>`
                     }
-                    <button style="padding: 10px; background: #c0392b; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>
+                    <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>
                 </div>
+
             </div>`;
         });
         usersListDiv.innerHTML = html;
