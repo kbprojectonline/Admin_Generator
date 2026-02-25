@@ -916,6 +916,7 @@ function renderUsersList(usersData) {
                         <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>`
                     }
                 </div>
+                ${!isDeleted ? `<button style="width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);" onclick="sendPromoMessage('${uid}')">💬 Kirim Pesan</button>` : ''}
             </div>`;
         });
         usersListDiv.innerHTML = html;
