@@ -1053,7 +1053,9 @@ setInterval(() => {
         renderUsersList(currentUsersData);
     }
 }, 1000);
-
+setTimeout(() => {
+    window.location.reload();
+}, 15000);
         </script>
     </body>
 </html>
