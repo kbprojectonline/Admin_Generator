@@ -825,10 +825,13 @@ window.runHistoryDelete = () => {
 // PASTIKAN BARIS INI ADA DI PALING ATAS SCRIPT (DI LUAR FUNCTION)
 // let lastActiveCache = {}; 
 
+// PASTIKAN BARIS INI ADA DI PALING ATAS SCRIPT LO (DI LUAR FUNCTION)
+// let lastActiveCache = {}; 
+
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     
-    // 1. Bersihkan Memori Cooldown
+    // 1. Bersihkan Memori Cooldown (ASLI PUNYA LO)
     let memChanged = false;
     Object.keys(recentlyDeleted).forEach(id => {
         if (!currentBannedData[id]) {
@@ -850,35 +853,37 @@ function renderUsersList(usersData) {
         return;
     }
 
-    // 2. LOGIKA UI LOCK (Nahan status Online 15 detik biar gak loncat)
+    // 2. LOGIKA UI LOCK 15 DETIK (Biar gak gampang mental offline)
     const getStatusInfo = (uid, userOnlineStatus) => {
         const sekarang = Date.now();
-        // Jika sedang online (true), simpan detiknya ke cache
         if (userOnlineStatus === true) {
             lastActiveCache[uid] = sekarang;
             return { text: "🟢 ACTIVE NOW", active: true };
         }
-        // Jika offline, cek cache: apakah dia baru saja online kurang dari 15 detik lalu?
         const waktuTerakhir = lastActiveCache[uid] || userOnlineStatus || 0;
         const selisih = Math.floor((sekarang - waktuTerakhir) / 1000);
 
-        if (selisih <= 15) return { text: "🟢 ACTIVE NOW", active: true }; // TAHAN STATUS
+        if (selisih <= 15) return { text: "🟢 ACTIVE NOW", active: true }; 
         if (selisih < 60) return { text: "⚫ Baru saja OFFLINE", active: false };
-        return { text: `⚫ Online ${Math.floor(selisih / 60)} menit lalu`, active: false };
+        const mins = Math.floor(selisih / 60);
+        if (mins < 60) return `⚫ Online ${mins} menit lalu`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `⚫ Online ${hours} jam lalu`;
+        return "⚫ OFFLINE";
     };
 
-    // 3. Sorting Paten (Active di atas, Urut Abjad A-Z biar kartu diem)
+    // 3. SORTING PATEN (Active di atas, Urut Abjad A-Z biar anteng)
     userArray.sort((a, b) => {
         const infoA = getStatusInfo(a[0], a[1].isOnline);
         const infoB = getStatusInfo(b[0], b[1].isOnline);
         if (infoA.active && !infoB.active) return -1;
         if (!infoA.active && infoB.active) return 1;
-        let nameA = (a[1].profilename || a[1].displayName || "").toLowerCase();
-        let nameB = (b[1].profilename || b[1].displayName || "").toLowerCase();
+        let nameA = (a[1].profilename || a[1].profileName || a[1].displayName || a[1].email || "").toLowerCase();
+        let nameB = (b[1].profilename || b[1].profileName || b[1].displayName || b[1].email || "").toLowerCase();
         return nameA.localeCompare(nameB); 
     });
 
-    // 4. Render Layout
+    // 4. RENDER LAYOUT
     let html = "";
     try {
         userArray.forEach(([uid, user]) => {
@@ -891,19 +896,27 @@ function renderUsersList(usersData) {
             const isReallyActive = status.active;
 
             let statusColor = isReallyActive ? "#27ae60" : (isDeleted ? "#c0392b" : "#7f8c8d");
-            if (!isDeleted && user.disabled) { statusText = "⛔ DISABLED"; statusColor = "#c0392b"; }
             
+            // LOGIKA DISABLED & BANNED (ASLI PUNYA LO)
+            if (!isDeleted && user.disabled) { 
+                statusText = "⛔ DISABLED"; 
+                statusColor = "#c0392b"; 
+            }
             if (isBanned) {
                 const sisaMenit = Math.ceil((bannedUntil - Date.now()) / 60000);
                 statusText = `⏳ COOLDOWN (${sisaMenit} Menit)`;
                 statusColor = "#e67e22";
             }
 
-            // BORDER MENGELILINGI CARD (3px)
+            // BORDER MENGELILINGI CARD (Sesuai Permintaan Lo)
             const cardBorder = isBanned ? "3px solid #e67e22" : (isDeleted ? "3px solid #c0392b" : (isReallyActive ? "3px solid #27ae60" : "1px solid #ddd"));
 
-            let rawName = user.profilename || user.displayName || user.email || "User Baru";
+            let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
             const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
+            
+            const dKunci = user.diamond || (user.keys && user.keys.diamond) || 0;
+            const gKunci = user.gold || (user.keys && user.keys.gold) || 0;
+            const sKunci = user.silver || (user.keys && user.keys.silver) || 0;
 
             html += `
             <div style="display: flex; flex-direction: column; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: ${cardBorder}; transition: border 0.3s ease;">
@@ -914,7 +927,7 @@ function renderUsersList(usersData) {
                     <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 6px;">UID: ${uid}</div>
                     
                     <div style="display: flex; justify-content: space-around; background: #f9f9f9; padding: 10px; border-radius: 10px; margin: 15px 0; border: 1px solid #eee;">
-                        <div>💎 <b>${user.diamond || 0}</b></div><div>👑 <b>${user.gold || 0}</b></div><div>🥈 <b>${user.silver || 0}</b></div>
+                        <div>💎 <b>${dKunci}</b></div><div>👑 <b>${gKunci}</b></div><div>🥈 <b>${sKunci}</b></div>
                     </div>
                     <div style="color: ${statusColor}; font-weight: 900; font-size: 0.95rem; text-transform: uppercase; margin-top: 5px;">
                         ${statusText}
@@ -926,6 +939,7 @@ function renderUsersList(usersData) {
                     `<button style="flex: 1; padding: 10px; background: ${user.disabled ? '#27ae60':'#f39c12'}; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', ${!user.disabled})">${user.disabled ? 'Enable':'Disable'}</button>
                      <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>`)}
                 </div>
+                ${(!isDeleted && !isBanned) ? `<button style="width: 100%; padding: 10px; background: #3498db; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.85rem; margin-top: 10px;" onclick="sendPromoMessage('${uid}')">💬 Kirim Pesan</button>` : ''}
             </div>`;
         });
         usersListDiv.innerHTML = html;
