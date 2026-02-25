@@ -948,7 +948,7 @@ window.toggleDisableUser = (uid, disable) => {
     const btnText = disable ? "Disable" : "Enable";
     const btnColor = disable ? "var(--warning)" : "#27ae60";
 
-    myConfirm(`Yakin ingin ${actionText} Akun Ini?`, () => {
+    myConfirm(`Yakin ingin, ${actionText} Akun Ini?`, () => {
         db.ref(`users/${uid}/disabled`).set(disable)
             .then(() => myAlert(`✅ Akun berhasil di-${disable ? 'disable' : 'enable'}!`))
             .catch(err => myAlert("❌ Gagal: " + err.message));
@@ -965,7 +965,7 @@ window.deleteUser = (uid) => {
     }
 
     // Perhatikan tambahan , "Delete" di akhir penutup kurung myConfirm
-    myConfirm(`Yakin Hapus Permanet User Ini?`, () => {
+    myConfirm(`Yakin Ingin, Hapus Permanet Akun Ini?`, () => {
         // 2. TANDAI DULU di memori (Sebelum dihapus di server)
         recentlyDeleted[uid] = { ...userData };
 
