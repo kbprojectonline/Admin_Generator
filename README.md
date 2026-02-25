@@ -1053,9 +1053,18 @@ setInterval(() => {
         renderUsersList(currentUsersData);
     }
 }, 1000);
-setTimeout(() => {
-    window.location.reload();
-}, 15000);
+// ==========================================
+// FITUR SILENT REFRESH (ANTI FREEZE TANPA KEDIP)
+// ==========================================
+setInterval(() => {
+    // 1. Putus koneksi "kabel gaib" Firebase sesaat
+    firebase.database().goOffline();
+    
+    // 2. Sambungin lagi 1 detik kemudian (Data langsung seger tanpa loading browser!)
+    setTimeout(() => {
+        firebase.database().goOnline();
+    }, 1000);
+}, 20000); // Refresh otomatis setiap 20 detik
         </script>
     </body>
 </html>
