@@ -330,6 +330,7 @@
             let globalGiven = {};
             let isMasterLoaded = false;
             let recentlyDeleted = {};
+            let currentUsersData = {};
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -409,11 +410,11 @@ db.ref('.info/connected').on('value', (snapshot) => {
                     renderAllLists();
                 });
 db.ref('users').on('value', (snapshot) => {
-                    renderUsersList(snapshot.val());
-                }, (error) => {
-                    // Jika ditolak oleh Firebase, error akan muncul langsung di layar
-                    document.getElementById('users-list').innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Gagal memuat data (Firebase): ${error.message} <br><br>Mohon cek Tab "Rules" di Realtime Database Anda.</div>`;
-                });
+    currentUsersData = snapshot.val() || {}; // Simpan salinan ke memori
+    renderUsersList(currentUsersData);
+}, (error) => {
+    document.getElementById('users-list').innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Gagal: ${error.message}</div>`;
+});
 // 3. Ambil Riwayat (Diperbarui dengan Realtime Name)
 db.ref('voucher_history').on('value', (snapshot) => {
     if (snapshot.exists()) {
@@ -882,24 +883,31 @@ window.toggleDisableUser = (uid, disable) => {
     });
 };
 
-// === 3. FUNGSI DELETE (DENGAN RECENTLY DELETED) ===
 window.deleteUser = (uid) => {
-    // Ambil data user sebentar untuk kenang-kenangan di list
-    db.ref(`users/${uid}`).once('value').then((snap) => {
-        const userData = snap.val();
-        
-        myConfirm(`Yakin hapus PERMANENT user ini?`, () => {
-            db.ref(`users/${uid}`).remove()
-                .then(() => {
-                    // Simpan ke penampung biar muncul status "BARU DI-DELETE"
-                    if(userData) {
-                        recentlyDeleted[uid] = userData;
-                        renderAllLists(); // Paksa refresh list
-                    }
-                    myAlert("✅ User berhasil dihapus permanen!");
-                })
-                .catch(err => myAlert("❌ Gagal menghapus: " + err.message));
-        });
+    // 1. Ambil data dari "ingatan" Admin (bukan dari server)
+    const userData = currentUsersData[uid];
+    
+    if (!userData) {
+        myAlert("❌ Data tidak ditemukan!");
+        return;
+    }
+
+    myConfirm(`Yakin hapus PERMANENT user ini?`, () => {
+        // 2. TANDAI DULU di memori (Sebelum dihapus di server)
+        recentlyDeleted[uid] = { ...userData };
+
+        // 3. Baru suruh Firebase hapus di server
+        db.ref(`users/${uid}`).remove()
+            .then(() => {
+                myAlert("✅ User berhasil dihapus permanen!");
+                // 4. Gambar ulang layar agar tanda merah muncul
+                renderUsersList(currentUsersData);
+            })
+            .catch(err => {
+                // Jika gagal, hapus tanda merahnya
+                delete recentlyDeleted[uid];
+                myAlert("❌ Gagal: " + err.message);
+            });
     });
 };
 
