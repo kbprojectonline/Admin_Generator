@@ -295,8 +295,8 @@
     </div>
 </div>
 <div id="users-management-container" style="display: none; width: 100%; margin-top: 80px;">
-    <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">👥 Manajemen Pengguna</h3>
-    <div id="users-list" class="list-box" style="background: #f4fdf8; height: 400px; padding: 15px;">Memuat data users...</div>
+    <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #800000; margin-bottom: 15px;">👥 Manajemen Pengguna</h3>
+    <div id="users-list" class="list-box" style="background: #fdf2f2; height: 400px; padding: 15px;">Memuat data users...</div>
 </div>
         </div> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
@@ -847,13 +847,13 @@ function renderUsersList(usersData) {
         return;
     }
 
-    // 2. Logika Waktu (Jeda 10 Detik - Grace Period)
+    // 2. Logika Waktu (Jeda 10 Detik)
     const getTimeAgo = (ts) => {
         if (ts === true) return "🟢 ACTIVE NOW";
         if (!ts || ts === false) return "⚫ OFFLINE";
         const diff = Math.floor((Date.now() - ts) / 1000);
 
-        // Kunci: Selama di bawah 10 detik, tetap anggap Active
+        // Kunci 10 Detik Grace Period
         if (diff <= 10) return "🟢 ACTIVE NOW";
 
         if (diff < 60) return "⚫ Baru saja OFFLINE";
@@ -864,24 +864,22 @@ function renderUsersList(usersData) {
         return "⚫ OFFLINE";
     };
 
-    // 3. Sorting Paten: Active di atas, Grup Alphabetical A-Z (Gak bakal lompat-lompat)
+    // 3. Sorting Paten (Active di atas, urut abjad A-Z biar gak lompat)
     userArray.sort((a, b) => {
         const statusA = getTimeAgo(a[1].isOnline);
         const statusB = getTimeAgo(b[1].isOnline);
         const isActiveA = statusA.includes("ACTIVE");
         const isActiveB = statusB.includes("ACTIVE");
 
-        // Kelompokkan Active vs Offline
         if (isActiveA && !isActiveB) return -1;
         if (!isActiveA && isActiveB) return 1;
 
-        // Di dalam grup yang sama, urut Nama A-Z agar posisi statis
         let nameA = (a[1].profilename || a[1].profileName || a[1].displayName || a[1].email || "User").toLowerCase();
         let nameB = (b[1].profilename || b[1].profileName || b[1].displayName || b[1].email || "User").toLowerCase();
         return nameA.localeCompare(nameB); 
     });
 
-    // 4. Render Layout dengan Try-Catch
+    // 4. Render Layout
     let html = "";
     try {
         userArray.forEach(([uid, user]) => {
@@ -889,14 +887,11 @@ function renderUsersList(usersData) {
             const bannedUntil = currentBannedData[uid];
             const isBanned = bannedUntil && Date.now() < bannedUntil;
 
-            // Hitung status teks dulu
             let statusText = isDeleted ? "🔴 BARU DI-DELETE" : getTimeAgo(user.isOnline);
-            
-            // Cek apakah ada kata ACTIVE untuk sinkronisasi warna & border
             const isReallyActive = statusText.includes("ACTIVE");
 
-            // WARNA TEKS: Hijau murni (Tanpa badge putih)
-            let statusColor = isDeleted ? "#c0392b" : (isReallyActive ? "#27ae60" : "#7f8c8d");
+            // WARNA TEKS
+            let statusColor = isReallyActive ? "#27ae60" : (isDeleted ? "#c0392b" : "#7f8c8d");
             
             if (!isDeleted && user.disabled) {
                 statusText = "⛔ DISABLED";
@@ -908,8 +903,9 @@ function renderUsersList(usersData) {
                 statusColor = "#e67e22";
             }
 
-            // BORDER KIRI: Satu baris aja biar gak ketimpa (Sinkron 10 Detik)
-            const borderLeft = isBanned ? "5px solid #e67e22" : (isDeleted ? "5px solid #c0392b" : (isReallyActive ? "6px solid #27ae60" : "5px solid #bdc3c7"));
+            // --- BORDER MENGELILINGI CARD ---
+            // 3px buat yang penting (Active/Banned/Deleted), 1px buat yang Offline biasa
+            const cardBorder = isBanned ? "3px solid #e67e22" : (isDeleted ? "3px solid #c0392b" : (isReallyActive ? "3px solid #27ae60" : "1px solid #ddd"));
             
             let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
             const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
@@ -919,20 +915,22 @@ function renderUsersList(usersData) {
             const sKunci = user.silver || (user.keys && user.keys.silver) || 0;
 
             html += `
-            <div style="display: flex; flex-direction: column; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: ${borderLeft};">
+            <div style="display: flex; flex-direction: column; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: ${cardBorder}; transition: border 0.3s ease;">
                 <div style="margin-bottom: 12px;">
                     <div style="font-weight: 900; color: #333; font-size: 1.1rem; margin-bottom: 4px;">${userName}</div>
                     <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${user.email || 'No Email'}</div>
-                    <div style="display: flex; justify-content: space-around; background: #f9f9f9; padding: 10px; border-radius: 10px; margin: 10px 0; border: 1px solid #eee;">
+                    
+                    <div style="display: flex; justify-content: space-around; background: #f9f9f9; padding: 10px; border-radius: 10px; margin: 15px 0; border: 1px solid #eee;">
                         <div>💎 <b>${dKunci}</b></div><div>👑 <b>${gKunci}</b></div><div>🥈 <b>${sKunci}</b></div>
                     </div>
+
                     <div style="color: ${statusColor}; font-weight: 900; font-size: 0.95rem; text-transform: uppercase; margin-top: 5px;">
                         ${statusText}
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 12px;">
-                    ${isBanned ? `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold;">⚠️ Cooldown</div>` : 
-                    (isDeleted ? `<div style="flex:1; text-align:center; font-size:0.75rem; color:#e74c3c; font-weight:bold;">⚠️ Deleted</div>` : 
+                    ${isBanned ? `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold;">⚠️ Akun sedang dibatasi</div>` : 
+                    (isDeleted ? `<div style="flex:1; text-align:center; font-size:0.75rem; color:#e74c3c; font-weight:bold;">⚠️ Data telah dihapus</div>` : 
                     `<button style="flex: 1; padding: 10px; background: ${user.disabled ? '#27ae60':'#f39c12'}; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', ${!user.disabled})">${user.disabled ? 'Enable':'Disable'}</button>
                      <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>`)}
                 </div>
@@ -941,7 +939,7 @@ function renderUsersList(usersData) {
         });
         usersListDiv.innerHTML = html;
     } catch (e) {
-        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Error: ${e.message}</div>`;
+        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Error Tampilan: ${e.message}</div>`;
     }
 }
 
