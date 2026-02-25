@@ -332,14 +332,14 @@
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
-const userRef = firebase.database().ref('users/' + user.uid);
+const statusRef = firebase.database().ref('users/' + user.uid + '/isOnline');
 firebase.database().ref('.info/connected').on('value', (snapshot) => {
     if (snapshot.val() === true) {
-        userRef.child('isOnline').onDisconnect().set(false);
-        userRef.update({
-            isOnline: true,
-            email: user.email,
-            profilename: user.displayName || user.email.split('@')[0]
+        statusRef.onDisconnect().set(false);
+        statusRef.set(true).then(() => {
+            console.log("Sinyal Online Terkirim!");
+        }).catch((err) => {
+            alert("Error Firebase: " + err.message);
         });
     }
 });
