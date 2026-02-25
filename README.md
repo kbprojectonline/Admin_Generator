@@ -333,11 +333,18 @@
             auth.onAuthStateChanged((user) => {
                 if (user) {
 const userRef = db.ref('users/' + user.uid);
+const statusRef = db.ref('users/' + user.uid + '/isOnline');
+
 db.ref('.info/connected').on('value', (snapshot) => {
     if (snapshot.val() === true) {
-        userRef.child('isOnline').onDisconnect().set(false);
+        // 1. Saat tab admin ditutup, simpan angka waktu (timestamp)
+        statusRef.onDisconnect().set(Date.now());
+
+        // 2. Saat tab dibuka, set status jadi Active (true)
+        statusRef.set(true);
+
+        // 3. Pastikan profil admin terisi dengan benar
         userRef.update({
-            isOnline: true,
             email: user.email,
             profilename: "Admin Master"
         });
@@ -791,6 +798,7 @@ window.runHistoryDelete = () => {
 };
 // === FITUR MANAJEMEN PENGGUNA (USERS) ===
 
+// === FITUR MANAJEMEN PENGGUNA (VERSI LAST ONLINE) ===
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     if (!usersData) {
@@ -798,24 +806,36 @@ function renderUsersList(usersData) {
         return;
     }
 
+    // FUNGSI HITUNG WAKTU
+    const getTimeAgo = (ts) => {
+        if (ts === true) return "🟢 ACTIVE NOW";
+        if (!ts || ts === false) return "⚫ OFFLINE";
+        
+        const diff = Math.floor((Date.now() - ts) / 1000);
+        if (diff < 60) return "Baru saja OFFLINE";
+        const mins = Math.floor(diff / 60);
+        if (mins < 60) return `Online ${mins} menit lalu`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `Online ${hours} jam lalu`;
+        const days = Math.floor(hours / 24);
+        return `Online ${days} hari lalu`;
+    };
+
     let html = "";
-    
     try {
         Object.entries(usersData).forEach(([uid, user]) => {
-            // KEAMANAN EKSTRA: Jika data user kosong/bukan object, lewati (jangan sampai bikin macet)
-            if (!user || typeof user !== 'object') return;
-            if (uid === ADMIN_UID) return;
+            if (!user || typeof user !== 'object' || uid === ADMIN_UID) return;
 
-            // Cek status online (asumsi di database ada flag isOnline: true)
-            let isActive = user.isOnline === true; 
+            const isActive = user.isOnline === true;
+            const statusText = getTimeAgo(user.isOnline);
             
-            // Atur warna dan teks status
-            let statusColor = user.disabled ? "#c0392b" : (isActive ? "#27ae60" : "#95a5a6");
-            let statusText = user.disabled ? "🔴 DISABLED" : (isActive ? "🟢 ACTIVE NOW" : "⚫ OFFLINE");
-            let borderLeft = (isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7";
+            // Atur warna berdasarkan status
+            let statusColor = "#7f8c8d"; // Default Offline (Abu-abu)
+            if (isActive) statusColor = "#27ae60"; // Active (Hijau)
+            if (user.disabled) statusColor = "#c0392b"; // Disabled (Merah)
 
-            // Ambil nama dari database (menyesuaikan kemungkinan penulisan key)
-            const userName = user.profilename || user.profileName || user.ProfileName || user.name || "User Tanpa Nama";
+            const borderLeft = (isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7";
+            const userName = user.profilename || user.profileName || user.name || "User Tanpa Nama";
             const userEmail = user.email || "Email tidak tersedia";
 
             html += `
@@ -824,7 +844,7 @@ function renderUsersList(usersData) {
                     <div style="font-weight: bold; color: #333; font-size: 1.05rem; margin-bottom: 4px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">${userName}</div>
                     <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;">📧 ${userEmail}</div>
                     <div style="font-size: 0.75rem; color: #888; font-family: monospace;">UID: ${uid}</div>
-                    <div style="color: ${statusColor}; font-weight: bold; font-size: 0.8rem; margin-top: 6px;">${statusText}</div>
+                    <div style="color: ${statusColor}; font-weight: bold; font-size: 0.8rem; margin-top: 6px;">${user.disabled ? '🔴 DISABLED' : statusText}</div>
                 </div>
                 <div style="display: flex; flex-direction: column; gap: 8px; min-width: 80px;">
                     ${user.disabled ? 
@@ -835,12 +855,9 @@ function renderUsersList(usersData) {
                 </div>
             </div>`;
         });
-
         usersListDiv.innerHTML = html;
-        
     } catch (e) {
-        // Jika ada kode yang macet, tampilkan pesan macetnya di layar (tidak stuck)
-        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Terjadi kesalahan Javascript: ${e.message}</div>`;
+        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Javascript Error: ${e.message}</div>`;
     }
 }
 
