@@ -856,7 +856,7 @@ function renderUsersList(usersData) {
         const diff = Math.floor((Date.now() - ts) / 1000);
 
         // Tahan status ijo selama 5 detik
-        if (diff <= 5) return "🟢 ACTIVE NOW";
+        if (diff <= 30) return "🟢 ACTIVE NOW";
 
         if (diff < 60) return "⚫ Baru saja OFFLINE";
         const mins = Math.floor(diff / 60);
