@@ -415,12 +415,13 @@ db.ref('users').on('value', (snapshot) => {
 }, (error) => {
     document.getElementById('users-list').innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Gagal: ${error.message}</div>`;
 });
+
 // 3. Ambil Riwayat (Diperbarui dengan Realtime Name)
 db.ref('voucher_history').on('value', (snapshot) => {
     if (snapshot.exists()) {
         const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
         let html = "";
-        let uniqueUids = []; // Menampung UID unik untuk mempercepat proses penarikan data
+        let uniqueUids = []; 
 
         data.forEach(item => {
             const badge = getBadgeInfo(item.type);
@@ -429,10 +430,13 @@ db.ref('voucher_history').on('value', (snapshot) => {
             const jam = dateObj.toLocaleTimeString('id-ID').replace(/\./g, ':');
             const tgl = dateObj.toLocaleDateString('id-ID').split('/').join('.');
             
-            // Masukkan UID ke dalam array jika belum ada
             if (item.uid && !uniqueUids.includes(item.uid)) {
                 uniqueUids.push(item.uid);
             }
+
+            // POTONG PAKSA NAMA BAWAAN RIWAYAT (Maksimal 8 Karakter)
+            let baseUser = item.user || 'Unknown';
+            let safeBaseUser = baseUser.length > 8 ? baseUser.substring(0, 8) : baseUser;
 
             html += `
             <div class="item-row history-row">
@@ -443,7 +447,7 @@ db.ref('voucher_history').on('value', (snapshot) => {
                         <span class="badge ${badge.css}" style="font-size: 0.65rem;">${badge.text}</span>
                     </div>
                     <span class="user-info">
-                        <div style="margin-bottom: 6px;">👤 Dipakai: <b class="realtime-name" data-uid="${item.uid}">${item.user || 'Unknown'}</b></div>
+                        <div style="margin-bottom: 6px;">👤 Dipakai: <b class="realtime-name" data-uid="${item.uid}">${safeBaseUser}</b></div>
                         <div style="margin-bottom: 6px;">${item.email ? `@${item.email}` : ''}</div>
                         <div style="margin-bottom: 6px; font-size: 0.8rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</div>
                     </span>
@@ -451,7 +455,6 @@ db.ref('voucher_history').on('value', (snapshot) => {
             </div>`;
         });
         
-        // Cetak HTML-nya terlebih dahulu
         historyListDiv.innerHTML = html;
         
         uniqueUids.forEach(uid => {
@@ -459,8 +462,9 @@ db.ref('voucher_history').on('value', (snapshot) => {
                 if(userSnap.exists()) {
                     const userData = userSnap.val();
                     
-                    // Menangkap berbagai kemungkinan penulisan key di database
-                    const dynamicName = userData.profilename || userData.profileName || userData.ProfileName;
+                    // AMBIL DATA & POTONG PAKSA REALTIME (Maksimal 8 Karakter)
+                    let rawDynName = userData.profilename || userData.profileName || userData.displayName || (userData.email ? userData.email.split('@')[0] : "User");
+                    let dynamicName = rawDynName.length > 8 ? rawDynName.substring(0, 8) : rawDynName;
                     
                     if (dynamicName) {
                         document.querySelectorAll(`.realtime-name[data-uid="${uid}"]`).forEach(el => {
