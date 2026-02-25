@@ -332,24 +332,23 @@
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
-// ==========================================
-                    // SENSOR ONLINE UNTUK APLIKASI KUIS
-                    // ==========================================
-                    const userRef = firebase.database().ref(`users/${user.uid}`);
-                    firebase.database().ref('.info/connected').on('value', (snapshot) => {
-                        if (snapshot.val() === true) {
-                            // Jika aplikasi kuis ditutup, otomatis jadi OFFLINE
-                            userRef.child('isOnline').onDisconnect().set(false);
-                            
-                            // Saat membuka kuis, lapor ke database jadi ONLINE
-                            userRef.update({
-                                isOnline: true,
-                                email: user.email,
-                                profilename: user.displayName || user.email.split('@')[0]
-                            });
-                        }
-                    });
-                    // ==========================================
+const userRef = db.ref(`users/${user.uid}`); 
+db.ref('.info/connected').on('value', (snapshot) => {
+    if (snapshot.val() === true) {
+        userRef.child('isOnline').onDisconnect().set(false);
+        const safeEmail = user.email || "Email tidak tersedia";
+        const safeName = user.displayName || (user.email ? user.email.split('@')[0] : "User Kuis");
+        userRef.update({
+            isOnline: true,
+            email: safeEmail,
+            profilename: safeName
+        }).then(() => {
+            console.log("🟢 Sensor Online Bekerja: Status Active terkirim!");
+        }).catch((err) => {
+            alert("❌ Error Sensor Online: " + err.message);
+        });
+    }
+});
                     if (user.uid === ADMIN_UID) {
                         loginBtn.innerHTML = `✅ Admin: <b>${user.email.split('@')[0]}</b> (Logout)`;
                         loginBtn.style.background = "#27ae60";
