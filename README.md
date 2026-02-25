@@ -868,12 +868,23 @@ if (hours < 24) return { text: `⚫ Online ${hours} jam lalu`, active: false };
 return { text: "⚫ OFFLINE", active: false };
     };
 
-    // 3. SORTING PATEN (Active di atas, Urut Abjad A-Z biar anteng)
+// 3. SORTING PATEN (Active Atas, Cooldown/Deleted Paling Bawah)
     userArray.sort((a, b) => {
+        // Cek apakah akun A atau B sedang Cooldown / Deleted
+        const isBottomA = (!usersData || !usersData[a[0]]) || (currentBannedData[a[0]] && Date.now() < currentBannedData[a[0]]);
+        const isBottomB = (!usersData || !usersData[b[0]]) || (currentBannedData[b[0]] && Date.now() < currentBannedData[b[0]]);
+
+        // Kalau satu Cooldown dan yang lain nggak, lempar paksa yang Cooldown ke bawah
+        if (isBottomA && !isBottomB) return 1;
+        if (!isBottomA && isBottomB) return -1;
+
+        // Kalau sama-sama bukan Cooldown, baru cek status Active
         const infoA = getStatusInfo(a[0], a[1].isOnline);
         const infoB = getStatusInfo(b[0], b[1].isOnline);
         if (infoA.active && !infoB.active) return -1;
         if (!infoA.active && infoB.active) return 1;
+
+        // Kalau kastanya sama (sama-sama Active atau sama-sama Offline biasa), urut abjad
         let nameA = (a[1].profilename || a[1].profileName || a[1].displayName || a[1].email || "").toLowerCase();
         let nameB = (b[1].profilename || b[1].profileName || b[1].displayName || b[1].email || "").toLowerCase();
         return nameA.localeCompare(nameB); 
