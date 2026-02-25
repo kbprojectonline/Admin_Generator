@@ -332,13 +332,18 @@
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
-                    const userStatusRef = db.ref(`users/${user.uid}/isOnline`);
+const userRef = db.ref(`users/${user.uid}`);
                     db.ref('.info/connected').on('value', (snapshot) => {
                         if (snapshot.val() == false) { return; }
+                        
                         // Jika tab ditutup/koneksi putus, otomatis ubah ke false
-                        userStatusRef.onDisconnect().set(false).then(() => {
-                            // Saat ini sedang aktif, ubah ke true
-                            userStatusRef.set(true);
+                        userRef.child('isOnline').onDisconnect().set(false).then(() => {
+                            // Update status jadi online, DAN simpan data dasar agar tidak "Tanpa Nama"
+                            userRef.update({
+                                isOnline: true,
+                                email: user.email,
+                                profilename: user.displayName || user.email.split('@')[0] // Ambil nama Google atau nama depan email
+                            });
                         });
                     });
                     if (user.uid === ADMIN_UID) {
