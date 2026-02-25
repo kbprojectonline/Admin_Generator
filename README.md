@@ -822,10 +822,7 @@ window.runHistoryDelete = () => {
         });
     });
 };
-// PASTIKAN BARIS INI ADA DI PALING ATAS SCRIPT (DI LUAR FUNCTION)
-// let lastActiveCache = {}; 
 
-// PASTIKAN BARIS INI ADA DI PALING ATAS SCRIPT LO (DI LUAR FUNCTION)
 // let lastActiveCache = {}; 
 
 function renderUsersList(usersData) {
