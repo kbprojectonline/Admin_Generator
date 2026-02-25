@@ -329,6 +329,7 @@
             let globalVouchers = {};
             let globalGiven = {};
             let isMasterLoaded = false;
+            let recentlyDeleted = {};
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
@@ -797,9 +798,14 @@ window.runHistoryDelete = () => {
     });
 };
 
+// === 1. FUNGSI TAMPILAN USER (VERSI FINAL: ADA TANDA DELETE) ===
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
-    if (!usersData) {
+    
+    // Gabungkan data asli dengan data yang baru didelete (biar tidak langsung hilang)
+    const combinedData = { ...(usersData || {}), ...recentlyDeleted };
+
+    if (Object.keys(combinedData).length === 0) {
         usersListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999; font-weight: bold;">Tidak ada data user terdaftar.</div>';
         return;
     }
@@ -807,69 +813,66 @@ function renderUsersList(usersData) {
     const getTimeAgo = (ts) => {
         if (ts === true) return "🟢 ACTIVE NOW";
         if (!ts || ts === false) return "⚫ OFFLINE";
-        
         const diff = Math.floor((Date.now() - ts) / 1000);
-        
-        // 1. Kurang dari 1 menit
-        if (diff < 60) return "⚫ Baru saja Offline";
-        
-        // 2. Hitung Menit
+        if (diff < 60) return "⚫ Baru saja OFFLINE";
         const mins = Math.floor(diff / 60);
         if (mins < 60) return `⚫ Online ${mins} menit lalu`;
-        
-        // 3. Hitung Jam
         const hours = Math.floor(mins / 60);
         if (hours < 24) return `⚫ Online ${hours} jam lalu`;
-        
-        // 4. Lebih dari 24 Jam (Sesuai permintaan Anda, langsung set OFFLINE)
         return "⚫ OFFLINE";
     };
 
     let html = "";
     try {
-        Object.entries(usersData).forEach(([uid, user]) => {
+        Object.entries(combinedData).forEach(([uid, user]) => {
             if (!user || typeof user !== 'object' || uid === ADMIN_UID) return;
 
+            // CEK STATUS: Apakah data ini ada di database atau cuma di memori delete?
+            const isDeleted = !usersData || !usersData[uid]; 
+            
             const isActive = user.isOnline === true;
-            const statusText = getTimeAgo(user.isOnline);
+            let statusText = isDeleted ? "🔴 BARU DI-DELETE" : getTimeAgo(user.isOnline);
+            let statusColor = isDeleted ? "#c0392b" : (isActive ? "#27ae60" : "#7f8c8d");
             
-            // Atur warna teks (Active = Hijau, Lainnya = Abu-abu, Disabled = Merah)
-            let statusColor = "#7f8c8d"; 
-            if (isActive) statusColor = "#27ae60";
-            if (user.disabled) statusColor = "#c0392b";
+            if (!isDeleted && user.disabled) {
+                statusText = "🔴 DISABLED";
+                statusColor = "#c0392b";
+            }
 
-            const borderLeft = (isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7";
-            
+            const borderLeft = isDeleted ? "5px solid #c0392b" : ((isActive && !user.disabled) ? "5px solid #27ae60" : "5px solid #bdc3c7");
             const userName = user.profilename || user.profileName || user.name || "User Tanpa Nama";
             const userEmail = user.email || "Email tidak tersedia";
 
             html += `
-            <div style="display: flex; flex-direction: column; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: ${borderLeft};">
+            <div style="display: flex; flex-direction: column; background: ${isDeleted ? '#fff5f5' : 'white'}; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 15px; border-left: ${borderLeft}; opacity: ${isDeleted ? '0.7' : '1'}; transition: 0.3s;">
                 
                 <div style="margin-bottom: 12px;">
                     <div style="font-weight: 900; color: #333; font-size: 1.1rem; margin-bottom: 4px;">${userName}</div>
                     <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${userEmail}</div>
                     <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 8px;">UID: ${uid}</div>
-                    <div style="color: ${statusColor}; font-weight: 800; font-size: 0.85rem;">${user.disabled ? '🔴 DISABLED' : statusText}</div>
+                    <div style="color: ${statusColor}; font-weight: 800; font-size: 0.85rem;">${statusText}</div>
                 </div>
 
                 <div style="display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 12px;">
-                    ${user.disabled ? 
-                        `<button style="flex: 1; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', false)">Enable</button>` : 
-                        `<button style="flex: 1; padding: 10px; background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', true)">Disable</button>`
+                    ${isDeleted ? 
+                        `<div style="flex:1; text-align:center; font-size:0.75rem; color:#e74c3c; font-weight:bold; font-style:italic;">⚠️ Akun ini telah dihapus permanen</div>` 
+                        : 
+                        `${user.disabled ? 
+                            `<button style="flex: 1; padding: 10px; background: #27ae60; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', false)">Enable</button>` : 
+                            `<button style="flex: 1; padding: 10px; background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', true)">Disable</button>`
+                        }
+                        <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>`
                     }
-                    <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>
                 </div>
-
             </div>`;
         });
         usersListDiv.innerHTML = html;
     } catch (e) {
-        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Javascript Error: ${e.message}</div>`;
+        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Error: ${e.message}</div>`;
     }
 }
 
-// 2. Fungsi Tombol Disable / Enable
+// === 2. FUNGSI DISABLE / ENABLE ===
 window.toggleDisableUser = (uid, disable) => {
     const actionText = disable ? "Menonaktifkan" : "Mengaktifkan";
     myConfirm(`Yakin ingin ${actionText} akun ini?`, () => {
@@ -879,14 +882,27 @@ window.toggleDisableUser = (uid, disable) => {
     });
 };
 
-// 3. Fungsi Tombol Delete
+// === 3. FUNGSI DELETE (DENGAN RECENTLY DELETED) ===
 window.deleteUser = (uid) => {
-    myConfirm(`Yakin hapus PERMANENT user ini beserta datanya?`, () => {
-        db.ref(`users/${uid}`).remove()
-            .then(() => myAlert("✅ User berhasil dihapus permanent!"))
-            .catch(err => myAlert("❌ Gagal menghapus: " + err.message));
+    // Ambil data user sebentar untuk kenang-kenangan di list
+    db.ref(`users/${uid}`).once('value').then((snap) => {
+        const userData = snap.val();
+        
+        myConfirm(`Yakin hapus PERMANENT user ini?`, () => {
+            db.ref(`users/${uid}`).remove()
+                .then(() => {
+                    // Simpan ke penampung biar muncul status "BARU DI-DELETE"
+                    if(userData) {
+                        recentlyDeleted[uid] = userData;
+                        renderAllLists(); // Paksa refresh list
+                    }
+                    myAlert("✅ User berhasil dihapus permanen!");
+                })
+                .catch(err => myAlert("❌ Gagal menghapus: " + err.message));
+        });
     });
 };
+
         </script>
     </body>
 </html>
