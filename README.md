@@ -332,20 +332,24 @@
             // AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
-const userRef = db.ref(`users/${user.uid}`);
+// ==========================================
+                    // KODE PELACAK STATUS ONLINE (UNTUK USER KUIS)
+                    // ==========================================
+                    const userRef = db.ref(`users/${user.uid}`);
                     db.ref('.info/connected').on('value', (snapshot) => {
-                        if (snapshot.val() == false) { return; }
-                        
-                        // Jika tab ditutup/koneksi putus, otomatis ubah ke false
-                        userRef.child('isOnline').onDisconnect().set(false).then(() => {
-                            // Update status jadi online, DAN simpan data dasar agar tidak "Tanpa Nama"
+                        if (snapshot.val() === true) {
+                            // Jika aplikasi ditutup/koneksi putus, otomatis jadi OFFLINE
+                            userRef.child('isOnline').onDisconnect().set(false);
+                            
+                            // Saat ini sedang membuka aplikasi, ubah ke ONLINE & Simpan Nama
                             userRef.update({
                                 isOnline: true,
                                 email: user.email,
-                                profilename: user.displayName || user.email.split('@')[0] // Ambil nama Google atau nama depan email
+                                profilename: user.displayName || user.email.split('@')[0]
                             });
-                        });
+                        }
                     });
+                    // ==========================================
                     if (user.uid === ADMIN_UID) {
                         loginBtn.innerHTML = `✅ Admin: <b>${user.email.split('@')[0]}</b> (Logout)`;
                         loginBtn.style.background = "#27ae60";
@@ -806,7 +810,8 @@ function renderUsersList(usersData) {
     try {
         Object.entries(usersData).forEach(([uid, user]) => {
             // KEAMANAN EKSTRA: Jika data user kosong/bukan object, lewati (jangan sampai bikin macet)
-            if (!user || typeof user !== 'object') return; 
+            if (!user || typeof user !== 'object') return;
+            if (uid === ADMIN_UID) return;
 
             // Cek status online (asumsi di database ada flag isOnline: true)
             let isActive = user.isOnline === true; 
