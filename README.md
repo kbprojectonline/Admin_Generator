@@ -727,17 +727,26 @@ window.myAlert = (msg) => {
         }, 5000);
     }, 10); 
 };
-window.myConfirm = (msg, action, btnText = "Hapus", btnColor = "var(--danger)") => {
-    document.getElementById('modal-msg').innerText = msg;
-    
-    // Ganti teks dan PAKSA ganti warna background
-    const confirmBtn = document.getElementById('modal-confirm-btn');
-    confirmBtn.innerText = btnText;
-    confirmBtn.style.backgroundColor = btnColor; 
-    
-    document.getElementById('custom-overlay').style.display = 'flex';
-    confirmBtn.onclick = () => { action(); closeModal(); };
-};
+window.myConfirm = (msg, action, btnText = "Hapus", btnColor = "") => {
+                document.getElementById('modal-msg').innerText = msg;
+                
+                const confirmBtn = document.getElementById('modal-confirm-btn');
+                confirmBtn.innerText = btnText;
+                
+                // RESET STYLE AGRESIF
+                confirmBtn.removeAttribute('style'); // Hapus semua gaya lama
+                
+                // Terapkan gaya baru dengan prioritas tertinggi
+                if (btnColor) {
+                    confirmBtn.setAttribute('style', `background: ${btnColor} !important; color: white !important; flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer;`);
+                } else {
+                    // Jika tidak ada warna khusus (misal untuk tombol Delete), kembalikan ke merah bawaan
+                    confirmBtn.setAttribute('style', `background: var(--danger) !important; color: white !important; flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 900; cursor: pointer;`);
+                }
+                
+                document.getElementById('custom-overlay').style.display = 'flex';
+                confirmBtn.onclick = () => { action(); closeModal(); };
+            };
             window.closeModal = () => document.getElementById('custom-overlay').style.display = 'none';
 window.runMassDelete = () => {
     const typeSelect = document.getElementById('mass-del-type');
