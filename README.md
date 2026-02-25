@@ -946,7 +946,7 @@ return { text: "⚫ OFFLINE", active: false };
                     </div>
                 </div>
                 <div style="display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 12px;">
-                    ${isBanned ? `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold;">⚠️ Akun dibatasi</div>` : 
+                    ${isBanned ? `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold;">⚠️ Akun Telah Di Delete</div>` : 
                     (isDeleted ? `<div style="flex:1; text-align:center; font-size:0.75rem; color:#e74c3c; font-weight:bold;">⚠️ Dihapus</div>` : 
                     `<button style="flex: 1; padding: 10px; background: ${user.disabled ? '#27ae60':'#f39c12'}; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', ${!user.disabled})">${user.disabled ? 'Enable':'Disable'}</button>
                      <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>`)}
