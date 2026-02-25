@@ -867,17 +867,15 @@ function renderUsersList(usersData) {
     }
 
 // 4. LOGIKA UI LOCK 60 DETIK
-    const getStatusInfo = (uid, userOnlineStatus) => {
-        // GEMBOK MUTLAK: Ambil email murni dari database, BUKAN dari memori
-        const dbAsli = usersData && usersData[uid];
-        const emailAsli = dbAsli ? dbAsli.email : null;
-        
-        // Deteksi paksa: Kalau emailnya kosong atau cuma tulisan sistem
-        const isNonLogin = !emailAsli || emailAsli === "" || emailAsli === "null" || emailAsli === "undefined" || emailAsli === "No Email";
-        
-        // JIKA AKUN NON-LOGIN, HARAM HUKUMNYA JADI ACTIVE NOW!
-        if (isNonLogin) {
-            return { text: "⚫ BELUM LOGIN", active: false };
+    const getStatusInfo = (uid, userOnlineStatus, userEmail) => {
+        if (!userEmail) {
+            return { text: "🔒 MENUNGGU LOGIN", active: false, isGhost: true };
+        }
+
+        // JIKA USER KLIK LOGOUT -> BUNUH STATUS HIJAU DETIK INI JUGA!
+        if (userOnlineStatus === "LOGOUT") {
+            delete lastActiveCache[uid]; // Hapus memori penahan 60 detik
+            return { text: "⚫ OFFLINE", active: false };
         }
 
         const sekarang = Date.now();
@@ -885,7 +883,8 @@ function renderUsersList(usersData) {
             lastActiveCache[uid] = sekarang;
             return { text: "🟢 ACTIVE NOW", active: true };
         }
-        const waktuTerakhir = lastActiveCache[uid] || userOnlineStatus || 0;
+        
+        const waktuTerakhir = lastActiveCache[uid] || (typeof userOnlineStatus === 'number' ? userOnlineStatus : 0);
         const selisih = Math.floor((sekarang - waktuTerakhir) / 1000);
 
         if (selisih <= 60) return { text: "🟢 ACTIVE NOW", active: true }; 
