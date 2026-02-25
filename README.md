@@ -338,15 +338,13 @@
 const userRef = db.ref('users/' + user.uid);
 const statusRef = db.ref('users/' + user.uid + '/isOnline');
 
+// CARI BAGIAN INI DI SEKITAR BARIS 501 DAN GANTI:
 db.ref('.info/connected').on('value', (snapshot) => {
     if (snapshot.val() === true) {
-        // 1. Saat tab admin ditutup, simpan angka waktu (timestamp)
-        statusRef.onDisconnect().set(Date.now());
-
-        // 2. Saat tab dibuka, set status jadi Active (true)
+        // JANGAN PAKE Date.now()! Pake TIMESTAMP biar akurat waktu user kabur
+        statusRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
         statusRef.set(true);
-
-        // 3. Pastikan profil admin terisi dengan benar
+        
         userRef.update({
             email: user.email,
             profilename: "Admin Master"
@@ -827,7 +825,7 @@ window.runHistoryDelete = () => {
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
     
-    // 1. Bersihkan Memori
+    // 1. Bersihkan Memori Cooldown
     let memChanged = false;
     Object.keys(recentlyDeleted).forEach(id => {
         if (!currentBannedData[id]) {
@@ -849,42 +847,41 @@ function renderUsersList(usersData) {
         return;
     }
 
-    // 2. Logika Waktu (Jeda 5 Detik)
+    // 2. Logika Waktu (Jeda 10 Detik - Grace Period)
     const getTimeAgo = (ts) => {
         if (ts === true) return "🟢 ACTIVE NOW";
         if (!ts || ts === false) return "⚫ OFFLINE";
         const diff = Math.floor((Date.now() - ts) / 1000);
 
-        // Tahan status ijo selama 5 detik
+        // Kunci: Selama di bawah 10 detik, tetap anggap Active
         if (diff <= 10) return "🟢 ACTIVE NOW";
 
         if (diff < 60) return "⚫ Baru saja OFFLINE";
         const mins = Math.floor(diff / 60);
         if (mins < 60) return `⚫ Online ${mins} menit lalu`;
+        const hours = Math.floor(mins / 60);
+        if (hours < 24) return `⚫ Online ${hours} jam lalu`;
         return "⚫ OFFLINE";
     };
 
-// 3. Sorting Mantap: Active di atas, tapi posisi kartu PATEN (berdasarkan Nama)
+    // 3. Sorting Paten: Active di atas, Grup Alphabetical A-Z (Gak bakal lompat-lompat)
     userArray.sort((a, b) => {
         const statusA = getTimeAgo(a[1].isOnline);
         const statusB = getTimeAgo(b[1].isOnline);
-
         const isActiveA = statusA.includes("ACTIVE");
         const isActiveB = statusB.includes("ACTIVE");
 
-        // LEVEL 1: Pisahin Active vs Offline
-        if (isActiveA && !isActiveB) return -1; // Yang Active naik ke atas
-        if (!isActiveA && isActiveB) return 1;  // Yang Offline turun ke bawah
+        // Kelompokkan Active vs Offline
+        if (isActiveA && !isActiveB) return -1;
+        if (!isActiveA && isActiveB) return 1;
 
-        // LEVEL 2: Kalau sama-sama Active atau sama-sama Offline, URUT NAMA (A-Z)
-        // Ini kuncinya biar kartu lo diem di tempat (statis)
+        // Di dalam grup yang sama, urut Nama A-Z agar posisi statis
         let nameA = (a[1].profilename || a[1].profileName || a[1].displayName || a[1].email || "User").toLowerCase();
         let nameB = (b[1].profilename || b[1].profileName || b[1].displayName || b[1].email || "User").toLowerCase();
-        
         return nameA.localeCompare(nameB); 
     });
 
-    // 4. Render Layout
+    // 4. Render Layout dengan Try-Catch
     let html = "";
     try {
         userArray.forEach(([uid, user]) => {
@@ -892,11 +889,14 @@ function renderUsersList(usersData) {
             const bannedUntil = currentBannedData[uid];
             const isBanned = bannedUntil && Date.now() < bannedUntil;
 
-            // AMBIL TEKS STATUS DULU
+            // Hitung status teks dulu
             let statusText = isDeleted ? "🔴 BARU DI-DELETE" : getTimeAgo(user.isOnline);
             
-            // WARNA TEKS: Hijau murni cuma kalau statusText ada kata "ACTIVE"
-            let statusColor = isDeleted ? "#c0392b" : (statusText.includes("ACTIVE") ? "#27ae60" : "#7f8c8d");
+            // Cek apakah ada kata ACTIVE untuk sinkronisasi warna & border
+            const isReallyActive = statusText.includes("ACTIVE");
+
+            // WARNA TEKS: Hijau murni (Tanpa badge putih)
+            let statusColor = isDeleted ? "#c0392b" : (isReallyActive ? "#27ae60" : "#7f8c8d");
             
             if (!isDeleted && user.disabled) {
                 statusText = "⛔ DISABLED";
@@ -908,11 +908,12 @@ function renderUsersList(usersData) {
                 statusColor = "#e67e22";
             }
 
-            // BORDER KIRI: 6px Hijau Tebal dan sinkron sama statusText (5 detik)
-            const borderLeft = isBanned ? "5px solid #e67e22" : (isDeleted ? "5px solid #c0392b" : (statusText.includes("ACTIVE") ? "6px solid #27ae60" : "5px solid #bdc3c7"));
+            // BORDER KIRI: Satu baris aja biar gak ketimpa (Sinkron 10 Detik)
+            const borderLeft = isBanned ? "5px solid #e67e22" : (isDeleted ? "5px solid #c0392b" : (isReallyActive ? "6px solid #27ae60" : "5px solid #bdc3c7"));
             
             let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
             const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
+            
             const dKunci = user.diamond || (user.keys && user.keys.diamond) || 0;
             const gKunci = user.gold || (user.keys && user.keys.gold) || 0;
             const sKunci = user.silver || (user.keys && user.keys.silver) || 0;
@@ -922,11 +923,9 @@ function renderUsersList(usersData) {
                 <div style="margin-bottom: 12px;">
                     <div style="font-weight: 900; color: #333; font-size: 1.1rem; margin-bottom: 4px;">${userName}</div>
                     <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${user.email || 'No Email'}</div>
-                    
                     <div style="display: flex; justify-content: space-around; background: #f9f9f9; padding: 10px; border-radius: 10px; margin: 10px 0; border: 1px solid #eee;">
                         <div>💎 <b>${dKunci}</b></div><div>👑 <b>${gKunci}</b></div><div>🥈 <b>${sKunci}</b></div>
                     </div>
-
                     <div style="color: ${statusColor}; font-weight: 900; font-size: 0.95rem; text-transform: uppercase; margin-top: 5px;">
                         ${statusText}
                     </div>
@@ -942,7 +941,7 @@ function renderUsersList(usersData) {
         });
         usersListDiv.innerHTML = html;
     } catch (e) {
-        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Error Tampilan: ${e.message}</div>`;
+        usersListDiv.innerHTML = `<div style="text-align:center; padding:20px; color:#c0392b; font-weight:bold;">❌ Error: ${e.message}</div>`;
     }
 }
 
