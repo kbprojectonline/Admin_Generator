@@ -329,7 +329,7 @@
             let globalVouchers = {};
             let globalGiven = {};
             let isMasterLoaded = false;
-            let recentlyDeleted = {};
+            let recentlyDeleted = JSON.parse(localStorage.getItem('memDeleted') || '{}');
             let currentUsersData = {};
             let currentBannedData = {};
             // AUTH STATE
@@ -824,9 +824,18 @@ window.runHistoryDelete = () => {
     });
 };
 
-// === 1. FUNGSI TAMPILAN USER (VERSI PRO: URUTAN ONLINE & INFO KUNCI) ===
 function renderUsersList(usersData) {
     const usersListDiv = document.getElementById('users-list');
+    
+    // BERSIHKAN MEMORI JIKA COOLDOWN SUDAH HABIS
+    let memChanged = false;
+    Object.keys(recentlyDeleted).forEach(id => {
+        if (!currentBannedData[id]) {
+            delete recentlyDeleted[id];
+            memChanged = true;
+        }
+    });
+    if(memChanged) localStorage.setItem('memDeleted', JSON.stringify(recentlyDeleted));
     
     // Gabungkan data live dengan data yang ada di memory (recently deleted)
     const combinedData = { ...(usersData || {}), ...recentlyDeleted };
@@ -987,8 +996,9 @@ window.deleteUser = (uid) => {
         return;
     }
 
-    myConfirm(`Yakin Ingin, Hapus Permanet Akun Ini?`, () => {
-        recentlyDeleted[uid] = { ...userData };
+myConfirm(`Yakin Ingin, Hapus Permanet Akun Ini?`, () => {
+            recentlyDeleted[uid] = { ...userData };
+            localStorage.setItem('memDeleted', JSON.stringify(recentlyDeleted)); // SIMPAN KE BROWSER
 
         // --- TAMBAHAN LOGIKA BANNED 5 MENIT ---
         const bannedUntil = Date.now() + (5 * 60 * 1000); 
