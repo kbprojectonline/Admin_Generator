@@ -361,25 +361,23 @@
             let recentlyDeleted = JSON.parse(localStorage.getItem('memDeleted') || '{}');
             let currentUsersData = {};
             let currentBannedData = {};
-            // AUTH STATE
+// AUTH STATE
             auth.onAuthStateChanged((user) => {
                 if (user) {
-const userRef = db.ref('users/' + user.uid);
-const statusRef = db.ref('users/' + user.uid + '/isOnline');
+                    const userRef = db.ref('users/' + user.uid);
+                    const statusRef = db.ref('users/' + user.uid + '/isOnline');
 
-// CARI BAGIAN INI DI SEKITAR BARIS 501 DAN GANTI:
-db.ref('.info/connected').on('value', (snapshot) => {
-    if (snapshot.val() === true) {
-        // JANGAN PAKE Date.now()! Pake TIMESTAMP biar akurat waktu user kabur
-        statusRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
-        statusRef.set(true);
-        
-        userRef.update({
-            email: user.email,
-            profilename: "Admin Master"
-        });
-    }
-});
+                    db.ref('.info/connected').on('value', (snapshot) => {
+                        if (snapshot.val() === true) {
+                            statusRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
+                            statusRef.set(true);
+                            userRef.update({
+                                email: user.email,
+                                profilename: "Admin Master"
+                            });
+                        }
+                    });
+
                     if (user.uid === ADMIN_UID) {
                         loginBtn.innerHTML = `✅ Admin: <b>${user.email.split('@')[0]}</b> (Logout)`;
                         loginBtn.style.background = "#27ae60";
@@ -387,11 +385,15 @@ db.ref('.info/connected').on('value', (snapshot) => {
                         genBtn.disabled = false;
                         genBtn.innerText = "⚡ GENERATE VOUCHER (12 DIGIT)";
                         genBtn.style.background = "#2c3e50";
-                        document.getElementById('mass-delete-container').style.display = "block"; // // INI TAMBAHNYA
+                        
+                        // INI YANG BIKIN SEMUA KOTAKNYA MUNCUL (BLOCK)
+                        document.getElementById('mass-delete-container').style.display = "block"; 
                         document.getElementById('premium-history-container').style.display = "block";
+                        document.getElementById('premium-history-delete-container').style.display = "block"; // <--- INI KUNCINYA
                         document.getElementById('history-delete-container').style.display = "block";
                         historyContainer.style.display = "block";
                         document.getElementById('users-management-container').style.display = "block";
+                        
                         activeListDiv.innerHTML = "Memuat data...";
                         givenListDiv.innerHTML = "Memuat data terkirim...";
                         historyListDiv.innerHTML = "Memuat riwayat...";
@@ -402,11 +404,15 @@ db.ref('.info/connected').on('value', (snapshot) => {
                         loginBtn.onclick = () => auth.signOut();
                         genBtn.disabled = true;
                         genBtn.innerText = "⛔ ANDA BUKAN ADMIN";
+                        
+                        // INI UNTUK MENYEMBUNYIKAN KALAU BUKAN ADMIN (NONE)
                         historyContainer.style.display = "none";
-                        document.getElementById('mass-delete-container').style.display = "none"; // // INI TAMBAHNYA
+                        document.getElementById('mass-delete-container').style.display = "none"; 
                         document.getElementById('premium-history-container').style.display = "none";
+                        document.getElementById('premium-history-delete-container').style.display = "none"; // <--- TAMBAH DI SINI JUGA
                         document.getElementById('history-delete-container').style.display = "none";
                         document.getElementById('users-management-container').style.display = "none";
+                        
                         activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔ AKSES DITOLAK</div>';
                         givenListDiv.innerHTML = '';
                     }
@@ -417,9 +423,15 @@ db.ref('.info/connected').on('value', (snapshot) => {
                     genBtn.disabled = true;
                     genBtn.innerText = "🔒 Login Terlebih Dahulu";
                     genBtn.style.background = "#ccc";
+                    
+                    // INI UNTUK MENYEMBUNYIKAN KALAU BELUM LOGIN (NONE)
                     historyContainer.style.display = "none";
-                    document.getElementById('mass-delete-container').style.display = "none"; // // INI TAMBAHNYA
+                    document.getElementById('mass-delete-container').style.display = "none"; 
                     document.getElementById('premium-history-container').style.display = "none";
+                    document.getElementById('premium-history-delete-container').style.display = "none"; // <--- DAN TAMBAH DI SINI
+                    document.getElementById('history-delete-container').style.display = "none";
+                    document.getElementById('users-management-container').style.display = "none";
+                    
                     activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
                     givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
                 }
