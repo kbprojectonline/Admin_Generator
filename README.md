@@ -294,7 +294,7 @@
             
         </div>
         
-        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Menghapus Riwayat Kunci dari Riwayat Terlama.</p>
+        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Menghapus Riwayat Kunci dari yang Terlama.</p>
     </div>
 </div>
 <div id="premium-history-container" style="display: none; width: 100%; margin-top: 80px;">
@@ -320,7 +320,7 @@
             </button>
         </div>
         
-        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Menghapus Riwayat Waktu dari riwayat Terlama.</p>
+        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Menghapus Riwayat Waktu dari yang Terlama.</p>
     </div>
 </div>
 <div id="users-management-container" style="display: none; width: 100%; margin-top: 80px;">
