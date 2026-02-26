@@ -267,25 +267,25 @@
 </div>
 
             <div id="history-container" style="display: none;">
-                <h3 class="head-history">📜 Riwayat Voucher</h3>
+                <h3 class="head-history">📜 Riwayat Pembelian Kunci</h3>
                 <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
             </div>
             
 
 
 <div id="history-delete-container" style="display: none; width: 100%; margin-top: 80px;">
-    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #2c3e50; margin-bottom: 15px;">📜 Menghapus Riwayat Voucher</h3>
+    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #2c3e50; margin-bottom: 15px;">🗑️ Menghapus Riwayat Voucher</h3>
     <div style="background: #fffafb; border: 1px solid #eee; padding: 20px; border-radius: 12px;">
         
         <div style="display: flex; flex-direction: column; gap: 12px;">
             
             <select id="hist-del-qty" style="width: 100%; height: 80px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white; cursor: pointer;">
-                <option value="1">Hapus 1 Riwayat Terlama</option>
-                <option value="2">Hapus 2 Riwayat Terlama</option>
-                <option value="3">Hapus 3 Riwayat Terlama</option>
-                <option value="4">Hapus 4 Riwayat Terlama</option>
-                <option value="5">Hapus 5 Riwayat Terlama</option>
-                <option value="10">Hapus 10 Riwayat Terlama</option>
+                <option value="1">Hapus 1 Riwayat</option>
+                <option value="2">Hapus 2 Riwayat</option>
+                <option value="3">Hapus 3 Riwayat</option>
+                <option value="4">Hapus 4 Riwayat</option>
+                <option value="5">Hapus 5 Riwayat</option>
+                <option value="10">Hapus 10 Riwayat</option>
             </select>
             
             <button onclick="runHistoryDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
@@ -298,21 +298,21 @@
     </div>
 </div>
 <div id="premium-history-container" style="display: none; width: 100%; margin-top: 80px;">
-    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">⏳ Riwayat Khusus Paket Waktu</h3>
+    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">⏳ Riwayat Pembelian Waktu</h3>
     <div id="premium-history-list" class="list-box" style="background:#f0fdf4;">Memuat riwayat paket waktu...</div>
 </div>
 <div id="premium-history-delete-container" style="display: none; width: 100%; margin-top: 80px;">
-    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">📜 Menghapus Riwayat Waktu</h3>
+    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">🗑️ Menghapus Pembelian Waktu</h3>
     <div style="background: #fffafb; border: 1px solid #eee; padding: 20px; border-radius: 12px;">
         
         <div style="display: flex; flex-direction: column; gap: 12px;">
             <select id="premium-hist-del-qty" style="width: 100%; height: 80px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white; cursor: pointer;">
-                <option value="1">Hapus 1 Riwayat Waktu Terlama</option>
-                <option value="2">Hapus 2 Riwayat Waktu Terlama</option>
-                <option value="3">Hapus 3 Riwayat Waktu Terlama</option>
-                <option value="4">Hapus 4 Riwayat Waktu Terlama</option>
-                <option value="5">Hapus 5 Riwayat Waktu Terlama</option>
-                <option value="10">Hapus 10 Riwayat Waktu Terlama</option>
+                <option value="1">Hapus 1 Riwayat</option>
+                <option value="2">Hapus 2 Riwayat</option>
+                <option value="3">Hapus 3 Riwayat</option>
+                <option value="4">Hapus 4 Riwayat</option>
+                <option value="5">Hapus 5 Riwayat</option>
+                <option value="10">Hapus 10 Riwayat</option>
             </select>
             
             <button onclick="runPremiumHistoryDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
