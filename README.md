@@ -1081,7 +1081,7 @@ function renderUsersList(usersData) {
                 </div>
                 <div style="display: flex; gap: 10px; border-top: 1px solid #eee; padding-top: 12px;">
                     ${isBanned ? `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold;">⚠️ Akun Ini Telah Di Delete</div>` : 
-                    (isGhost ? `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold;">⚠️ Menunggu Akun Login</div>` : 
+                    (isGhost ? `<div style="flex:1; text-align:center; font-size:0.8rem; color:#7f8c8d; font-weight:bold;">⚠️ Menunggu Akun Ini Login</div>` : 
                     `<button style="flex: 1; padding: 10px; background: ${user.disabled ? '#27ae60':'#f39c12'}; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="toggleDisableUser('${uid}', ${!user.disabled})">${user.disabled ? 'Enable':'Disable'}</button>
                      <button style="flex: 1; padding: 10px; background: #c0392b; color: white; border: none; border-radius: 8px; font-weight: bold; font-size: 0.8rem;" onclick="deleteUser('${uid}')">Delete</button>`)}
                 </div>
