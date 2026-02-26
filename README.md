@@ -262,7 +262,7 @@
             </button>
         </div>
         
-        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Hanya Menghapus stok yang Voucher Aktif Saja.</p>
+        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Menghapus Stok yang Voucher Aktif Saja.</p>
     </div>
 </div>
 
