@@ -462,11 +462,13 @@ data.forEach(item => {
         </div>
     </div>`;
 
-    html += barisRiwayat; // Masukkan data ke riwayat utama
-
-    // TAMBAHAN: Filter! Jika paketnya 7_days, 30_days, 90_days, atau 365_days, masukkan juga ke window baru
+// PISAHKAN LOGIKANYA DENGAN IF - ELSE
     if (['7_days', '30_days', '90_days', '365_days'].includes(item.type)) {
+        // Jika ini paket waktu, masukkan HANYA ke kotak Premium
         htmlPremium += barisRiwayat; 
+    } else {
+        // Jika BUKAN paket waktu (misal: kunci silver, gold, diamond), masukkan ke kotak Biasa
+        html += barisRiwayat; 
     }
 });
 
