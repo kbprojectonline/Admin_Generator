@@ -301,6 +301,28 @@
     <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">⏳ Riwayat Khusus Paket Waktu</h3>
     <div id="premium-history-list" class="list-box" style="background:#f0fdf4;">Memuat riwayat paket waktu...</div>
 </div>
+<div id="premium-history-delete-container" style="display: none; width: 100%; margin-top: 80px;">
+    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">📜 Menghapus Riwayat Waktu</h3>
+    <div style="background: #fffafb; border: 1px solid #eee; padding: 20px; border-radius: 12px;">
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            <select id="premium-hist-del-qty" style="width: 100%; height: 80px; border-radius: 12px; font-size: 16px; border: 1px solid #ccc; text-align: center; text-align-last: center; font-weight: bold; appearance: none; -webkit-appearance: none; background-color: white; cursor: pointer;">
+                <option value="1">Hapus 1 Riwayat Waktu Terlama</option>
+                <option value="2">Hapus 2 Riwayat Waktu Terlama</option>
+                <option value="3">Hapus 3 Riwayat Waktu Terlama</option>
+                <option value="4">Hapus 4 Riwayat Waktu Terlama</option>
+                <option value="5">Hapus 5 Riwayat Waktu Terlama</option>
+                <option value="10">Hapus 10 Riwayat Waktu Terlama</option>
+            </select>
+            
+            <button onclick="runPremiumHistoryDelete()" style="width: 100%; background: #e74c3c; color: white; border: none; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 15px;">
+                HAPUS PERMANENT
+            </button>
+        </div>
+        
+        <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Menghapus Riwayat Paket Waktu dari yang paling lama.</p>
+    </div>
+</div>
 <div id="users-management-container" style="display: none; width: 100%; margin-top: 80px;">
     <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #800000; margin-bottom: 15px;">👥 Manajemen Pengguna</h3>
     <div id="users-list" class="list-box" style="background: #fdf2f2; height: 480px; padding: 15px;">Memuat data users...</div>
@@ -822,9 +844,13 @@ window.runHistoryDelete = () => {
             return;
         }
 
-        const historyData = [];
+const historyData = [];
         snapshot.forEach((child) => {
-            historyData.push({ key: child.key, date: child.val().date });
+            const item = child.val();
+            // FILTER: JANGAN MASUKKAN PAKET WAKTU KE PENGHAPUSAN BIASA
+            if (!['7_days', '30_days', '90_days', '365_days'].includes(item.type)) {
+                historyData.push({ key: child.key, date: item.date });
+            }
         });
 
         // Urutkan dari yang paling lama (angka date terkecil)
@@ -840,6 +866,46 @@ window.runHistoryDelete = () => {
 
             db.ref().update(updates)
                 .then(() => myAlert(`✅ Berhasil menghapus ${targets.length} riwayat lama!`))
+                .catch(err => myAlert("Gagal: " + err.message));
+        });
+    });
+};
+
+window.runPremiumHistoryDelete = () => {
+    const qty = parseInt(document.getElementById('premium-hist-del-qty').value);
+    
+    db.ref('voucher_history').once('value', (snapshot) => {
+        if (!snapshot.exists()) {
+            myAlert("❌ Tidak ada riwayat untuk dihapus!");
+            return;
+        }
+
+        const historyData = [];
+        snapshot.forEach((child) => {
+            const item = child.val();
+            // FILTER: HANYA AMBIL PAKET WAKTU UNTUK DIHAPUS DI SINI
+            if (['7_days', '30_days', '90_days', '365_days'].includes(item.type)) {
+                historyData.push({ key: child.key, date: item.date });
+            }
+        });
+
+        if (historyData.length === 0) {
+            myAlert("❌ Tidak ada Riwayat Waktu untuk dihapus!");
+            return;
+        }
+
+        // Urutkan dari yang paling lama (angka date terkecil)
+        historyData.sort((a, b) => a.date - b.date);
+        const targets = historyData.slice(0, qty);
+
+        myConfirm(`Yakin, Hapus ${targets.length} Riwayat Waktu, Dari yang Paling Lama?`, () => {
+            const updates = {};
+            targets.forEach(item => {
+                updates[`voucher_history/${item.key}`] = null;
+            });
+
+            db.ref().update(updates)
+                .then(() => myAlert(`✅ Berhasil menghapus ${targets.length} riwayat waktu lama!`))
                 .catch(err => myAlert("Gagal: " + err.message));
         });
     });
