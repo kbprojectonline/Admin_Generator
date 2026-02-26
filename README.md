@@ -204,7 +204,7 @@
             <button id="generate-btn" disabled>🔒 LOGIN DULU UNTUK GENERATE</button>
 
             <h3 class="head-active">🎫 Voucher Aktif</h3>
-            <div id="active-list" class="list-box" style="background: #fffafa;">Silakan Login...</div>
+            <div id="active-list" class="list-box" style="background: #f0fdf4;">Silakan Login...</div>
             <h3 class="head-given">📤 Voucher Telah Diberikan</h3>
             <div id="given-list" class="list-box" style="background: #f8f9fa;">Menunggu Login...</div>
 
@@ -268,7 +268,7 @@
 
             <div id="history-container" style="display: none;">
                 <h3 class="head-history">📜 Riwayat Pembelian Kunci</h3>
-                <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
+                <div id="history-list" class="list-box" style="background:#f0fdf4;">Memuat riwayat...</div>
             </div>
             
 
@@ -325,7 +325,7 @@
 </div>
 <div id="users-management-container" style="display: none; width: 100%; margin-top: 80px;">
     <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #800000; margin-bottom: 15px;">👥 Manajemen Pengguna</h3>
-    <div id="users-list" class="list-box" style="background: #fdf2f2; height: 480px; padding: 15px;">Memuat data users...</div>
+    <div id="users-list" class="list-box" style="background: #f0fdf4; height: 480px; padding: 15px;">Memuat data users...</div>
 </div>
         </div> <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
         <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
