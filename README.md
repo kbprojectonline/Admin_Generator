@@ -274,7 +274,7 @@
 
 
 <div id="history-delete-container" style="display: none; width: 100%; margin-top: 80px;">
-    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #2c3e50; margin-bottom: 15px;">🗑️ Menghapus Riwayat Voucher</h3>
+    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #2c3e50; margin-bottom: 15px;">🗑️ Menghapus Riwayat Kunci</h3>
     <div style="background: #fffafb; border: 1px solid #eee; padding: 20px; border-radius: 12px;">
         
         <div style="display: flex; flex-direction: column; gap: 12px;">
@@ -302,7 +302,7 @@
     <div id="premium-history-list" class="list-box" style="background:#f0fdf4;">Memuat riwayat paket waktu...</div>
 </div>
 <div id="premium-history-delete-container" style="display: none; width: 100%; margin-top: 80px;">
-    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">🗑️ Menghapus Pembelian Waktu</h3>
+    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">🗑️ Menghapus Riwayat Waktu</h3>
     <div style="background: #fffafb; border: 1px solid #eee; padding: 20px; border-radius: 12px;">
         
         <div style="display: flex; flex-direction: column; gap: 12px;">
