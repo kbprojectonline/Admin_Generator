@@ -294,6 +294,10 @@
         <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Menghapus Riwayat Voucher dari Riwayat Lama.</p>
     </div>
 </div>
+<div id="premium-history-container" style="display: none; width: 100%; margin-top: 80px;">
+    <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #27ae60; margin-bottom: 15px;">⏳ Riwayat Khusus Paket Waktu</h3>
+    <div id="premium-history-list" class="list-box" style="background:#f0fdf4;">Memuat riwayat paket waktu...</div>
+</div>
 <div id="users-management-container" style="display: none; width: 100%; margin-top: 80px;">
     <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #800000; margin-bottom: 15px;">👥 Manajemen Pengguna</h3>
     <div id="users-list" class="list-box" style="background: #fdf2f2; height: 480px; padding: 15px;">Memuat data users...</div>
@@ -359,6 +363,7 @@ db.ref('.info/connected').on('value', (snapshot) => {
                         genBtn.innerText = "⚡ GENERATE VOUCHER (12 DIGIT)";
                         genBtn.style.background = "#2c3e50";
                         document.getElementById('mass-delete-container').style.display = "block"; // // INI TAMBAHNYA
+                        document.getElementById('premium-history-container').style.display = "block";
                         document.getElementById('history-delete-container').style.display = "block";
                         historyContainer.style.display = "block";
                         document.getElementById('users-management-container').style.display = "block";
@@ -374,6 +379,7 @@ db.ref('.info/connected').on('value', (snapshot) => {
                         genBtn.innerText = "⛔ ANDA BUKAN ADMIN";
                         historyContainer.style.display = "none";
                         document.getElementById('mass-delete-container').style.display = "none"; // // INI TAMBAHNYA
+                        document.getElementById('premium-history-container').style.display = "none";
                         document.getElementById('history-delete-container').style.display = "none";
                         document.getElementById('users-management-container').style.display = "none";
                         activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔ AKSES DITOLAK</div>';
@@ -388,6 +394,7 @@ db.ref('.info/connected').on('value', (snapshot) => {
                     genBtn.style.background = "#ccc";
                     historyContainer.style.display = "none";
                     document.getElementById('mass-delete-container').style.display = "none"; // // INI TAMBAHNYA
+                    document.getElementById('premium-history-container').style.display = "none";
                     activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
                     givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
                 }
@@ -420,42 +427,52 @@ db.ref('users').on('value', (snapshot) => {
 db.ref('voucher_history').on('value', (snapshot) => {
     if (snapshot.exists()) {
         const data = Object.values(snapshot.val()).sort((a, b) => b.date - a.date);
-        let html = "";
-        let uniqueUids = []; 
+let html = "";
+let htmlPremium = ""; // TAMBAHAN: Variabel untuk menampung 4 paket waktu
+let uniqueUids = []; 
 
-        data.forEach(item => {
-            const badge = getBadgeInfo(item.type);
-            const dateObj = new Date(item.date);
-            const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
-            const jam = dateObj.toLocaleTimeString('id-ID').replace(/\./g, ':');
-            const tgl = dateObj.toLocaleDateString('id-ID').split('/').join('.');
-            
-            if (item.uid && !uniqueUids.includes(item.uid)) {
-                uniqueUids.push(item.uid);
-            }
+data.forEach(item => {
+    const badge = getBadgeInfo(item.type);
+    const dateObj = new Date(item.date);
+    const hari = dateObj.toLocaleDateString('id-ID', { weekday: 'long' });
+    const jam = dateObj.toLocaleTimeString('id-ID').replace(/\./g, ':');
+    const tgl = dateObj.toLocaleDateString('id-ID').split('/').join('.');
+    
+    if (item.uid && !uniqueUids.includes(item.uid)) {
+        uniqueUids.push(item.uid);
+    }
 
-            // POTONG PAKSA NAMA BAWAAN RIWAYAT (Maksimal 8 Karakter)
-            let baseUser = item.user || 'Unknown';
-            let safeBaseUser = baseUser.length > 8 ? baseUser.substring(0, 8) : baseUser;
+    let baseUser = item.user || 'Unknown';
+    let safeBaseUser = baseUser.length > 8 ? baseUser.substring(0, 8) : baseUser;
 
-            html += `
-            <div class="item-row history-row">
-                <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
-                <div style="width: 100%;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
-                        <span class="code-text" style="font-size: 0.95rem;">${item.code}</span>
-                        <span class="badge ${badge.css}" style="font-size: 0.65rem;">${badge.text}</span>
-                    </div>
-                    <span class="user-info">
-                        <div style="margin-bottom: 6px;">👤 Dipakai: <b class="realtime-name" data-uid="${item.uid}">${safeBaseUser}</b></div>
-                        <div style="margin-bottom: 6px;">${item.email ? `@${item.email}` : ''}</div>
-                        <div style="margin-bottom: 6px; font-size: 0.8rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</div>
-                    </span>
-                </div>
-            </div>`;
-        });
-        
-        historyListDiv.innerHTML = html;
+    // TAMBAHAN: Bungkus desain kotak riwayat ke dalam variabel barisRiwayat
+    let barisRiwayat = `
+    <div class="item-row history-row">
+        <span class="date-info">🕒 ${hari} | ${jam} | ${tgl}</span>
+        <div style="width: 100%;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                <span class="code-text" style="font-size: 0.95rem;">${item.code}</span>
+                <span class="badge ${badge.css}" style="font-size: 0.65rem;">${badge.text}</span>
+            </div>
+            <span class="user-info">
+                <div style="margin-bottom: 6px;">👤 Dipakai: <b class="realtime-name" data-uid="${item.uid}">${safeBaseUser}</b></div>
+                <div style="margin-bottom: 6px;">${item.email ? `@${item.email}` : ''}</div>
+                <div style="margin-bottom: 6px; font-size: 0.8rem; color: #555; font-family: monospace; font-weight: bold;">UID: ${item.uid || '-'}</div>
+            </span>
+        </div>
+    </div>`;
+
+    html += barisRiwayat; // Masukkan data ke riwayat utama
+
+    // TAMBAHAN: Filter! Jika paketnya 7_days, 30_days, 90_days, atau 365_days, masukkan juga ke window baru
+    if (['7_days', '30_days', '90_days', '365_days'].includes(item.type)) {
+        htmlPremium += barisRiwayat; 
+    }
+});
+
+historyListDiv.innerHTML = html;
+// TAMBAHAN: Tampilkan data yang sudah difilter ke kotak window baru
+document.getElementById('premium-history-list').innerHTML = htmlPremium || '<div style="text-align:center; padding:20px; color:#999;">Belum ada riwayat paket waktu.</div>';
         
         uniqueUids.forEach(uid => {
             db.ref('users/' + uid).once('value').then(userSnap => {
