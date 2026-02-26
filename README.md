@@ -207,11 +207,7 @@
             <div id="active-list" class="list-box" style="background: #fffafa;">Silakan Login...</div>
             <h3 class="head-given">📤 Voucher Telah Diberikan</h3>
             <div id="given-list" class="list-box" style="background: #f8f9fa;">Menunggu Login...</div>
-            <div id="history-container" style="display: none;">
-                <h3 class="head-history">📜 Riwayat Voucher</h3>
-                <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
-            </div>
-            
+
 <div id="mass-delete-container" style="display: none; width: 100%; margin-top: 100px;">
     <h3 style="color: #555; font-size: 20px; padding-left: 10px; border-left: 5px solid #e74c3c; margin-bottom: 15px;">🗑️ Menghapus Voucher Aktif</h3>
     
@@ -269,6 +265,13 @@
         <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0; text-align: left;">*Hanya Menghapus stok yang Voucher Aktif Saja.</p>
     </div>
 </div>
+
+            <div id="history-container" style="display: none;">
+                <h3 class="head-history">📜 Riwayat Voucher</h3>
+                <div id="history-list" class="list-box" style="background:#fffafa;">Memuat riwayat...</div>
+            </div>
+            
+
 
 <div id="history-delete-container" style="display: none; width: 100%; margin-top: 80px;">
     <h3 style="color: #555; font-size: 18px; padding-left: 10px; border-left: 5px solid #2c3e50; margin-bottom: 15px;">📜 Menghapus Riwayat Voucher</h3>
