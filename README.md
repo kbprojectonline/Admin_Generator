@@ -766,7 +766,7 @@ document.getElementById('generate-btn').onclick = () => {
     db.ref('vouchers').update(updates)
     .then(() => {
         // 2. TIMPA DENGAN POP-UP SUKSES
-        myAlert(`✅ Sukses buat ${qty} voucher!`);
+        myAlert(`✅ Sukses Bikin ${qty} Voucher.`);
     })
     .catch(e => myAlert("Gagal: " + e.message));
 };
@@ -843,7 +843,7 @@ window.runMassDelete = () => {
 
         // 4. Proses Hapus ke Database
         db.ref().update(updates)
-            .then(() => myAlert(`✅ Berhasil menghapus ${matches.length} stok ${namaPaket}!`))
+            .then(() => myAlert(`✅ Berhasil Menghapus ${matches.length} Voucher, ${namaPaket}.`))
             .catch(err => myAlert("Gagal: " + err.message));
     });
 };
