@@ -372,8 +372,7 @@
                             statusRef.onDisconnect().set(firebase.database.ServerValue.TIMESTAMP);
                             statusRef.set(true);
                             userRef.update({
-                                email: user.email,
-                                profilename: "Admin Master"
+                                email: user.email
                             });
                         }
                     });
