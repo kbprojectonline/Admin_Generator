@@ -843,7 +843,7 @@ window.runMassDelete = () => {
 
         // 4. Proses Hapus ke Database
         db.ref().update(updates)
-            .then(() => myAlert(`✅ Berhasil Menghapus ${matches.length} Voucher, ${namaPaket}.`))
+            .then(() => myAlert(`✅ Berhasil Menghapus ${matches.length} Voucher, ${namaPaket}!`))
             .catch(err => myAlert("Gagal: " + err.message));
     });
 };
@@ -877,7 +877,7 @@ const historyData = [];
             });
 
             db.ref().update(updates)
-                .then(() => myAlert(`✅ Berhasil menghapus ${targets.length} riwayat lama!`))
+                .then(() => myAlert(`✅ Berhasil menghapus ${targets.length} Riwayat Kunci Terlama!`))
                 .catch(err => myAlert("Gagal: " + err.message));
         });
     });
@@ -917,7 +917,7 @@ window.runPremiumHistoryDelete = () => {
             });
 
             db.ref().update(updates)
-                .then(() => myAlert(`✅ Berhasil menghapus ${targets.length} riwayat waktu lama!`))
+                .then(() => myAlert(`✅ Berhasil menghapus ${targets.length} Riwayat Waktu Terlama!`))
                 .catch(err => myAlert("Gagal: " + err.message));
         });
     });
