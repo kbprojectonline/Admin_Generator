@@ -1068,7 +1068,7 @@ function renderUsersList(usersData) {
             <div style="display: flex; flex-direction: column; background: white; padding: 15px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); margin-bottom: 15px; border: ${cardBorder}; transition: border 0.3s ease;">
                 <div style="margin-bottom: 12px;">
                     <div style="font-weight: 900; color: #333; font-size: 1.1rem; margin-bottom: 4px;">${userName}</div>
-                    <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b> ${user.email || 'No Email'}</div>
+                    <div style="font-size: 0.85rem; color: #555; margin-bottom: 4px;"><b>@</b>${user.email || 'No Email'}</div>
                     
                     <div style="font-size: 0.75rem; color: #aaa; font-family: monospace; margin-bottom: 6px;">UID: ${uid}</div>
                     
