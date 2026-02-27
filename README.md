@@ -1057,7 +1057,7 @@ function renderUsersList(usersData) {
 
             // LOGIKA 8 KARAKTER SUDAH DIKEMBALIKAN 100%
             let rawName = user.profilename || user.profileName || user.displayName || user.name || (user.email ? user.email.split('@')[0] : "User Baru");
-            const userName = rawName.length > 8 ? rawName.substring(0, 8) : rawName;
+            const userName = rawName;
             
             const dKunci = user.diamond || (user.keys && user.keys.diamond) || 0;
             const gKunci = user.gold || (user.keys && user.keys.gold) || 0;
