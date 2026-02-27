@@ -413,7 +413,7 @@
                         document.getElementById('history-delete-container').style.display = "none";
                         document.getElementById('users-management-container').style.display = "none";
                         
-                        activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔ AKSES DITOLAK</div>';
+                        activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#c0392b;">⛔</div>';
                         givenListDiv.innerHTML = '';
                     }
                 } else {
@@ -432,8 +432,8 @@
                     document.getElementById('history-delete-container').style.display = "none";
                     document.getElementById('users-management-container').style.display = "none";
                     
-                    activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
-                    givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒 Silakan Login.</div>';
+                    activeListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒</div>';
+                    givenListDiv.innerHTML = '<div style="text-align:center; padding:20px; color:#999;">🔒</div>';
                 }
             });
             function loginGoogle() {
@@ -877,7 +877,7 @@ const historyData = [];
             });
 
             db.ref().update(updates)
-                .then(() => myAlert(`✅ Berhasil menghapus ${targets.length} Riwayat Kunci Terlama!`))
+                .then(() => myAlert(`✅ Berhasil Menghapus ${targets.length} Riwayat Kunci Terlama!`))
                 .catch(err => myAlert("Gagal: " + err.message));
         });
     });
@@ -917,7 +917,7 @@ window.runPremiumHistoryDelete = () => {
             });
 
             db.ref().update(updates)
-                .then(() => myAlert(`✅ Berhasil menghapus ${targets.length} Riwayat Waktu Terlama!`))
+                .then(() => myAlert(`✅ Berhasil Menghapus ${targets.length} Riwayat Waktu Terlama!`))
                 .catch(err => myAlert("Gagal: " + err.message));
         });
     });
