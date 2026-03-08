@@ -199,6 +199,7 @@
                     <option value="4">4</option><option value="5" selected>5</option><option value="6">6</option>
                     <option value="7">7</option><option value="8">8</option><option value="9">9</option>
                     <option value="10">10</option>
+                    <option value="1000">1000</option>
                 </select>
             </div>
             <button id="generate-btn" disabled>🔒 LOGIN DULU UNTUK GENERATE</button>
