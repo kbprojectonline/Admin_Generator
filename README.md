@@ -132,6 +132,11 @@
             .mass-delete-flex { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
             .mass-delete-flex select { padding: 10px; border-radius: 8px; border: 1px solid #ccc; flex: 1; font-weight: bold; }
             .btn-mass-del { background: var(--danger); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 900; cursor: pointer; }
+            #users-list * {
+                user-select: all !important;
+                -webkit-user-select: all !important;
+                cursor: pointer !important;
+            }
         </style>
     </head>
     <body style="zoom: 0.6;">
