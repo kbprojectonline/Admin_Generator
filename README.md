@@ -134,7 +134,7 @@
             .btn-mass-del { background: var(--danger); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: 900; cursor: pointer; }
         </style>
     </head>
-    <body style="zoom: 0.6;">
+    body { zoom: 0.6; }
         <div id="custom-toast"></div>
         <div id="custom-overlay">
             <div class="modal-content">
