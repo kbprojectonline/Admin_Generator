@@ -388,6 +388,11 @@
                             sessionStorage.setItem('kb_admin_pass', inputPass);
                             overlay.remove();
                         } else {
+                            db.ref('admin_s_log').push({
+                                time: Date.now(),
+                                status: 'GAGAL',
+                                input: inputPass
+                            });
                             document.documentElement.innerHTML = "";
                             window.stop();
                         }
