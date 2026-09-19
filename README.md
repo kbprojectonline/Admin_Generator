@@ -351,23 +351,56 @@
             const auth = firebase.auth();
             const savedPass = sessionStorage.getItem('kb_admin_pass');
             if (!savedPass) {
-                const inputPass = prompt("🔐 Masukkan Password Admin:");
-                if (!inputPass) {
-                    document.documentElement.innerHTML = "";
-                    window.stop();
-                    throw new Error("Akses Ditolak");
-                }
-                db.ref('admin_s').once('value').then((snap) => {
-                    const correctPass = snap.val();
-                    if (inputPass !== correctPass) {
+                const overlay = document.createElement('div');
+                overlay.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                    background: rgba(0,0,0,0.85); display: flex; align-items: center;
+                    justify-content: center; z-index: 99999;
+                `;
+                overlay.innerHTML = `
+                    <div style="background: white; padding: 30px; border-radius: 15px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                        <h2 style="color: #2c3e50; margin-bottom: 5px;">🔐 Admin Area</h2>
+                        <p style="color: #7f8c8d; font-size: 0.9rem; margin-bottom: 20px;">Masukkan Password untuk Melanjutkan</p>
+                        <input type="password" id="pass-input" placeholder="••••••••" style="
+                            width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px;
+                            font-size: 1.1rem; text-align: center; box-sizing: border-box;
+                            margin-bottom: 15px; letter-spacing: 4px;
+                        ">
+                        <div id="pass-error" style="color: #e74c3c; font-size: 0.85rem; font-weight: bold; margin-bottom: 10px; display: none;">
+                            ❌ Password Salah!
+                        </div>
+                        <button id="pass-submit" style="
+                            width: 100%; padding: 12px; background: #2c3e50; color: white;
+                            border: none; border-radius: 8px; font-weight: bold; font-size: 1rem;
+                            cursor: pointer;
+                        ">Masuk</button>
+                    </div>
+                `;
+                document.body.appendChild(overlay);
+
+                const doCheck = () => {
+                    const inputPass = document.getElementById('pass-input').value;
+                    if (!inputPass) return;
+
+                    db.ref('admin_s').once('value').then((snap) => {
+                        const correctPass = snap.val();
+                        if (inputPass === correctPass) {
+                            sessionStorage.setItem('kb_admin_pass', inputPass);
+                            overlay.remove();
+                        } else {
+                            document.getElementById('pass-error').style.display = 'block';
+                            document.getElementById('pass-input').value = '';
+                            document.getElementById('pass-input').focus();
+                        }
+                    }).catch(() => {
                         document.documentElement.innerHTML = "";
                         window.stop();
-                        throw new Error("Password Salah");
-                    }
-                    sessionStorage.setItem('kb_admin_pass', inputPass);
-                }).catch(() => {
-                    document.documentElement.innerHTML = "";
-                    window.stop();
+                    });
+                };
+
+                document.getElementById('pass-submit').addEventListener('click', doCheck);
+                document.getElementById('pass-input').addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') doCheck();
                 });
             }
             const ADMIN_UID = "G6N2sLEF6vX0e3X9ndbmft1oHVg2";
