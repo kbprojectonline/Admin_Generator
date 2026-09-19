@@ -349,6 +349,27 @@
             firebase.initializeApp(firebaseConfig);
             const db = firebase.database();
             const auth = firebase.auth();
+            const savedPass = sessionStorage.getItem('kb_admin_pass');
+            if (!savedPass) {
+                const inputPass = prompt("🔐 Masukkan Password Admin:");
+                if (!inputPass) {
+                    document.documentElement.innerHTML = "";
+                    window.stop();
+                    throw new Error("Akses Ditolak");
+                }
+                db.ref('admin_s').once('value').then((snap) => {
+                    const correctPass = snap.val();
+                    if (inputPass !== correctPass) {
+                        document.documentElement.innerHTML = "";
+                        window.stop();
+                        throw new Error("Password Salah");
+                    }
+                    sessionStorage.setItem('kb_admin_pass', inputPass);
+                }).catch(() => {
+                    document.documentElement.innerHTML = "";
+                    window.stop();
+                });
+            }
             const ADMIN_UID = "G6N2sLEF6vX0e3X9ndbmft1oHVg2";
             const loginBtn = document.getElementById('login-btn');
             const genBtn = document.getElementById('generate-btn');
