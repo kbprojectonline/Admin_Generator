@@ -392,9 +392,11 @@
                             document.getElementById('pass-input').value = '';
                             document.getElementById('pass-input').focus();
                         }
-                    }).catch(() => {
-                        document.documentElement.innerHTML = "";
-                        window.stop();
+                    }).catch((err) => {
+                        console.error("Error:", err);
+                        document.getElementById('pass-error').style.display = 'block';
+                        document.getElementById('pass-error').innerText = "❌ Gagal konek ke server!";
+                        document.getElementById('pass-input').focus();
                     });
                 };
 
