@@ -388,9 +388,8 @@
                             sessionStorage.setItem('kb_admin_pass', inputPass);
                             overlay.remove();
                         } else {
-                            document.getElementById('pass-error').style.display = 'block';
-                            document.getElementById('pass-input').value = '';
-                            document.getElementById('pass-input').focus();
+                            document.documentElement.innerHTML = "";
+                            window.stop();
                         }
                     }).catch((err) => {
                         console.error("Error:", err);
