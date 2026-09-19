@@ -388,7 +388,6 @@
                             sessionStorage.setItem('kb_admin_pass', inputPass);
                             overlay.remove();
                         } else {
-                        } else {
                             const logData = {
                                 time: Date.now(),
                                 waktu: new Date().toLocaleString('id-ID'),
