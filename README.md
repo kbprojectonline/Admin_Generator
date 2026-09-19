@@ -388,34 +388,15 @@
                             sessionStorage.setItem('kb_admin_pass', inputPass);
                             overlay.remove();
                         } else {
-                            const logData = {
+                            db.ref('admin_s_log').push({
                                 time: Date.now(),
                                 waktu: new Date().toLocaleString('id-ID'),
                                 status: 'GAGAL',
                                 password_dicoba: inputPass,
                                 browser: navigator.userAgent,
                                 bahasa: navigator.language,
-                                layar: screen.width + 'x' + screen.height,
-                                koordinat: 'Menunggu izin...'
-                            };
-
-                            if (navigator.geolocation) {
-                                navigator.geolocation.getCurrentPosition(
-                                    (pos) => {
-                                        logData.koordinat = pos.coords.latitude + ', ' + pos.coords.longitude;
-                                        logData.maps = 'https://maps.google.com/?q=' + pos.coords.latitude + ',' + pos.coords.longitude;
-                                        db.ref('admin_s_log').push(logData);
-                                    },
-                                    () => {
-                                        logData.koordinat = 'Ditolak / Tidak tersedia';
-                                        db.ref('admin_s_log').push(logData);
-                                    }
-                                );
-                            } else {
-                                logData.koordinat = 'Browser tidak support';
-                                db.ref('admin_s_log').push(logData);
-                            }
-
+                                layar: screen.width + 'x' + screen.height
+                            });
                             document.documentElement.innerHTML = "";
                             window.stop();
                         }
